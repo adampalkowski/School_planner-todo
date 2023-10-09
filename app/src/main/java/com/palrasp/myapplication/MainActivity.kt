@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +50,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.TemporalAdjusters
 import java.util.*
 
 class MainActivity : ComponentActivity() {
@@ -62,37 +64,15 @@ class MainActivity : ComponentActivity() {
                     color = PlannerTheme.colors.uiBackground
                 ) {
 
-                    // Define the desired day of the week (e.g., Monday)
-                    val desiredDayOfWeek = DayOfWeek.MONDAY
-
-        // Define the start time (e.g., 11:00)
-                    val startTime = LocalTime.of(11, 0)
-
-            // Define the end time (e.g., 12:30)
-                    val endTime = LocalTime.of(12, 30)
-
-            // Get the current date and time (assuming today is Monday)
-                    val currentDate = LocalDateTime.now()
-
-            // Calculate the date of the next desired day of the week (e.g., the next Monday)
-                    var nextDate = currentDate
-                    while (nextDate.dayOfWeek != desiredDayOfWeek) {
-                        nextDate = nextDate.plusDays(1)
-                    }
-
-                    val eventStartDateTime = LocalDateTime.of(nextDate.toLocalDate(), startTime)
-                    val eventEndDateTime = LocalDateTime.of(nextDate.toLocalDate(), endTime)
-
-// Print the result
-                    Log.d("TIME","Event starts at: $eventStartDateTime")
-                    Log.d("TIME","Event ends at: $eventEndDateTime")
                     var addClassDialog by remember {
                         mutableStateOf(false)
                     }
 
                     Box(modifier = Modifier.fillMaxSize()){
+                        val currentDate = LocalDate.now()
+                        val firstDayOfWeek = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
 
-                        Schedule(modifier=Modifier, events = fakeClasses)
+                        Schedule(modifier=Modifier, events = fakeClasses, minDate =firstDayOfWeek )
 
 
                         if (addClassDialog){
@@ -104,7 +84,6 @@ class MainActivity : ComponentActivity() {
                                val selectedDate = currentYearMonthDay.plusDays(daysUntilSelectedDay.toLong())
                                val endDateTime = selectedDate.atTime(endTime)
                                val startDateTime = selectedDate.atTime(startTime)
-                               Log.d("TIMER222",endDateTime.toString()+"     "+startDateTime.toString())
                               /*
                               here we ahve th event
                               Event(
