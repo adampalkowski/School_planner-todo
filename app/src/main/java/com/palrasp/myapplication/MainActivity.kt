@@ -1,6 +1,7 @@
 package com.palrasp.myapplication
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -47,10 +48,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val database = AppDatabase.getInstance(applicationContext)
         val eventDao = database.eventDao()
-        val eventViewModel = ViewModelProvider(this, EventViewModelFactory(eventDao)).get( EventViewModel::class.java)
+        val eventViewModel = ViewModelProvider(this, EventViewModelFactory(eventDao)).get(EventViewModel::class.java)
         setContent {
             PlannerTheme {
+
                 val coroutineScope = rememberCoroutineScope()
+                coroutineScope.launch {
+                    eventViewModel.getEvents()
+                }
                 val classes by eventViewModel.allEvents.collectAsState(emptyList())
 
                 // A surface container using the 'background' color from the theme
@@ -66,7 +71,7 @@ class MainActivity : ComponentActivity() {
                     Box(modifier = Modifier.fillMaxSize()){
                         val currentDate = LocalDate.now()
                         val firstDayOfWeek = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                        eventViewModel.allEvents.value
+                        Log.d("vClaseses",classes.toString())
                         Schedule(modifier=Modifier, events = classes, minDate =firstDayOfWeek )
 
 

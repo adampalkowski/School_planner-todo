@@ -4,10 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.palrasp.myapplication.data.local.LocalDateTimeConverter
 import com.palrasp.myapplication.data.local.dao.EventDao
 import com.palrasp.myapplication.data.local.entities.EventEntity
 
 @Database(entities = [EventEntity::class], version = 1)
+@TypeConverters(LocalDateTimeConverter::class) // Add this line
+
 abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
 

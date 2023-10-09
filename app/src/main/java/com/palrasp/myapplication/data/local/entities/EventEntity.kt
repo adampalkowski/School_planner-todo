@@ -17,10 +17,10 @@ data class EventEntity(
     val color: Int, // You may need to convert Color to Int
 
     @ColumnInfo(name = "start")
-    val start: LocalDateTime,
+    val start: String, // Changed to String
 
     @ColumnInfo(name = "end")
-    val end: LocalDateTime,
+    val end: String, // Changed to String
 
     @ColumnInfo(name = "description")
     val description: String?

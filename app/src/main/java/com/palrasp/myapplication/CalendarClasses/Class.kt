@@ -10,4 +10,7 @@ data class Event(
     val start: LocalDateTime,
     val end: LocalDateTime,
     val description: String? = null,
-)
+){
+    constructor() : this("", Color.Unspecified, LocalDateTime.now(), LocalDateTime.now(), "")
+
+}

@@ -43,8 +43,8 @@ fun Schedule(
     events: List<Event>,
     modifier: Modifier = Modifier,
     classesContent: @Composable (event:Event) -> Unit = { BasicClass(event = it) },
-    minDate: LocalDate = events.minByOrNull(Event::start)!!.start.toLocalDate(),
-    maxDate: LocalDate = events.maxByOrNull(Event::end)!!.end.toLocalDate(),
+    minDate: LocalDate = events.minByOrNull(Event::start)?.start?.toLocalDate() ?: LocalDate.now(),
+    maxDate: LocalDate = events.maxByOrNull(Event::end)?.end?.toLocalDate() ?: LocalDate.now(),
 ){
     val hourHeight = 64.dp
     //move the inital state to 8 oclock
@@ -98,10 +98,11 @@ fun Schedule(
 
 @Composable
 fun BasicSchedule(
-    modifier: Modifier, events: List<Event>,
+    modifier: Modifier,
+    events: List<Event>,
     classesContent: @Composable (event:Event) -> Unit = { BasicClass(event = it) },
-    minDate: LocalDate = events.minByOrNull(Event::start)!!.start.toLocalDate(),
-    maxDate: LocalDate = events.maxByOrNull(Event::end)!!.end.toLocalDate(),
+    minDate: LocalDate = events.minByOrNull(Event::start)?.start?.toLocalDate() ?: LocalDate.now(),
+    maxDate: LocalDate = events.maxByOrNull(Event::end)?.end?.toLocalDate() ?: LocalDate.now(),
     dayWidth: Dp,
     hourHeight: Dp,
 ) {
@@ -139,21 +140,22 @@ fun BasicSchedule(
         var height = hourHeight.roundToPx() * 24
         val width = dayWidth.roundToPx() * numDays
 
-
-        val placeablesWithEvents = measureables.map { measurable ->
-            val event = measurable.parentData as Event
-            val eventDurationMinutes = ChronoUnit.MINUTES.between(event.start, event.end)
+        val placeablesWithEvents = measureables.mapNotNull { measurable ->
+            val event = measurable.parentData as? Event
+            val eventDurationMinutes = event?.let { ChronoUnit.MINUTES.between(it.start, it.end) } ?: 0
             val eventHeight = ((eventDurationMinutes / 60f) * hourHeight.toPx()).roundToInt()
             val placeable = measurable.measure(constraints.copy(minWidth = dayWidth.roundToPx(), maxWidth = dayWidth.roundToPx(), minHeight = eventHeight, maxHeight = eventHeight))
             Pair(placeable, event)
         }
         layout(width, height) {
             placeablesWithEvents.forEach { (placeable, event) ->
-                val eventOffsetMinutes = ChronoUnit.MINUTES.between(LocalTime.MIN, event.start.toLocalTime())
-                val eventY = ((eventOffsetMinutes / 60f) * hourHeight.toPx()).roundToInt()
-                val eventOffsetDays = ChronoUnit.DAYS.between(minDate, event.start.toLocalDate()).toInt()
-                val eventX = eventOffsetDays * dayWidth.roundToPx()
-                placeable.place(eventX, eventY)
+                event?.let {
+                    val eventOffsetMinutes = ChronoUnit.MINUTES.between(LocalTime.MIN, it.start.toLocalTime())
+                    val eventY = ((eventOffsetMinutes / 60f) * hourHeight.toPx()).roundToInt()
+                    val eventOffsetDays = ChronoUnit.DAYS.between(minDate, it.start.toLocalDate()).toInt()
+                    val eventX = eventOffsetDays * dayWidth.roundToPx()
+                    placeable.place(eventX, eventY)
+                }
             }
         }
     }

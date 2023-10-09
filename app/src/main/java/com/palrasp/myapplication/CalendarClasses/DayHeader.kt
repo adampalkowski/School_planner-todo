@@ -41,7 +41,7 @@ fun ScheduleHeader(
         repeat(numDays) { i ->
             Box(modifier = Modifier
                 .width(dayWidth)
-                .background(colorArray[i]) ){
+                .background(colorArray[0]) ){
                 dayHeader(minDate.plusDays(i.toLong()))
             }
         }

@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 class EventViewModel(private val eventDao: EventDao) : ViewModel() {
@@ -23,21 +25,16 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
     private val _allEvents = MutableStateFlow<List<Event>>(emptyList())
     val allEvents: StateFlow<List<Event>> = _allEvents.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            // Fetch initial data from the database and emit it to the StateFlow
-
+    suspend fun getEvents()  {
+        withContext(Dispatchers.IO) {
             val eventEntities = eventDao.getAllEventsLiveData()
-
             _allEvents.value = eventEntities.map { it.toEvent() }
-
         }
     }
 
     // Function to insert an event into the database
-    // Function to insert an event into the database
     suspend fun insertEvent(event: Event) {
-        withContext(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
             val entity = event.toEventEntity()
             eventDao.insertEvent(entity)
         }
@@ -47,21 +44,24 @@ fun Event.toEventEntity(): EventEntity {
     return EventEntity(
         name = this.name,
         color = this.color.toArgb(), // Convert Color to Int
-        start = this.start,
-        end = this.end,
+        start = this.start.toString(),
+        end = this.end.toString(),
         description = this.description
     )
 }
 
 fun EventEntity.toEvent(): Event {
+    val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+
     return Event(
         name = this.name,
         color = Color(this.color), // Convert Int to Color
-        start = this.start,
-        end = this.end,
+        start = LocalDateTime.parse(this.start, formatter), // Parse String to LocalDateTime
+        end = LocalDateTime.parse(this.end, formatter), // Parse String to LocalDateTime
         description = this.description
     )
 }
+
 class EventViewModelFactory(private val eventDao: EventDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EventViewModel::class.java)) {
