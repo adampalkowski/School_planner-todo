@@ -2,7 +2,7 @@ package com.palrasp.myapplication.CalendarClasses
 
 import androidx.compose.ui.graphics.Color
 import java.time.LocalDateTime
-
+/*
 val fakeClasses = listOf(
     Event(
         name = "Technika mikroprocesorowa",
@@ -53,4 +53,4 @@ val fakeClasses = listOf(
         end = LocalDateTime.parse("2023-10-13T14:45:00"),
         description = "This Workshop will take you through the basics of building your first app with Jetpack Compose, Android's new modern UI toolkit that simplifies and accelerates UI development on Android.",
     )
-)
+)*/

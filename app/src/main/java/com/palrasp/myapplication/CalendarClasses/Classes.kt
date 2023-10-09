@@ -50,8 +50,3 @@ fun BasicClass(
     }
 }
 
-@Preview
-@Composable
-fun PreviewClass(){
-    BasicClass(fakeClasses[0], modifier = Modifier)
-}

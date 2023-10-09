@@ -1,5 +1,6 @@
 package com.palrasp.myapplication.viewmodel
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.LiveData
@@ -37,11 +38,21 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val entity = event.toEventEntity()
             eventDao.insertEvent(entity)
+            Log.d("EventViewModel","insert event")
+
+        }
+    }
+    suspend fun deleteEvent(event: Event) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val entity = event.toEventEntity()
+            Log.d("EventViewModel","delete event")
+            eventDao.deleteEvent(entity)
         }
     }
 }
 fun Event.toEventEntity(): EventEntity {
     return EventEntity(
+        id=this.id,
         name = this.name,
         color = this.color.toArgb(), // Convert Color to Int
         start = this.start.toString(),
@@ -53,7 +64,7 @@ fun Event.toEventEntity(): EventEntity {
 fun EventEntity.toEvent(): Event {
     val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
-    return Event(
+    return Event(id=this.id,
         name = this.name,
         color = Color(this.color), // Convert Int to Color
         start = LocalDateTime.parse(this.start, formatter), // Parse String to LocalDateTime

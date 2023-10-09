@@ -44,7 +44,7 @@ fun Schedule(
     modifier: Modifier = Modifier,
     classesContent: @Composable (event:Event) -> Unit = { BasicClass(event = it) },
     minDate: LocalDate = events.minByOrNull(Event::start)?.start?.toLocalDate() ?: LocalDate.now(),
-    maxDate: LocalDate = events.maxByOrNull(Event::end)?.end?.toLocalDate() ?: LocalDate.now(),
+    maxDate: LocalDate = events.maxByOrNull(Event::end)?.end?.toLocalDate() ?: LocalDate.now().plusDays(4),
 ){
     val hourHeight = 64.dp
     //move the inital state to 8 oclock
@@ -106,7 +106,7 @@ fun BasicSchedule(
     dayWidth: Dp,
     hourHeight: Dp,
 ) {
-    val dividerColor = Color.LightGray
+    val dividerColor = Color(0xFFF0F0F0)
 
     val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
     Layout(
@@ -118,13 +118,26 @@ fun BasicSchedule(
             }
         },
         modifier = modifier.drawBehind {
-            repeat(23) {
-                drawLine(
-                    dividerColor,
-                    start = Offset(0f, (it + 1) * hourHeight.toPx()),
-                    end = Offset(size.width, (it + 1) * hourHeight.toPx()),
-                    strokeWidth = 1.dp.toPx()
-                )
+            repeat(48) {
+
+                val offsetY = (it * (hourHeight.toPx() / 2)).toFloat() // 30 minutes interval
+                if (it % 2 == 0) {
+                    // Draw a line for full hours
+                    drawLine(
+                        dividerColor,
+                        start = Offset(0f, offsetY),
+                        end = Offset(size.width, offsetY),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                } else {
+                    drawLine(
+                        dividerColor,
+                        start = Offset(0f, offsetY),
+                        end = Offset(size.width, offsetY),
+                        strokeWidth = 0.5.dp.toPx()
+                    )
+                }
+
             }
             repeat(numDays - 1) {
                 drawLine(
@@ -161,8 +174,3 @@ fun BasicSchedule(
     }
 }
 
-@Preview
-@Composable
-fun PreviewSchedule(){
-    Schedule(modifier = Modifier, events = fakeClasses)
-}

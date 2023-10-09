@@ -1,9 +1,11 @@
 package com.palrasp.myapplication
+import kotlin.random.Random
 
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -12,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,9 +35,11 @@ import com.palrasp.myapplication.Calendar.Event
 import com.palrasp.myapplication.Calendar.SleepGraphData
 import com.palrasp.myapplication.CalendarClasses.CreateClassesDialog
 import com.palrasp.myapplication.CalendarClasses.Schedule
-import com.palrasp.myapplication.CalendarClasses.fakeClasses
 import com.palrasp.myapplication.data.local.database.AppDatabase
 import com.palrasp.myapplication.ui.theme.PlannerTheme
+import com.palrasp.myapplication.utils.TopBar
+import com.palrasp.myapplication.view.CreateScreen
+import com.palrasp.myapplication.view.LessonsScreen
 import com.palrasp.myapplication.viewmodel.EventViewModel
 import com.palrasp.myapplication.viewmodel.EventViewModelFactory
 import kotlinx.coroutines.launch
@@ -43,6 +48,12 @@ import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
+sealed class Screen(val route: String) {
+    object Calendar : Screen("calendar")
+    object Create : Screen("create")
+    object Lessons : Screen("lessons")
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,9 +61,12 @@ class MainActivity : ComponentActivity() {
         val eventDao = database.eventDao()
         val eventViewModel = ViewModelProvider(this, EventViewModelFactory(eventDao)).get(EventViewModel::class.java)
         setContent {
-            PlannerTheme {
+            val coroutineScope = rememberCoroutineScope()
 
-                val coroutineScope = rememberCoroutineScope()
+            PlannerTheme {
+                var currentScreen:Screen by remember {
+                    mutableStateOf(Screen.Calendar)
+                }
                 coroutineScope.launch {
                     eventViewModel.getEvents()
                 }
@@ -63,60 +77,85 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = PlannerTheme.colors.uiBackground
                 ) {
-
                     var addClassDialog by remember {
                         mutableStateOf(false)
                     }
 
                     Box(modifier = Modifier.fillMaxSize()){
+
                         val currentDate = LocalDate.now()
                         val firstDayOfWeek = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                        Log.d("vClaseses",classes.toString())
-                        Schedule(modifier=Modifier, events = classes, minDate =firstDayOfWeek )
+                        when (currentScreen) {
+                            is Screen.Calendar -> {
+                                Column() {
+                                    TopBar(iconColor=Color(0xFF2A1A61), lessonsClicked = {
+                                        currentScreen = Screen.Lessons
+                                    })
+                                    Schedule(modifier=Modifier, events = classes, minDate =firstDayOfWeek, maxDate = firstDayOfWeek.plusDays(4) )
+                                }
+
+                                Box(modifier = Modifier
+                                    .padding(bottom = 24.dp, end = 24.dp)
+                                    .align(Alignment.BottomEnd)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color.Black)
+                                    .clickable(onClick = {
+
+                                        currentScreen = Screen.Create
+                                    })
+                                    .padding(16.dp)){
+                                    Icon(painter = painterResource(id = R.drawable.ic_add), contentDescription =null, tint = Color.White )
+                                }
+
+                            }
+                            is Screen.Create -> {
+
+                                CreateScreen(modifier=Modifier, onBack = {
+                                    currentScreen=Screen.Calendar
+                                },  onAccept = { selectedDayOfWeek,startTime,endTime,name,color->
+                                    coroutineScope.launch {
+                                        val currentYearMonthDay =
+                                            LocalDate.now() // Get the current date (year, month, day)
+                                        val currentDayOfWeek =
+                                            currentYearMonthDay.dayOfWeek.value // Get the current day of the week (1 for Monday, 7 for Sunday)
+
+                                        val daysUntilSelectedDay =
+                                            (selectedDayOfWeek.value - currentDayOfWeek + 7) % 7
+                                        val selectedDate =
+                                            currentYearMonthDay.plusDays(daysUntilSelectedDay.toLong())
+                                        val endDateTime = selectedDate.atTime(endTime)
+                                        val startDateTime = selectedDate.atTime(startTime)
+
+                                        // here we ahve th event
+                                        val newEvent = com.palrasp.myapplication.CalendarClasses.Event(id= generateRandomId(),
+                                            name = name,
+                                            color = color,
+                                            start = startDateTime,
+                                            end = endDateTime,
+                                            description = "",
+                                        )
+                                        eventViewModel.insertEvent(newEvent)
+                                    }
+                                    currentScreen=Screen.Calendar
+                                })
+                            }
+                            is Screen.Lessons -> {
+                                LessonsScreen(modifier=Modifier,classes, onBack = {        currentScreen=Screen.Calendar}, deleteEvent = {
+                                    event->
+                                    coroutineScope.launch {
+                                        eventViewModel.deleteEvent(event)
+                                    }
+                                })
+                            }
+                        }
+
 
 
                         if (addClassDialog){
                            CreateClassesDialog( modifier=Modifier.align(Alignment.Center),onClick={dayOfTheWeek,startTime,endTime->
-                               coroutineScope.launch {
-
-
-                               val currentYearMonthDay = LocalDate.now() // Get the current date (year, month, day)
-                               val currentDayOfWeek = currentYearMonthDay.dayOfWeek.value // Get the current day of the week (1 for Monday, 7 for Sunday)
-
-                               val daysUntilSelectedDay = (dayOfTheWeek.value - currentDayOfWeek + 7) % 7
-                               val selectedDate = currentYearMonthDay.plusDays(daysUntilSelectedDay.toLong())
-                               val endDateTime = selectedDate.atTime(endTime)
-                               val startDateTime = selectedDate.atTime(startTime)
-
-
-                             // here we ahve th event
-                             val newEvent= com.palrasp.myapplication.CalendarClasses.Event(
-
-                                   name = "sample",
-                                   color = Color(0xFFF4BFDB),
-                                   start = startDateTime,
-                                   end = endDateTime,
-                                   description = "",
-                               )
-                               eventViewModel.insertEvent(newEvent)
-                               }
-
                            })
                         }
-                        Box(modifier = Modifier
-                            .padding(bottom = 24.dp, end = 24.dp)
-                            .align(Alignment.BottomEnd)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color.Black)
-                            .clickable(onClick = {
 
-                                //Add class
-
-                                addClassDialog = true
-                            })
-                            .padding(16.dp)){
-                            Icon(painter = painterResource(id = R.drawable.double_arrow_left), contentDescription =null, tint = Color.White )
-                        }
 
                     }
 
@@ -229,4 +268,12 @@ private fun DaysHeader(days: List<Pair<String, Int>>) {
 
         }
     }
+}
+
+fun generateRandomId(): Long {
+    val random = Random.Default
+    // Define the range for your random ID. Adjust the values as needed.
+    val minIdValue = 1L
+    val maxIdValue = Long.MAX_VALUE
+    return random.nextLong(minIdValue, maxIdValue)
 }
