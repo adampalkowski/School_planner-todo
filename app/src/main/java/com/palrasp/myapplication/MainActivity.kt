@@ -1,8 +1,6 @@
 package com.palrasp.myapplication
 
 import android.os.Bundle
-import android.util.Log
-import android.widget.EditText
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -12,7 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -24,40 +21,38 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Yellow
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.commandiron.wheel_picker_compose.core.WheelPickerDefaults
+import androidx.lifecycle.ViewModelProvider
 import com.palrasp.myapplication.Calendar.ClassesGraph
+import com.palrasp.myapplication.Calendar.Event
 import com.palrasp.myapplication.Calendar.SleepGraphData
-import com.palrasp.myapplication.Calendar.sleepData
 import com.palrasp.myapplication.CalendarClasses.CreateClassesDialog
-import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.CalendarClasses.Schedule
 import com.palrasp.myapplication.CalendarClasses.fakeClasses
-import com.palrasp.myapplication.TimePicker.DefaultWheelTimePicker
-import com.palrasp.myapplication.TimePicker.WheelTimePicker
-import com.palrasp.myapplication.ui.theme.Lexend
+import com.palrasp.myapplication.data.local.database.AppDatabase
 import com.palrasp.myapplication.ui.theme.PlannerTheme
+import com.palrasp.myapplication.viewmodel.EventViewModel
+import com.palrasp.myapplication.viewmodel.EventViewModelFactory
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val database = AppDatabase.getInstance(applicationContext)
+        val eventDao = database.eventDao()
+        val eventViewModel = ViewModelProvider(this, EventViewModelFactory(eventDao)).get( EventViewModel::class.java)
         setContent {
             PlannerTheme {
+                val coroutineScope = rememberCoroutineScope()
+                val classes by eventViewModel.allEvents.collectAsState(emptyList())
+
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -71,12 +66,15 @@ class MainActivity : ComponentActivity() {
                     Box(modifier = Modifier.fillMaxSize()){
                         val currentDate = LocalDate.now()
                         val firstDayOfWeek = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-
-                        Schedule(modifier=Modifier, events = fakeClasses, minDate =firstDayOfWeek )
+                        eventViewModel.allEvents.value
+                        Schedule(modifier=Modifier, events = classes, minDate =firstDayOfWeek )
 
 
                         if (addClassDialog){
                            CreateClassesDialog( modifier=Modifier.align(Alignment.Center),onClick={dayOfTheWeek,startTime,endTime->
+                               coroutineScope.launch {
+
+
                                val currentYearMonthDay = LocalDate.now() // Get the current date (year, month, day)
                                val currentDayOfWeek = currentYearMonthDay.dayOfWeek.value // Get the current day of the week (1 for Monday, 7 for Sunday)
 
@@ -84,16 +82,19 @@ class MainActivity : ComponentActivity() {
                                val selectedDate = currentYearMonthDay.plusDays(daysUntilSelectedDay.toLong())
                                val endDateTime = selectedDate.atTime(endTime)
                                val startDateTime = selectedDate.atTime(startTime)
-                              /*
-                              here we ahve th event
-                              Event(
+
+
+                             // here we ahve th event
+                             val newEvent= com.palrasp.myapplication.CalendarClasses.Event(
+
                                    name = "sample",
                                    color = Color(0xFFF4BFDB),
                                    start = startDateTime,
                                    end = endDateTime,
                                    description = "",
-                               )*/
-                               //
+                               )
+                               eventViewModel.insertEvent(newEvent)
+                               }
 
                            })
                         }
