@@ -42,10 +42,10 @@ fun BasicClass(
             .background(event.color)) {
         Box(modifier = Modifier
             .align(Alignment.TopCenter)
-            .clip(RoundedCornerShape(bottomStart = 2.dp, bottomEnd = 2.dp)).background(Color.White).padding(horizontal = 2.dp)  ){
+            .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp)).background(Color.White).padding(horizontal = 2.dp)  ){
             Text(
                 text = event.start.toString().takeLast(5),modifier.align(Alignment.Center),style= TextStyle(color=classTimeTextColor,
-                    fontSize = 9.sp,fontWeight = FontWeight.ExtraLight, fontFamily = Lexend),)
+                    fontSize = 8.sp,fontWeight = FontWeight.ExtraLight, fontFamily = Lexend),)
         }
         Column(
             modifier = modifier
@@ -57,7 +57,7 @@ fun BasicClass(
             Text(
                 text = event.name,
                 style =TextStyle(color=classTextColor,
-                    fontSize = 12.sp,fontWeight = FontWeight.SemiBold, fontFamily = Lexend),
+                    fontSize = 12.sp,fontWeight = FontWeight.Medium, fontFamily = Lexend),
                 fontWeight = FontWeight.Bold,
                 color=classTextColor
 
@@ -65,7 +65,7 @@ fun BasicClass(
             Text(
                 text = event.className,
                 style =TextStyle(color=classTextColor,
-                    fontSize = 12.sp,fontWeight = FontWeight.SemiBold, fontFamily = Lexend),
+                    fontSize = 12.sp,fontWeight = FontWeight.Light, fontFamily = Lexend),
                 fontWeight = FontWeight.Bold,
 
             )
@@ -73,10 +73,10 @@ fun BasicClass(
         }
         Box(modifier = Modifier
             .align(Alignment.BottomCenter)
-            .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp)).background(Color.White).padding(horizontal = 2.dp)  ){
+            .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)).background(Color.White).padding(horizontal = 2.dp)  ){
             Text(
                 text = event.end.toString().takeLast(5),modifier.align(Alignment.Center),style= TextStyle(color=classTimeTextColor,
-                    fontSize = 9.sp,fontWeight = FontWeight.ExtraLight, fontFamily = Lexend),)
+                    fontSize = 8.sp,fontWeight = FontWeight.ExtraLight, fontFamily = Lexend),)
         }
     }
 

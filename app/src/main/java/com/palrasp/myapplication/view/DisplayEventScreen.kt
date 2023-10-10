@@ -25,12 +25,15 @@ import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
 import androidx.compose.ui.semantics.SemanticsProperties.Text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.R
+import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
 
 @Composable
@@ -54,10 +57,19 @@ fun DisplayEventScreen(event:Event,GoBack:()->Unit,SaveNotes:(Event)->Unit){
             .padding(start = 24.dp, top = 24.dp)) {
             Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription =null )
         }
-        Column(Modifier.padding(top=48.dp)) {
-            Text(text =event.name)
-            Text(text = event.className)
-            Text(text = event.start.toString().takeLast(5))
+        Column(Modifier.padding(top=64.dp)) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text =event.name, style = TextStyle(fontFamily = Lexend, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center))
+                Text(text = event.className)
+                Row() {
+                    Text(text = event.start.toString().takeLast(5),style = TextStyle(fontFamily = Lexend, fontSize = 14.sp, fontWeight = FontWeight.Light, textAlign = TextAlign.Center))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(painter = painterResource(id = R.drawable.ic_long_right), contentDescription = null, tint = Color.Black)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = event.end.toString().takeLast(5),style = TextStyle(fontFamily = Lexend, fontSize = 14.sp, fontWeight = FontWeight.Light, textAlign = TextAlign.Center))
+                }
+            }
+
             Divider()
 
             //HERE
@@ -205,7 +217,7 @@ fun TextWithTasksEditable(
                             .wrapContentHeight()
                             .fillMaxWidth()
                             .onKeyEvent { event ->
-                                Log.d("EVENTS123","DETEE")
+                                Log.d("EVENTS123", "DETEE")
                                 if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL) {
                                     if (line.length == 0) {
 
@@ -215,9 +227,7 @@ fun TextWithTasksEditable(
                                         onDescriptionChange(updatedDescription)
                                     }
                                     true
-                                }
-
-                                else {
+                                } else {
                                     false
                                 }
                             },

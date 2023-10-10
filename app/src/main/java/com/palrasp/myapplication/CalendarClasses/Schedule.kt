@@ -128,7 +128,7 @@ fun BasicSchedule(
                         dividerColor,
                         start = Offset(0f, offsetY),
                         end = Offset(size.width, offsetY),
-                        strokeWidth = 1.dp.toPx()
+                        strokeWidth = 0.8.dp.toPx()
                     )
                 } else {
                     drawLine(
@@ -158,7 +158,7 @@ fun BasicSchedule(
             val event = measurable.parentData as? Event
             val eventDurationMinutes = event?.let { ChronoUnit.MINUTES.between(it.start, it.end) } ?: 0
             val eventHeight = ((eventDurationMinutes / 60f) * hourHeight.toPx()).roundToInt()
-            val placeable = measurable.measure(constraints.copy(minWidth = dayWidth.roundToPx(), maxWidth = dayWidth.roundToPx(), minHeight = eventHeight, maxHeight = eventHeight))
+            val placeable = measurable.measure(constraints.copy(minWidth = dayWidth.roundToPx()-20, maxWidth = dayWidth.roundToPx()-20, minHeight = eventHeight, maxHeight = eventHeight))
             Pair(placeable, event)
         }
         layout(width, height) {
@@ -167,7 +167,7 @@ fun BasicSchedule(
                     val eventOffsetMinutes = ChronoUnit.MINUTES.between(LocalTime.MIN, it.start.toLocalTime())
                     val eventY = ((eventOffsetMinutes / 60f) * hourHeight.toPx()).roundToInt()
                     val eventOffsetDays = ChronoUnit.DAYS.between(minDate, it.start.toLocalDate()).toInt()
-                    val eventX = eventOffsetDays * dayWidth.roundToPx()
+                    val eventX = eventOffsetDays * dayWidth.roundToPx()+10
                     placeable.place(eventX, eventY)
                 }
             }

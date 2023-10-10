@@ -63,6 +63,8 @@ class MainActivity : ComponentActivity() {
         val database = AppDatabase.getInstance(applicationContext)
         val eventDao = database.eventDao()
         val eventViewModel = ViewModelProvider(this, EventViewModelFactory(eventDao)).get(EventViewModel::class.java)
+
+
         setContent {
             val coroutineScope = rememberCoroutineScope()
 
@@ -83,16 +85,19 @@ class MainActivity : ComponentActivity() {
                     var addClassDialog by remember {
                         mutableStateOf(false)
                     }
-
+                    val currentDate = LocalDate.now()
+                    var firstDayOfWeek by remember { mutableStateOf(currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))) }
                     Box(modifier = Modifier.fillMaxSize()){
 
-                        val currentDate = LocalDate.now()
-                        val firstDayOfWeek = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                         when (currentScreen) {
                             is Screen.Calendar -> {
                                 Column() {
                                     TopBar(iconColor=Color(0xFF2A1A61), lessonsClicked = {
                                         currentScreen = Screen.Lessons
+                                    },NextWeek={
+                                        firstDayOfWeek=firstDayOfWeek.plusWeeks(1)
+                                    }, PrevWeek = {
+                                        firstDayOfWeek=firstDayOfWeek.minusWeeks(1)
                                     })
                                     Schedule(modifier=Modifier, events = classes, minDate =firstDayOfWeek, maxDate = firstDayOfWeek.plusDays(4),
                                     classesContent = { BasicClass(event = it, modifier = Modifier.clickable(onClick = {
@@ -103,8 +108,8 @@ class MainActivity : ComponentActivity() {
                                 Box(modifier = Modifier
                                     .padding(bottom = 24.dp, end = 24.dp)
                                     .align(Alignment.BottomEnd)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(Color.Black)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color(0xFF0EABFF))
                                     .clickable(onClick = {
 
                                         currentScreen = Screen.Create
