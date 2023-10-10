@@ -3,6 +3,8 @@ package com.palrasp.myapplication.view
 import android.app.usage.UsageEvents.Event
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Icon
@@ -22,20 +24,22 @@ import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
 import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 
 @Composable
 fun LessonsScreen(
     modifier: Modifier = Modifier,
     events: List<com.palrasp.myapplication.CalendarClasses.Event>,
-    onBack: () -> Unit,deleteEvent:(com.palrasp.myapplication.CalendarClasses.Event)->Unit
+    onBack: () -> Unit,
+    deleteEvent: (com.palrasp.myapplication.CalendarClasses.Event) -> Unit
 ) {
-    val eventsByDayOfWeek = events.groupBy { it.start.toLocalDate().dayOfWeek }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column() {
             IconButton(
-                onClick = onBack, modifier = Modifier
-                    .padding(start = 24.dp, top = 24.dp)
+                onClick = onBack,
+                modifier = Modifier.padding(start = 24.dp, top = 24.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_back),
@@ -43,35 +47,30 @@ fun LessonsScreen(
                     tint = Color.Black
                 )
             }
+            LazyColumn {
+                items(DayOfWeek.values()) { dayOfWeek ->
+                        // Display the day of the week
+                        Text(
+                            text = dayOfWeek.toString(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color(0x5BE2E2E2))
+                                .padding(8.dp),
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
+                        )
+                        events.forEach() { it ->
+                            EventItem(it, deleteEvent = deleteEvent)
+                        }
 
-            // Iterate through days of the week
-            for (dayOfWeek in DayOfWeek.values()) {
-                val eventsForDay = eventsByDayOfWeek[dayOfWeek] ?: emptyList()
-                if (eventsForDay.isNotEmpty()) {
-                    // Display the day of the week
-                    Text(
-                        text = dayOfWeek.toString(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0x5BE2E2E2))
-                            .padding(8.dp),
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        textAlign = TextAlign.Center
-                    )
-
-                    // Display events for the day
-                    eventsForDay.forEach { event ->
-                        EventItem(event, deleteEvent = deleteEvent)
                     }
+
                 }
+
             }
         }
-
-    }
-
 }
-
 @Composable
 fun EventItem(event: com.palrasp.myapplication.CalendarClasses.Event,deleteEvent:(com.palrasp.myapplication.CalendarClasses.Event)->Unit) {
     Box(
@@ -88,7 +87,7 @@ fun EventItem(event: com.palrasp.myapplication.CalendarClasses.Event,deleteEvent
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = event.name,
+                text = event.name+event.start.toString(),
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontFamily = Lexend,

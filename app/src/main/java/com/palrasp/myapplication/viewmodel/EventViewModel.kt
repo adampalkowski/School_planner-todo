@@ -31,17 +31,27 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             _allEvents.value = eventEntities.map { it.toEvent() }
         }
     }
+    suspend fun getEventsForWeek(startDate:String,endDate:String)  {
+        withContext(Dispatchers.IO) {
+            val eventEntities = eventDao.getEventsWithinWeek(startDate,endDate)
+            Log.d("getEventsForWeek",eventEntities.size.toString()+"asdsa")
+            _allEvents.value = eventEntities.map { it.toEvent() }
+        }
+    }
 
     // Function to insert an event into the database
     suspend fun insertEvent(event: Event) {
         viewModelScope.launch(Dispatchers.IO) {
             val entity = event.toEventEntity()
             eventDao.insertEvent(entity)
-            Log.d("EventViewModel","insert event")
-            val eventEntities = eventDao.getAllEventsLiveData()
-            _allEvents.value = eventEntities.map { it.toEvent() }
         }
     }  // Function to update the notes of an event in the database
+    suspend fun insertEvents(events: List<Event>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val entities = events.map { it.toEventEntity() }
+            eventDao.insertEvents(entities)
+        }
+    }
 
     suspend fun updateEvent(updatedEvent: Event) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -51,9 +61,6 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             // Update the event in the database
             eventDao.updateEvent(updatedEntity)
 
-            // Update the StateFlow with the updated list of events
-            val eventEntities = eventDao.getAllEventsLiveData()
-            _allEvents.value = eventEntities.map { it.toEvent() }
         }
     }
     suspend fun deleteEvent(event: Event) {
@@ -61,8 +68,7 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             val entity = event.toEventEntity()
             Log.d("EventViewModel","delete event")
             eventDao.deleteEvent(entity)
-            val eventEntities = eventDao.getAllEventsLiveData()
-            _allEvents.value = eventEntities.map { it.toEvent() }
+
         }
     }
     suspend fun deleteAllEvents(event: Event) {
@@ -73,9 +79,6 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             // Delete all events with the same name and start time
             eventDao.deleteSimilarEvents(entity.name)
 
-            // Update the list of events after deletion
-            val eventEntities = eventDao.getAllEventsLiveData()
-            _allEvents.value = eventEntities.map { it.toEvent() }
         }
     }
 }

@@ -59,12 +59,8 @@ fun Schedule(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     // Calculate the dayWidth as 1/5 of the screen width
-    Log.d("ScreenSize",screenWidth.toString())
     var sidebarWidth by remember { mutableStateOf(0) }
-    Log.d("ScreenSize","sidebar"+sidebarWidth.toString())
     val dayWidth = ((screenWidth-sidebarWidth.dp) / 5f)
-    Log.d("ScreenSize","daywidth"+dayWidth.toString())
-    Log.d("VERTICALSCREOL",verticalScrollState.value.toString())
     Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         ScheduleHeader(
             minDate = minDate,
