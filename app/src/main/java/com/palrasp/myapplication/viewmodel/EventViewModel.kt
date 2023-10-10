@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
@@ -60,7 +61,16 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
 
             // Update the event in the database
             eventDao.updateEvent(updatedEntity)
-
+            _allEvents.update { events ->
+                val updatedEventIndex = events.indexOfFirst { it.id == updatedEvent.id }
+                if (updatedEventIndex != -1) {
+                    events.toMutableList().apply {
+                        set(updatedEventIndex, updatedEvent)
+                    }
+                } else {
+                    events
+                }
+            }
         }
     }
     suspend fun deleteEvent(event: Event) {

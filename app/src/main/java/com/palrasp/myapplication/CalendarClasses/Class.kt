@@ -20,6 +20,10 @@ data class Event( val id: Long,
         get() = description.lines()
             .filter { it.startsWith("[-]") }
             .map { it.removePrefix("[-]").trim() }
+    val extractedLinesWithIndices: List<Pair<Int, String>>
+        get() = description.lines()
+            .filterIndexed { index, line -> line.startsWith("[-]") }
+            .mapIndexed { index, line -> index to line.removePrefix("[-]").trim() }
 }
 fun Event.getRecurrence(): Recurrence? {
     return recurrenceJson.let {

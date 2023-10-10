@@ -80,11 +80,34 @@ class MainActivity : ComponentActivity() {
                                                     event.firstDayOfWeek,
                                                     event.endOfWeek
                                                 )
-                                            }
+                                        }
 
                                         }
                                         is CalendarEvents.GoToEvent->{
                                             currentScreen = Screen.Event(event .event)
+
+                                        }
+                                        is CalendarEvents.UpdateEvent->{
+                                            coroutineScope.launch {
+                                                val eventIndex = event.eventIndex
+                                                Log.d("CALENDARCLASS","UPDATE EVENT"+eventIndex)
+                                                val updatedDescription = event.event.description
+                                                    .split("\n") // Split the description into lines
+                                                    .mapIndexed { index, line ->
+                                                        if (index == eventIndex && line.startsWith("[-]")) {
+                                                            // Replace "[-]" with "[x]" only at the specified index
+                                                            line.replaceFirst("[-]", "[x]")
+                                                        } else {
+                                                            line
+                                                        }
+                                                    }
+                                                    .joinToString("\n") // Join the modified lines back together
+                                                val updatedEvent = event.event.copy(description = updatedDescription)
+                                                Log.d("CALENDARCLASS","UPDATE EVENT"+event.event
+                                                    .description+"   "+updatedEvent.description)
+                                                eventViewModel.updateEvent(updatedEvent = updatedEvent)
+                                            }
+
 
                                         }
                                         is CalendarEvents.GoToCreate->{

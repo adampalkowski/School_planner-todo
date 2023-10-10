@@ -3,6 +3,8 @@ package com.palrasp.myapplication.view
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,6 +47,7 @@ sealed class CalendarEvents {
     object GoToLesson : CalendarEvents()
     object GoToCreate : CalendarEvents()
     class GoToEvent(val event: Event) : CalendarEvents()
+    class UpdateEvent(val event: Event,val eventIndex:Int) : CalendarEvents()
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -52,7 +55,10 @@ sealed class CalendarEvents {
 fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = BottomSheetState(
-            initialValue = BottomSheetValue.Collapsed,
+            initialValue = BottomSheetValue.Collapsed,   animationSpec = tween(
+                durationMillis = 300, // Adjust the duration as needed
+                easing = LinearOutSlowInEasing
+            )
         )
     )
 
@@ -124,11 +130,11 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                         }
 
                         // Display the extracted lines for the event
-                        event.extractedLines.forEach { line ->
+                        event.extractedLinesWithIndices.forEach {(index, line) ->
                           Row(verticalAlignment = CenterVertically, modifier = Modifier.padding(horizontal = 24.dp)) {
-                              CheckBoxPlanner(checked = false) {
-                                  
-                              }
+                              CheckBoxPlanner(checked = false, onCheckChanged = {
+                                  onEvent(CalendarEvents.UpdateEvent(event,index))
+                              })
                               Text(text = line, modifier = Modifier.padding(12.dp), color = Color.Black)
                           }  
                               
