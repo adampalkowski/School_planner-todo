@@ -3,7 +3,6 @@ package com.palrasp.myapplication.viewmodel
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -39,7 +38,22 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             val entity = event.toEventEntity()
             eventDao.insertEvent(entity)
             Log.d("EventViewModel","insert event")
+            val eventEntities = eventDao.getAllEventsLiveData()
+            _allEvents.value = eventEntities.map { it.toEvent() }
+        }
+    }  // Function to update the notes of an event in the database
 
+    suspend fun updateEvent(updatedEvent: Event) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Convert the updated event to an entity
+            val updatedEntity = updatedEvent.toEventEntity()
+
+            // Update the event in the database
+            eventDao.updateEvent(updatedEntity)
+
+            // Update the StateFlow with the updated list of events
+            val eventEntities = eventDao.getAllEventsLiveData()
+            _allEvents.value = eventEntities.map { it.toEvent() }
         }
     }
     suspend fun deleteEvent(event: Event) {
@@ -47,8 +61,11 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             val entity = event.toEventEntity()
             Log.d("EventViewModel","delete event")
             eventDao.deleteEvent(entity)
+            val eventEntities = eventDao.getAllEventsLiveData()
+            _allEvents.value = eventEntities.map { it.toEvent() }
         }
     }
+
 }
 fun Event.toEventEntity(): EventEntity {
     return EventEntity(
@@ -57,7 +74,8 @@ fun Event.toEventEntity(): EventEntity {
         color = this.color.toArgb(), // Convert Color to Int
         start = this.start.toString(),
         end = this.end.toString(),
-        description = this.description
+        description = this.description,
+        className = this.className
     )
 }
 
@@ -69,7 +87,9 @@ fun EventEntity.toEvent(): Event {
         color = Color(this.color), // Convert Int to Color
         start = LocalDateTime.parse(this.start, formatter), // Parse String to LocalDateTime
         end = LocalDateTime.parse(this.end, formatter), // Parse String to LocalDateTime
-        description = this.description
+        description = this.description,
+        className = this.className
+
     )
 }
 

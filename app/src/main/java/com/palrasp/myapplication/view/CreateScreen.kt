@@ -50,26 +50,28 @@ var mediumTextStyle = TextStyle(
 fun CreateScreen(
     modifier: Modifier,
     onBack: () -> Unit,
-    onAccept: (DayOfWeek, LocalTime, LocalTime, String, Color) -> Unit,
+    onAccept: (DayOfWeek, LocalTime, LocalTime, String, Color,String) -> Unit,
 ) {
     var selectedDayOfWeek by remember { mutableStateOf(DayOfWeek.MONDAY) }
+    var eventName by remember { mutableStateOf(TextFieldState()) } // State for the event name
+    var eventClass by remember { mutableStateOf(TextFieldState()) } // State for the event class
 
     var isDayPickerVisible by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
+    val timeTextStyle = TextStyle(
+        fontFamily = Lexend,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        color = PlannerTheme.colors.textPrimary
+    )
+    val focusRequester = remember { FocusRequester() }
+    var startTime = LocalTime.of(9, 45)
+    var endTime = LocalTime.of(12, 0)
+    var selectedColor by remember { mutableStateOf(Color(0xFF3C8ADC)) }
+
     val scope = rememberCoroutineScope()
     Box(modifier = modifier.fillMaxSize()) {
 
-        val timeTextStyle = TextStyle(
-            fontFamily = Lexend,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 16.sp,
-            color = PlannerTheme.colors.textPrimary
-        )
-        var eventName = TextFieldState() // State for the event name
-        val focusRequester = remember { FocusRequester() }
-        var startTime = LocalTime.of(9, 45)
-        var endTime = LocalTime.of(12, 0)
-        var selectedColor by remember { mutableStateOf(Color(0xFF3C8ADC)) }
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -100,7 +102,8 @@ fun CreateScreen(
                             startTime,
                             endTime,
                             eventName.text,
-                            selectedColor
+                            selectedColor,
+                            eventClass.text
                         )
                     }
                     )) {
@@ -122,7 +125,15 @@ fun CreateScreen(
                 textState = eventName
             )
             Spacer(modifier = Modifier.height(24.dp))
-
+            PlannerEditText(
+                modifier = modifier,
+                focusRequester = focusRequester,
+                focus = false,
+                onFocusChange = { focusState ->
+                }, label = "Class number",
+                textState = eventClass
+            )
+            Spacer(modifier = Modifier.height(24.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 WheelTimePicker(
                     selectorProperties = WheelPickerDefaults.selectorProperties(

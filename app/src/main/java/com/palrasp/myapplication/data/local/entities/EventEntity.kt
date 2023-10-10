@@ -22,6 +22,9 @@ data class EventEntity(
     @ColumnInfo(name = "end")
     val end: String, // Changed to String
 
+    @ColumnInfo(name = "className")
+    val className: String, // Changed to String
+
     @ColumnInfo(name = "description")
-    val description: String?
+    val description: String
 )

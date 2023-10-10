@@ -1,10 +1,7 @@
 package com.palrasp.myapplication.data.local.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.data.local.entities.EventEntity
 
@@ -14,7 +11,8 @@ interface EventDao {
     suspend fun insertEvent(event: EventEntity)
     @Delete
     suspend fun deleteEvent(event: EventEntity)
-
+    @Update
+    suspend fun updateEvent(event: EventEntity)
     @Query("SELECT * FROM events")
     fun getAllEventsLiveData(): List<EventEntity> // Return a List of EventEntity
 

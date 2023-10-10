@@ -16,10 +16,12 @@ import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
+import java.time.DayOfWeek
 
 @Composable
 fun LessonsScreen(
@@ -27,6 +29,8 @@ fun LessonsScreen(
     events: List<com.palrasp.myapplication.CalendarClasses.Event>,
     onBack: () -> Unit,deleteEvent:(com.palrasp.myapplication.CalendarClasses.Event)->Unit
 ) {
+    val eventsByDayOfWeek = events.groupBy { it.start.toLocalDate().dayOfWeek }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column() {
             IconButton(
@@ -39,8 +43,28 @@ fun LessonsScreen(
                     tint = Color.Black
                 )
             }
-            events.forEach {
-                EventItem(it, deleteEvent = deleteEvent)
+
+            // Iterate through days of the week
+            for (dayOfWeek in DayOfWeek.values()) {
+                val eventsForDay = eventsByDayOfWeek[dayOfWeek] ?: emptyList()
+                if (eventsForDay.isNotEmpty()) {
+                    // Display the day of the week
+                    Text(
+                        text = dayOfWeek.toString(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0x5BE2E2E2))
+                            .padding(8.dp),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+
+                    // Display events for the day
+                    eventsForDay.forEach { event ->
+                        EventItem(event, deleteEvent = deleteEvent)
+                    }
+                }
             }
         }
 

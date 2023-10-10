@@ -52,23 +52,34 @@ fun BasicDayHeader(
     day: LocalDate,
     modifier: Modifier = Modifier,
 ) {
-    Card(border = BorderStroke(1.dp,Color(0x5BCCCCCC)), shape = RoundedCornerShape(0.dp), contentColor = Color.Transparent, backgroundColor = PlannerTheme.colors.uiBackground) {
+    val isToday = day == LocalDate.now()
+    var textColor =if (isToday){
+        Color(0xFFFFFFFF)
+    }else{
+        Color(0xFF000000)
+
+    }
+    Card(border = BorderStroke(1.dp,Color(0x5BCCCCCC)), shape = RoundedCornerShape(0.dp), contentColor = Color.Transparent,
+        backgroundColor = if (isToday) Color(0xFF0964E9) else PlannerTheme.colors.uiBackground)
+    {
         Column(modifier=Modifier.padding(4.dp)) {
             Text(
                 text = day.format(DayFormatText),
+                color = textColor,
                 textAlign = TextAlign.Center,
                 modifier = modifier
                     .fillMaxWidth()
             )
             Text(
                 text = day.format(DayFormatNumber),
+                color = textColor,
+
                 textAlign = TextAlign.Center,
                 modifier = modifier
                     .fillMaxWidth()
             )
         }
     }
-
 
 }
 

@@ -33,12 +33,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.palrasp.myapplication.Calendar.ClassesGraph
 import com.palrasp.myapplication.Calendar.Event
 import com.palrasp.myapplication.Calendar.SleepGraphData
+import com.palrasp.myapplication.CalendarClasses.BasicClass
 import com.palrasp.myapplication.CalendarClasses.CreateClassesDialog
 import com.palrasp.myapplication.CalendarClasses.Schedule
 import com.palrasp.myapplication.data.local.database.AppDatabase
 import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.utils.TopBar
 import com.palrasp.myapplication.view.CreateScreen
+import com.palrasp.myapplication.view.DisplayEventScreen
 import com.palrasp.myapplication.view.LessonsScreen
 import com.palrasp.myapplication.viewmodel.EventViewModel
 import com.palrasp.myapplication.viewmodel.EventViewModelFactory
@@ -50,6 +52,7 @@ import java.util.*
 
 sealed class Screen(val route: String) {
     object Calendar : Screen("calendar")
+    class Event(val event:com.palrasp.myapplication.CalendarClasses.Event):Screen("event")
     object Create : Screen("create")
     object Lessons : Screen("lessons")
 }
@@ -91,7 +94,10 @@ class MainActivity : ComponentActivity() {
                                     TopBar(iconColor=Color(0xFF2A1A61), lessonsClicked = {
                                         currentScreen = Screen.Lessons
                                     })
-                                    Schedule(modifier=Modifier, events = classes, minDate =firstDayOfWeek, maxDate = firstDayOfWeek.plusDays(4) )
+                                    Schedule(modifier=Modifier, events = classes, minDate =firstDayOfWeek, maxDate = firstDayOfWeek.plusDays(4),
+                                    classesContent = { BasicClass(event = it, modifier = Modifier.clickable(onClick = {
+                                        currentScreen=Screen.Event(it)
+                                    }), important = true) })
                                 }
 
                                 Box(modifier = Modifier
@@ -108,11 +114,21 @@ class MainActivity : ComponentActivity() {
                                 }
 
                             }
+                            is Screen.Event->{
+                                val event:com.palrasp.myapplication.CalendarClasses.Event=
+                                    (currentScreen as Screen.Event).event
+                                DisplayEventScreen(event, GoBack = {currentScreen=Screen.Calendar}, SaveNotes = {event->
+                                    coroutineScope.launch {
+                                        eventViewModel.updateEvent(event)
+                                    }
+
+                                })
+                            }
                             is Screen.Create -> {
 
                                 CreateScreen(modifier=Modifier, onBack = {
                                     currentScreen=Screen.Calendar
-                                },  onAccept = { selectedDayOfWeek,startTime,endTime,name,color->
+                                },  onAccept = { selectedDayOfWeek,startTime,endTime,name,color,className->
                                     coroutineScope.launch {
                                         val currentYearMonthDay =
                                             LocalDate.now() // Get the current date (year, month, day)
@@ -133,6 +149,7 @@ class MainActivity : ComponentActivity() {
                                             start = startDateTime,
                                             end = endDateTime,
                                             description = "",
+                                            className=className
                                         )
                                         eventViewModel.insertEvent(newEvent)
                                     }

@@ -2,6 +2,7 @@ package com.palrasp.myapplication.CalendarClasses
 
 import android.util.Log
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -42,7 +43,7 @@ val sideBarTextStyle=TextStyle(fontFamily = Lexend, fontSize = sideBarTextSize, 
 fun Schedule(
     events: List<Event>,
     modifier: Modifier = Modifier,
-    classesContent: @Composable (event:Event) -> Unit = { BasicClass(event = it) },
+    classesContent: @Composable (event:Event) -> Unit,
     minDate: LocalDate = events.minByOrNull(Event::start)?.start?.toLocalDate() ?: LocalDate.now(),
     maxDate: LocalDate = events.maxByOrNull(Event::end)?.end?.toLocalDate() ?: LocalDate.now().plusDays(4),
 ){
@@ -100,7 +101,7 @@ fun Schedule(
 fun BasicSchedule(
     modifier: Modifier,
     events: List<Event>,
-    classesContent: @Composable (event:Event) -> Unit = { BasicClass(event = it) },
+    classesContent: @Composable (event:Event) -> Unit ,
     minDate: LocalDate = events.minByOrNull(Event::start)?.start?.toLocalDate() ?: LocalDate.now(),
     maxDate: LocalDate = events.maxByOrNull(Event::end)?.end?.toLocalDate() ?: LocalDate.now(),
     dayWidth: Dp,
