@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.Text
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -181,7 +182,8 @@ fun CreateScreen(
                             Color(
                                 0x5E0C81FF
                             )
-                        ).padding(horizontal = 12.dp), style = mediumTextStyle
+                        )
+                        .padding(horizontal = 12.dp), style = mediumTextStyle
                 )
             }
 
@@ -190,11 +192,13 @@ fun CreateScreen(
 
     }
     if (isDayPickerVisible) {
+
         ModalBottomSheet(
             onDismissRequest = {
                 isDayPickerVisible = false
             },
-            sheetState = sheetState
+            sheetState = sheetState,
+
         ) {
             // Sheet content
             Column(

@@ -16,7 +16,10 @@ data class Event( val id: Long,
 
 ){
     constructor() : this(0,"", Color.Unspecified, LocalDateTime.now(), LocalDateTime.now(), "","","")
-
+    val extractedLines: List<String>
+        get() = description.lines()
+            .filter { it.startsWith("[-]") }
+            .map { it.removePrefix("[-]").trim() }
 }
 fun Event.getRecurrence(): Recurrence? {
     return recurrenceJson.let {

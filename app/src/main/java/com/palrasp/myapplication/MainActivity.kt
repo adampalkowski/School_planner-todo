@@ -1,59 +1,39 @@
 package com.palrasp.myapplication
 
-import kotlin.random.Random
-
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
 import androidx.compose.material.Surface
-import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Yellow
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.palrasp.myapplication.Calendar.ClassesGraph
-import com.palrasp.myapplication.Calendar.Event
 import com.palrasp.myapplication.Calendar.SleepGraphData
 import com.palrasp.myapplication.CalendarClasses.*
 import com.palrasp.myapplication.data.local.database.AppDatabase
 import com.palrasp.myapplication.ui.theme.PlannerTheme
-import com.palrasp.myapplication.utils.TopBar
-import com.palrasp.myapplication.view.CreateScreen
-import com.palrasp.myapplication.view.DisplayEventScreen
-import com.palrasp.myapplication.view.LessonsScreen
-import com.palrasp.myapplication.view.mediumTextStyle
+import com.palrasp.myapplication.view.*
 import com.palrasp.myapplication.viewmodel.EventViewModel
 import com.palrasp.myapplication.viewmodel.EventViewModelFactory
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.*
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalAdjusters
 import java.util.*
+import kotlin.random.Random
 
 sealed class Screen(val route: String) {
     object Calendar : Screen("calendar")
@@ -81,89 +61,42 @@ class MainActivity : ComponentActivity() {
                     color = PlannerTheme.colors.uiBackground
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
+
                         val coroutineScope = rememberCoroutineScope()
                         var addClassDialog by remember {
                             mutableStateOf(false)
                         }
-                        val currentDate = LocalDate.now()
                         var currentScreen: Screen by remember {
                             mutableStateOf(Screen.Calendar)
                         }
                         val classes by eventViewModel.allEvents.collectAsState(emptyList())
                         when (currentScreen) {
                             is Screen.Calendar -> {
-                                var firstDayOfWeek by remember {
-                                    mutableStateOf(
-                                        currentDate.with(
-                                            TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
-                                        )
-                                    )
-                                }
-                                var endOfWeek = firstDayOfWeek.plusDays(6)
+                                CalendarScreen(onEvent={event->
+                                    when(event){
+                                        is CalendarEvents.GetEventsForWeek->{
+                                            coroutineScope.launch {
+                                                eventViewModel.getEventsForWeek(
+                                                    event.firstDayOfWeek,
+                                                    event.endOfWeek
+                                                )
+                                            }
 
-                                LaunchedEffect(firstDayOfWeek) {
-                                    Log.d("GETEVENTSFORWEEK",firstDayOfWeek.toString()+" "+endOfWeek.toString()+" "+classes.size.toString())
-                                    eventViewModel.getEventsForWeek(
-                                        firstDayOfWeek.toString(),
-                                        endOfWeek.toString()
-                                    )
-                                }
-                                var selectedMonth by remember { mutableStateOf(firstDayOfWeek.month) }
-                                Log.d("GETEVENTSFORWEEK",classes.size.toString())
+                                        }
+                                        is CalendarEvents.GoToEvent->{
+                                            currentScreen = Screen.Event(event .event)
 
-                                Column() {
-                                    TopBar(
-                                        iconColor = Color(0xFF2A1A61),
-                                        lessonsClicked = {
-                                            currentScreen = Screen.Lessons
-                                        },
-                                        NextWeek = {
-                                            firstDayOfWeek = firstDayOfWeek.plusWeeks(1)
-                                            selectedMonth =
-                                                firstDayOfWeek.month // Update selectedMonth when firstDayOfWeek changes
-
-                                        },
-                                        PrevWeek = {
-                                            firstDayOfWeek = firstDayOfWeek.minusWeeks(1)
-                                            selectedMonth =
-                                                firstDayOfWeek.month // Update selectedMonth when firstDayOfWeek changes
-
-                                        },
-                                        openMonthPicker = {  },
-                                        selectedMonth = selectedMonth.name
-                                    )
-                                    Schedule(modifier = Modifier,
-                                        events = classes,
-                                        minDate = firstDayOfWeek,
-                                        maxDate = firstDayOfWeek.plusDays(4),
-                                        classesContent = {
-                                            BasicClass(
-                                                event = it,
-                                                modifier = Modifier.clickable(onClick = {
-                                                    currentScreen = Screen.Event(it)
-                                                }),
-                                                important = true
-                                            )
-                                        })
-                                }
-
-                                Box(
-                                    modifier = Modifier
-                                        .padding(bottom = 24.dp, end = 24.dp)
-                                        .align(Alignment.BottomEnd)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(Color(0xFF0EABFF))
-                                        .clickable(onClick = {
+                                        }
+                                        is CalendarEvents.GoToCreate->{
                                             currentScreen = Screen.Create
-                                        })
-                                        .padding(16.dp)
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_add),
-                                        contentDescription = null,
-                                        tint = Color.White
-                                    )
-                                }
+
+                                        }
+                                        is CalendarEvents.GoToLesson->{
+                                            currentScreen = Screen.Lessons
+
+                                        }
+                                    }
+                                },classes=classes)
 
 
                             }
