@@ -15,7 +15,8 @@ interface EventDao {
     suspend fun updateEvent(event: EventEntity)
     @Query("SELECT * FROM events")
     fun getAllEventsLiveData(): List<EventEntity> // Return a List of EventEntity
-
+    @Query("DELETE FROM events WHERE name = :eventName")
+    suspend fun deleteSimilarEvents(eventName: String)
 
     // Add other queries and operations as needed
 }

@@ -26,5 +26,8 @@ data class EventEntity(
     val className: String, // Changed to String
 
     @ColumnInfo(name = "description")
-    val description: String
+    val description: String,
+
+    @ColumnInfo(name = "recurrenceJson")
+val recurrenceJson: String
 )

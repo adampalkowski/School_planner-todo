@@ -33,9 +33,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.palrasp.myapplication.Calendar.ClassesGraph
 import com.palrasp.myapplication.Calendar.Event
 import com.palrasp.myapplication.Calendar.SleepGraphData
-import com.palrasp.myapplication.CalendarClasses.BasicClass
-import com.palrasp.myapplication.CalendarClasses.CreateClassesDialog
-import com.palrasp.myapplication.CalendarClasses.Schedule
+import com.palrasp.myapplication.CalendarClasses.*
 import com.palrasp.myapplication.data.local.database.AppDatabase
 import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.utils.TopBar
@@ -137,35 +135,52 @@ class MainActivity : ComponentActivity() {
                                     coroutineScope.launch {
                                         val currentYearMonthDay =
                                             LocalDate.now() // Get the current date (year, month, day)
-                                        val currentDayOfWeek =
-                                            currentYearMonthDay.dayOfWeek.value // Get the current day of the week (1 for Monday, 7 for Sunday)
 
-                                        val daysUntilSelectedDay =
-                                            (selectedDayOfWeek.value - currentDayOfWeek + 7) % 7
-                                        val selectedDate =
-                                            currentYearMonthDay.plusDays(daysUntilSelectedDay.toLong())
-                                        val endDateTime = selectedDate.atTime(endTime)
-                                        val startDateTime = selectedDate.atTime(startTime)
+                                        // Calculate the end date, which is 6 months from the current date
+                                        val endDate = currentYearMonthDay.plusMonths(6)
 
-                                        // here we ahve th event
-                                        val newEvent = com.palrasp.myapplication.CalendarClasses.Event(id= generateRandomId(),
-                                            name = name,
-                                            color = color,
-                                            start = startDateTime,
-                                            end = endDateTime,
-                                            description = "",
-                                            className=className
-                                        )
-                                        eventViewModel.insertEvent(newEvent)
+                                        // Loop through the date range from current date to end date
+                                        var currentDate = currentYearMonthDay
+                                        while (currentDate <= endDate) {
+                                            val currentDayOfWeek = currentDate.dayOfWeek.value
+                                            val daysUntilSelectedDay =
+                                                (selectedDayOfWeek.value - currentDayOfWeek + 7) % 7
+                                            val selectedDate = currentDate.plusDays(daysUntilSelectedDay.toLong())
+                                            val endDateTime = selectedDate.atTime(endTime)
+                                            val startDateTime = selectedDate.atTime(startTime)
+
+                                            // Create a new event for this date
+                                            val newEvent = com.palrasp.myapplication.CalendarClasses.Event(
+                                                id = generateRandomId(),
+                                                name = name,
+                                                color = color,
+                                                start = startDateTime,
+                                                end = endDateTime,
+                                                description = "",
+                                                className = className,
+                                                recurrenceJson = ""
+                                            )
+
+                                            // Set the recurrence pattern (e.g., WEEKLY)
+                                            newEvent.setRecurrence(Recurrence(RecurrencePattern.WEEKLY))
+
+                                            // Insert the event into the Room database
+                                            eventViewModel.insertEvent(newEvent)
+
+                                            // Move to the next date
+                                            currentDate = currentDate.plusDays(1)
+                                        }
+
+                                        // After creating and inserting events, navigate back to the Calendar screen
+                                        currentScreen = Screen.Calendar
                                     }
-                                    currentScreen=Screen.Calendar
                                 })
                             }
                             is Screen.Lessons -> {
                                 LessonsScreen(modifier=Modifier,classes, onBack = {        currentScreen=Screen.Calendar}, deleteEvent = {
                                     event->
                                     coroutineScope.launch {
-                                        eventViewModel.deleteEvent(event)
+                                        eventViewModel.deleteAllEvents(event)
                                     }
                                 })
                             }

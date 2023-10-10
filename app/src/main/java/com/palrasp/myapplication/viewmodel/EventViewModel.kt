@@ -65,7 +65,19 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             _allEvents.value = eventEntities.map { it.toEvent() }
         }
     }
+    suspend fun deleteAllEvents(event: Event) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val entity = event.toEventEntity()
+            Log.d("EventViewModel", "delete event")
 
+            // Delete all events with the same name and start time
+            eventDao.deleteSimilarEvents(entity.name)
+
+            // Update the list of events after deletion
+            val eventEntities = eventDao.getAllEventsLiveData()
+            _allEvents.value = eventEntities.map { it.toEvent() }
+        }
+    }
 }
 fun Event.toEventEntity(): EventEntity {
     return EventEntity(
@@ -75,7 +87,8 @@ fun Event.toEventEntity(): EventEntity {
         start = this.start.toString(),
         end = this.end.toString(),
         description = this.description,
-        className = this.className
+        className = this.className,
+        recurrenceJson=this.recurrenceJson
     )
 }
 
@@ -88,7 +101,8 @@ fun EventEntity.toEvent(): Event {
         start = LocalDateTime.parse(this.start, formatter), // Parse String to LocalDateTime
         end = LocalDateTime.parse(this.end, formatter), // Parse String to LocalDateTime
         description = this.description,
-        className = this.className
+        className = this.className,
+        recurrenceJson=this.recurrenceJson
 
     )
 }

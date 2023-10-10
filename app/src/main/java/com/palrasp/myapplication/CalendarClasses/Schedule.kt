@@ -26,9 +26,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.ui.theme.Lexend
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
 
 private class EventDataModifier(
@@ -87,7 +90,8 @@ fun Schedule(
                 maxDate = maxDate,
                 dayWidth = dayWidth,
                 hourHeight = hourHeight,
-                modifier = Modifier.padding(top =(sideBarTextSize).value.dp)
+                modifier = Modifier
+                    .padding(top = (sideBarTextSize).value.dp)
                     .verticalScroll(verticalScrollState)
                     .horizontalScroll(horizontalScrollState)
             )
@@ -107,12 +111,11 @@ fun BasicSchedule(
     dayWidth: Dp,
     hourHeight: Dp,
 ) {
-    val dividerColor = Color(0xFFF0F0F0)
-
+    val  dividerColor=Color(0xFFE7E7E7)
     val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
     Layout(
         content = {
-            events.sortedBy(Event::start).forEach { event ->
+            events.sortedBy(Event::start) .forEach { event ->
                 Box(modifier = Modifier.eventData(event)) {
                     classesContent(event)
                 }
@@ -174,4 +177,17 @@ fun BasicSchedule(
         }
     }
 }
+data class Recurrence(
+    val pattern: RecurrencePattern,
+    val endDate: LocalDate? = null, // Optional end date for recurring events
+    val count: Int? = null // Optional count for how many times the event should repeat
+)
 
+enum class RecurrencePattern {
+    WEEKLY, // Event repeats weekly
+    // Add more recurrence patterns as needed (e.g., DAILY, MONTHLY, YEARLY, etc.)
+}
+data class EventInstance(
+    val event: Event,
+    val startTime: LocalTime
+)
