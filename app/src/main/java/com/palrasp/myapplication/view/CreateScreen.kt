@@ -1,5 +1,6 @@
 package com.palrasp.myapplication.view
 
+import android.widget.EditText
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -7,9 +8,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.Text
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,25 +18,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.commandiron.wheel_picker_compose.core.WheelPickerDefaults
-import com.palrasp.myapplication.CalendarClasses.DayOfWeekPicker
+import androidx.compose.ui.window.Dialog
 import com.palrasp.myapplication.R
-import com.palrasp.myapplication.TimePicker.WheelTimePicker
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.utils.PlannerEditText
 import com.palrasp.myapplication.utils.TextFieldState
-import com.palrasp.myapplication.viewmodel.EventViewModel
-import kotlinx.coroutines.launch
 import java.time.DayOfWeek
-import java.time.LocalDate
 import java.time.LocalTime
 
 var mediumTextStyle = TextStyle(
@@ -51,13 +47,14 @@ var mediumTextStyle = TextStyle(
 fun CreateScreen(
     modifier: Modifier,
     onBack: () -> Unit,
-    onAccept: (DayOfWeek, LocalTime, LocalTime, String, Color,String) -> Unit,
+    onAccept: (DayOfWeek, LocalTime, LocalTime, String, Color, String, Boolean) -> Unit,
 ) {
     var selectedDayOfWeek by remember { mutableStateOf(DayOfWeek.MONDAY) }
     var eventName by remember { mutableStateOf(TextFieldState()) } // State for the event name
     var eventClass by remember { mutableStateOf(TextFieldState()) } // State for the event class
 
     var isDayPickerVisible by remember { mutableStateOf(false) }
+    var isColorPickerVisible by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val timeTextStyle = TextStyle(
         fontFamily = Lexend,
@@ -65,15 +62,19 @@ fun CreateScreen(
         fontSize = 16.sp,
         color = PlannerTheme.colors.textPrimary
     )
-    val focusRequester = remember { FocusRequester() }
-    var startTime = LocalTime.of(9, 45)
-    var endTime = LocalTime.of(12, 0)
     var selectedColor by remember { mutableStateOf(Color(0xFF3C8ADC)) }
 
+    val focusRequester = remember { FocusRequester() }
+    var startTime by remember { mutableStateOf(LocalTime.of(9, 45)) }
+    var endTime by remember { mutableStateOf(LocalTime.of(12,0)) }
+    val startState = rememberTimePickerState(is24Hour = true)
+    val endState = rememberTimePickerState(is24Hour = true)
+
     val scope = rememberCoroutineScope()
+    var compulsory by remember { mutableStateOf(false) }
+    var displayStartTimeDialog by remember { mutableStateOf(false) }
+    var displayEndTimeDialog by remember { mutableStateOf(false) }
     Box(modifier = modifier.fillMaxSize()) {
-
-
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -92,6 +93,10 @@ fun CreateScreen(
                         tint = Color.Black
                     )
                 }
+                Spacer(modifier = Modifier.width(48.dp))
+                Switch(checked = compulsory, onCheckedChange = {
+                    compulsory = it
+                })
                 Spacer(modifier = Modifier.weight(1f))
                 Box(modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
@@ -104,7 +109,7 @@ fun CreateScreen(
                             endTime,
                             eventName.text,
                             selectedColor,
-                            eventClass.text
+                            eventClass.text, compulsory
                         )
                     }
                     )) {
@@ -136,60 +141,209 @@ fun CreateScreen(
             )
             Spacer(modifier = Modifier.height(24.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                WheelTimePicker(
-                    selectorProperties = WheelPickerDefaults.selectorProperties(
-                        color = Color.White,
-                        border = null
-                    ),
-                    startTime = startTime,
-                    textStyle = timeTextStyle,
-                    size = DpSize(100.dp, 100.dp)
-                ) {
-                    startTime = it
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_long_right),
-                    contentDescription = null,
-                    tint = Color.Black
-                )
-                Spacer(modifier = Modifier.height(24.dp))
 
-                WheelTimePicker(
-                    selectorProperties = WheelPickerDefaults.selectorProperties(
-                        color = Color.White,
-                        border = null
-                    ),
-                    startTime = endTime,
-                    textStyle = timeTextStyle,
-                    size = DpSize(100.dp, 100.dp)
-                ) {
-                    endTime = it
+                Box(modifier = Modifier.clickable(onClick = {
+                    displayStartTimeDialog = true
+                })) {
+                    Text(text = startTime.hour.toString() + ":" + startTime.minute)
                 }
+                Spacer(modifier = Modifier.width(24.dp))
+                Box(modifier = Modifier.clickable(onClick = {
+                    displayEndTimeDialog = true
+
+                })) {
+                    Text(text = endTime.hour.toString() + ":" + endTime.minute)
+                }
+
 
             }
-
-            ColorPicker(onColorPicker = { color ->
-                selectedColor = color
-            }, selectedColor)
+            var textState by remember { mutableStateOf(TextFieldValue("Hello World")) }
 
 
-            Box(modifier = Modifier.clickable(onClick = { isDayPickerVisible = true })) {
+            CreateItem(label="Class name",onClick = { }){
+                BasicTextField(value = textState,
+                    onValueChange = {
+                    textState = it
+                }                   , singleLine = true,                    textStyle = TextStyle(color = Color.Black)
+                    )
+            }
+
+            CreateItem(label="Time",onClick = { }){
                 Text(
                     text = selectedDayOfWeek.name.toString(), modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            Color(
-                                0x5E0C81FF
-                            )
-                        )
                         .padding(horizontal = 12.dp), style = mediumTextStyle
                 )
             }
 
+
+            CreateItem(label="Day of the week",onClick = { isDayPickerVisible = true }){
+                Text(
+                    text = selectedDayOfWeek.name.toString(), modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .padding(horizontal = 12.dp), style = mediumTextStyle
+                )
+            }
+            CreateItem(label="Color",onClick = { isColorPickerVisible = true }){
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(color = selectedColor, shape = CircleShape)
+                       ,
+                    contentAlignment = Alignment.Center
+                ) {
+
+                }
+
+            }
+
+        }
+        if (displayStartTimeDialog) {
+            Dialog(onDismissRequest = { displayStartTimeDialog = false }) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(PlannerTheme.colors.uiBackground)
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(
+                            text = "End time",
+                            style= TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Light)
+                        )
+
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        TimeInput(
+                            state = startState,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = "Cancel",
+                                modifier = Modifier.clickable(onClick = {
+                                    displayStartTimeDialog = false
+                                } )
+                                ,style= TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium))
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(text = "Confirm",                                style= TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium),modifier=Modifier.clickable(onClick = {
+                                val newHour = startState.hour
+                                val newMinute = startState.minute
+                                startTime = LocalTime.of(newHour, newMinute)
+                                displayStartTimeDialog=false
+                            })
+                            )
+                        }
+                    }
+
+                }
+
+            }
+
         }
 
+        if (displayEndTimeDialog) {
+            Dialog(onDismissRequest = { displayEndTimeDialog = false }) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(PlannerTheme.colors.uiBackground)
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(
+                            text = "End time",
+                            style= TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Light)
+                        )
 
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        TimeInput(
+                            state = endState,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = "Cancel",
+                                modifier = Modifier.clickable(onClick = {
+                                    displayEndTimeDialog = false
+                                } )
+                                ,style= TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium))
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(text = "Confirm",                                style= TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium),modifier=Modifier
+                                .clickable(onClick = {
+                                    val newHour = endState.hour
+                                    val newMinute = endState.minute
+                                    endTime = LocalTime.of(newHour, newMinute)
+                                    displayEndTimeDialog = false
+                                })
+
+                            )
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+    }
+    if(isColorPickerVisible){
+        ModalBottomSheet(
+            onDismissRequest = {
+                isColorPickerVisible = false
+            },
+            sheetState = sheetState,
+
+            ) {
+            // Sheet content
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    items(colors) { color ->
+                        ColorSwatch(
+                            color = color,
+                            onColorSelected = { selectedColorVal ->
+                                selectedColor=selectedColorVal
+                                isColorPickerVisible = false
+                            },
+                            isSelected = color == selectedColor,
+
+                            )
+                    }
+                }
+
+            }
+
+        }
     }
     if (isDayPickerVisible) {
 
@@ -199,7 +353,7 @@ fun CreateScreen(
             },
             sheetState = sheetState,
 
-        ) {
+            ) {
             // Sheet content
             Column(
                 modifier = Modifier
@@ -303,7 +457,33 @@ fun ColorSwatch(color: Color, isSelected: Boolean, onColorSelected: (Color) -> U
 
         }
     }
+}
 
+@Composable
+fun CreateItem(label:String,onClick:()->Unit,content:@Composable ()->Unit){
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clickable(onClick = onClick)) {
+        Column (horizontalAlignment = Alignment.Start,modifier=Modifier.padding(horizontal = 24.dp)){
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text =label,color=Color(0xFFC9C9C9))
+                Spacer(modifier = Modifier.weight(1f))
+                content()
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Box(modifier = Modifier
+                .height(1.dp)
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .background(
+                    Color(
+                        0xFFE0E0E0
+                    )
+                ))
+        }
+
+    }
 }
 
 val colors = listOf(

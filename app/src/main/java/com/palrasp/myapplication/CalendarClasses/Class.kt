@@ -12,10 +12,11 @@ data class Event( val id: Long,
     val end: LocalDateTime,
     var description: String,
     val className: String,
-    var recurrenceJson: String // Store Recurrence as JSON string
+    var recurrenceJson: String, // Store Recurrence as JSON string
+    val compulsory:Boolean,
 
 ){
-    constructor() : this(0,"", Color.Unspecified, LocalDateTime.now(), LocalDateTime.now(), "","","")
+    constructor() : this(0,"", Color.Unspecified, LocalDateTime.now(), LocalDateTime.now(), "","","",true)
     val extractedLines: List<String>
         get() = description.lines()
             .filter { it.startsWith("[-]") }

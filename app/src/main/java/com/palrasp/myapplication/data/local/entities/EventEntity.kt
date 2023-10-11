@@ -29,5 +29,8 @@ data class EventEntity(
     val description: String,
 
     @ColumnInfo(name = "recurrenceJson")
-val recurrenceJson: String
+    val recurrenceJson: String,
+
+    @ColumnInfo(name = "compulsory")
+    val compulsory: Boolean,
 )

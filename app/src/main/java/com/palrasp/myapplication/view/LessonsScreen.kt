@@ -60,9 +60,11 @@ fun LessonsScreen(
                             color = Color.Black,
                             textAlign = TextAlign.Center
                         )
-                        events.forEach() { it ->
-                            EventItem(it, deleteEvent = deleteEvent)
-                        }
+                    val eventsForDayOfWeek = events.filter { it.start.dayOfWeek == dayOfWeek }
+
+                    eventsForDayOfWeek.forEach { event ->
+                        EventItem(event, deleteEvent = deleteEvent)
+                    }
 
                     }
 

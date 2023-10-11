@@ -140,7 +140,7 @@ class MainActivity : ComponentActivity() {
                                     onBack = {
                                         currentScreen = Screen.Calendar
                                     },
-                                    onAccept = { selectedDayOfWeek, startTime, endTime, name, color, className ->
+                                    onAccept = { selectedDayOfWeek, startTime, endTime, name, color, className,compulsory ->
                                         coroutineScope.launch {
                                             // Calculate the start date (today) and end date (6 months from today)
                                             val startDate = LocalDate.now()
@@ -172,7 +172,8 @@ class MainActivity : ComponentActivity() {
                                                     end = endDateTime,
                                                     description = "",
                                                     className = className,
-                                                    recurrenceJson = ""
+                                                    recurrenceJson = "",
+                                                    compulsory = compulsory
                                                 )
                                             }
                                             events.forEach { event ->

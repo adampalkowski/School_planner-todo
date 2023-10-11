@@ -123,20 +123,31 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                                 text = weekName,
                                 modifier = Modifier
                                     .padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
-                                fontWeight = FontWeight.Medium, fontFamily = Lexend,
-                                fontSize = 14.sp,
-                                color = Color(0xFFD1CFCF)
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 12.sp,
+                                color = Color(0xFF303030)
                             )
                         }
 
                         // Display the extracted lines for the event
                         event.extractedLinesWithIndices.forEach {(index, line) ->
-                          Row(verticalAlignment = CenterVertically, modifier = Modifier.padding(horizontal = 24.dp)) {
-                              CheckBoxPlanner(checked = false, onCheckChanged = {
-                                  onEvent(CalendarEvents.UpdateEvent(event,index))
-                              })
-                              Text(text = line, modifier = Modifier.padding(12.dp), color = Color.Black)
-                          }  
+                            Column() {
+                                Text(
+                                    text = event.name, textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                     ,
+                                    fontWeight = FontWeight.ExtraLight,
+                                    fontSize = 10.sp,
+                                    color = Color(0xFFD1CFCF)
+                                )
+                                Row(verticalAlignment = CenterVertically, modifier = Modifier.padding(horizontal = 24.dp)) {
+                                    CheckBoxPlanner(checked = false, onCheckChanged = {
+                                        onEvent(CalendarEvents.UpdateEvent(event,index))
+                                    })
+                                    Text(text = line, modifier = Modifier.padding(12.dp), color = Color.Black)
+                                }
+                            }
+
                               
                         }
                     }
@@ -212,8 +223,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                             modifier = Modifier.clickable(onClick = {
                                 onEvent(CalendarEvents.GoToEvent(it))
 
-                            }),
-                            important = true
+                            })
                         )
                     })
             }

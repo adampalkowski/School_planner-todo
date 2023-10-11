@@ -29,17 +29,33 @@ val EventTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
 
 
 val classTimeTextColor=Color(0xFF7E7E7E)
-val classTextColor=Color(0xFFFFFFFF)
 @Composable
 fun BasicClass(
     event: com.palrasp.myapplication.CalendarClasses.Event,
     modifier: Modifier = Modifier,
-    important:Boolean,
 ) {
+    val classTextColor=
+        if (event.compulsory){
+            Color(0xFFFFFFFF)
+
+        }else{
+            Color(0xFF100E0E)
+        }
+    val classBackgroundColor=
+        if (event.compulsory){
+            event.color
+        }else{
+            Color(0xFFFFFFFF)
+        }
+    val border=       if (event.compulsory){
+        BorderStroke(0.dp,color=Color(0xffD6D6D6))
+    }else{
+       BorderStroke(1.dp,color=Color(0xffD6D6D6))
+    }
     Box(
         Modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(event.color)) {
+            .background(classBackgroundColor).border(border, shape = RoundedCornerShape(8.dp))) {
         Box(modifier = Modifier
             .align(Alignment.TopCenter)
             .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp)).background(Color.White).padding(horizontal = 2.dp)  ){

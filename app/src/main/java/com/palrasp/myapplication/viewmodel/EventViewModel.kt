@@ -101,7 +101,8 @@ fun Event.toEventEntity(): EventEntity {
         end = this.end.toString(),
         description = this.description,
         className = this.className,
-        recurrenceJson=this.recurrenceJson
+        recurrenceJson=this.recurrenceJson,
+        compulsory = this.compulsory
     )
 }
 
@@ -115,7 +116,8 @@ fun EventEntity.toEvent(): Event {
         end = LocalDateTime.parse(this.end, formatter), // Parse String to LocalDateTime
         description = this.description,
         className = this.className,
-        recurrenceJson=this.recurrenceJson
+        recurrenceJson=this.recurrenceJson,
+        compulsory = this.compulsory
 
     )
 }
