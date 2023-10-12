@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material3.*
@@ -24,16 +26,24 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.palrasp.myapplication.CalendarClasses.Event
+import com.palrasp.myapplication.CalendarClasses.rememberEvent
 import com.palrasp.myapplication.R
+import com.palrasp.myapplication.Screen
+import com.palrasp.myapplication.generateRandomId
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.utils.PlannerEditText
 import com.palrasp.myapplication.utils.TextFieldState
+import com.palrasp.myapplication.view.CreateScreen.*
 import java.time.DayOfWeek
+import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.*
 
 var mediumTextStyle = TextStyle(
     fontFamily = Lexend,
@@ -42,13 +52,80 @@ var mediumTextStyle = TextStyle(
     color = Color.Black
 )
 
+val textColor = Color(0xFF4D4D4D)
+val confirmColor = Color(0xFF2F69FF)
+val dividerColor = Color(0xffEEEEEE)
+val subjectColor = Color(0xffBFBFBF)
+
+
+
+
+@Preview
+@Composable
+fun CreateScreenSchemePrev() {
+    val eventState = rememberEvent(
+        initialEvent = Event(
+            id = generateRandomId(),
+            name = "Class name",
+            color = Color(0xFF7DC1FF),
+            start = LocalDateTime.now(),
+            end = LocalDateTime.now().plusHours(1).plusMinutes(30),
+            description = "",
+            className = "",
+            recurrenceJson = "",
+            compulsory = true
+        )
+    )
+    CreateScreenScheme(modifier = Modifier, eventState = eventState)
+}
+
+
+@Composable
+fun CreateScreenScheme(
+    modifier: Modifier = Modifier,
+    eventState: MutableState<Event>,
+    onCloseClicked: () -> Unit = {},
+    onSaveClicked: () -> Unit = {},
+) {
+    PlannerTheme {
+        Column {
+            CreateTopPart(
+                modifier = modifier,
+                onCloseClicked = onCloseClicked,
+                onSaveClicked = onSaveClicked
+            )
+            SubjectInput(eventState)
+            ClassroomInput(eventState)
+            Spacer(modifier = Modifier.height(24.dp))
+            CreateColorPicker(eventState)
+            DayOfTheWeekPicker(eventState)
+            CreateDivider()
+            TimePickerSection(eventState)
+            CreateDivider()
+            IsNeccesarySection(eventState)
+            CreateDivider()
+        }
+
+    }
+
+}
+
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen(
-    modifier: Modifier,
+    modifier: Modifier, eventState: MutableState<Event>,
     onBack: () -> Unit,
     onAccept: (DayOfWeek, LocalTime, LocalTime, String, Color, String, Boolean) -> Unit,
 ) {
+
+
+    val timeTextStyle = TextStyle(
+        fontFamily = Lexend,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        color = PlannerTheme.colors.textPrimary
+    )
+
     var selectedDayOfWeek by remember { mutableStateOf(DayOfWeek.MONDAY) }
     var eventName by remember { mutableStateOf(TextFieldState()) } // State for the event name
     var eventClass by remember { mutableStateOf(TextFieldState()) } // State for the event class
@@ -56,20 +133,14 @@ fun CreateScreen(
     var isDayPickerVisible by remember { mutableStateOf(false) }
     var isColorPickerVisible by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
-    val timeTextStyle = TextStyle(
-        fontFamily = Lexend,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 16.sp,
-        color = PlannerTheme.colors.textPrimary
-    )
+
     var selectedColor by remember { mutableStateOf(Color(0xFF3C8ADC)) }
 
     val focusRequester = remember { FocusRequester() }
     var startTime by remember { mutableStateOf(LocalTime.of(9, 45)) }
-    var endTime by remember { mutableStateOf(LocalTime.of(12,0)) }
+    var endTime by remember { mutableStateOf(LocalTime.of(12, 0)) }
     val startState = rememberTimePickerState(is24Hour = true)
     val endState = rememberTimePickerState(is24Hour = true)
-
     val scope = rememberCoroutineScope()
     var compulsory by remember { mutableStateOf(false) }
     var displayStartTimeDialog by remember { mutableStateOf(false) }
@@ -160,15 +231,15 @@ fun CreateScreen(
             var textState by remember { mutableStateOf(TextFieldValue("Hello World")) }
 
 
-            CreateItem(label="Class name",onClick = { }){
+            CreateItem(label = "Class name", onClick = { }) {
                 BasicTextField(value = textState,
                     onValueChange = {
-                    textState = it
-                }                   , singleLine = true,                    textStyle = TextStyle(color = Color.Black)
-                    )
+                        textState = it
+                    }, singleLine = true, textStyle = TextStyle(color = Color.Black)
+                )
             }
 
-            CreateItem(label="Time",onClick = { }){
+            CreateItem(label = "Time", onClick = { }) {
                 Text(
                     text = selectedDayOfWeek.name.toString(), modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
@@ -177,21 +248,20 @@ fun CreateScreen(
             }
 
 
-            CreateItem(label="Day of the week",onClick = { isDayPickerVisible = true }){
+            CreateItem(label = "Day of the week", onClick = { isDayPickerVisible = true }) {
                 Text(
                     text = selectedDayOfWeek.name.toString(), modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
                         .padding(horizontal = 12.dp), style = mediumTextStyle
                 )
             }
-            CreateItem(label="Color",onClick = { isColorPickerVisible = true }){
+            CreateItem(label = "Color", onClick = { isColorPickerVisible = true }) {
                 Box(
                     modifier = Modifier
                         .padding(16.dp)
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(color = selectedColor, shape = CircleShape)
-                       ,
+                        .background(color = selectedColor, shape = CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
 
@@ -214,7 +284,7 @@ fun CreateScreen(
                     ) {
                         Text(
                             text = "End time",
-                            style= TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Light)
+                            style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Light)
                         )
 
                     }
@@ -234,15 +304,18 @@ fun CreateScreen(
                                 text = "Cancel",
                                 modifier = Modifier.clickable(onClick = {
                                     displayStartTimeDialog = false
-                                } )
-                                ,style= TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium))
+                                }),
+                                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium))
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text(text = "Confirm",                                style= TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium),modifier=Modifier.clickable(onClick = {
-                                val newHour = startState.hour
-                                val newMinute = startState.minute
-                                startTime = LocalTime.of(newHour, newMinute)
-                                displayStartTimeDialog=false
-                            })
+                            Text(
+                                text = "Confirm",
+                                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium),
+                                modifier = Modifier.clickable(onClick = {
+                                    val newHour = startState.hour
+                                    val newMinute = startState.minute
+                                    startTime = LocalTime.of(newHour, newMinute)
+                                    displayStartTimeDialog = false
+                                })
                             )
                         }
                     }
@@ -267,7 +340,7 @@ fun CreateScreen(
                     ) {
                         Text(
                             text = "End time",
-                            style= TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Light)
+                            style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Light)
                         )
 
                     }
@@ -287,16 +360,19 @@ fun CreateScreen(
                                 text = "Cancel",
                                 modifier = Modifier.clickable(onClick = {
                                     displayEndTimeDialog = false
-                                } )
-                                ,style= TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium))
+                                }),
+                                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium))
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text(text = "Confirm",                                style= TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium),modifier=Modifier
-                                .clickable(onClick = {
-                                    val newHour = endState.hour
-                                    val newMinute = endState.minute
-                                    endTime = LocalTime.of(newHour, newMinute)
-                                    displayEndTimeDialog = false
-                                })
+                            Text(
+                                text = "Confirm",
+                                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium),
+                                modifier = Modifier
+                                    .clickable(onClick = {
+                                        val newHour = endState.hour
+                                        val newMinute = endState.minute
+                                        endTime = LocalTime.of(newHour, newMinute)
+                                        displayEndTimeDialog = false
+                                    })
 
                             )
                         }
@@ -308,7 +384,7 @@ fun CreateScreen(
         }
 
     }
-    if(isColorPickerVisible){
+    if (isColorPickerVisible) {
         ModalBottomSheet(
             onDismissRequest = {
                 isColorPickerVisible = false
@@ -332,7 +408,7 @@ fun CreateScreen(
                         ColorSwatch(
                             color = color,
                             onColorSelected = { selectedColorVal ->
-                                selectedColor=selectedColorVal
+                                selectedColor = selectedColorVal
                                 isColorPickerVisible = false
                             },
                             isSelected = color == selectedColor,
@@ -460,29 +536,68 @@ fun ColorSwatch(color: Color, isSelected: Boolean, onColorSelected: (Color) -> U
 }
 
 @Composable
-fun CreateItem(label:String,onClick:()->Unit,content:@Composable ()->Unit){
+fun CreateItem(label: String, onClick: () -> Unit, content: @Composable () -> Unit) {
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .clickable(onClick = onClick)) {
-        Column (horizontalAlignment = Alignment.Start,modifier=Modifier.padding(horizontal = 24.dp)){
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text =label,color=Color(0xFFC9C9C9))
+                Text(text = label, color = Color(0xFFC9C9C9))
                 Spacer(modifier = Modifier.weight(1f))
                 content()
             }
             Spacer(modifier = Modifier.height(6.dp))
-            Box(modifier = Modifier
-                .height(1.dp)
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .background(
-                    Color(
-                        0xFFE0E0E0
+            Box(
+                modifier = Modifier
+                    .height(1.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .background(
+                        Color(
+                            0xFFE0E0E0
+                        )
                     )
-                ))
+            )
         }
 
+    }
+}
+
+@Composable
+fun CreateTopPart(modifier: Modifier, onCloseClicked: () -> Unit, onSaveClicked: () -> Unit) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 24.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onCloseClicked) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_x),
+                contentDescription = null,
+                tint = textColor
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = "Save",
+            style = TextStyle(
+                fontFamily = Lexend,
+                fontWeight = FontWeight.Normal,
+                fontSize = 16.sp,
+                color = confirmColor
+            ),
+            modifier = Modifier.clip(
+                RoundedCornerShape(10.dp)
+            ).clickable(onClick = onSaveClicked).padding(10.dp)
+        )
+        Spacer(modifier = Modifier.width(24.dp))
     }
 }
 

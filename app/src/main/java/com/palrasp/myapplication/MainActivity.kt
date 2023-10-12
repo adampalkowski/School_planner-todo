@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Yellow
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -135,8 +137,20 @@ class MainActivity : ComponentActivity() {
                                     })
                             }
                             is Screen.Create -> {
+                                val eventState= rememberEvent(initialEvent =Event(
+                                    id= generateRandomId(),
+                                    name = "",
+                                    color=Color(0xFF123123),
+                                    start=LocalDateTime.now(),
+                                    end= LocalDateTime.now().plusHours(1).plusMinutes(30),
+                                    description = "",
+                                    className="",
+                                    recurrenceJson = "",
+                                    compulsory = true
+                                ))
+
                                 CreateScreen(
-                                    modifier = Modifier,
+                                    modifier = Modifier,eventState=eventState,
                                     onBack = {
                                         currentScreen = Screen.Calendar
                                     },
@@ -146,19 +160,13 @@ class MainActivity : ComponentActivity() {
                                             val startDate = LocalDate.now()
                                             val endDate = startDate.plusMonths(6)
 
-// Calculate the selected day of the week
                                             val selectedDayOfWeekValue = selectedDayOfWeek.value
 
-// Calculate the number of days between the selected day of the week and today
                                             val daysUntilSelectedDay = (selectedDayOfWeekValue - startDate.dayOfWeek.value + 7) % 7
 
-// Calculate the number of days between today and the end date
                                             val totalDays = ChronoUnit.DAYS.between(startDate, endDate)
-
-// Calculate the number of weeks between today and the end date
                                             val totalWeeks = totalDays / 7
 
-// Create a list of events
                                             val events: List<com.palrasp.myapplication.CalendarClasses.Event> = (0 until totalWeeks).map { week ->
                                                 val currentDate = startDate.plusDays(week * 7 + daysUntilSelectedDay.toLong())
                                                 val startDateTime = currentDate.atTime(startTime)
@@ -179,9 +187,7 @@ class MainActivity : ComponentActivity() {
                                             events.forEach { event ->
                                                 event.setRecurrence(Recurrence(RecurrencePattern.WEEKLY))
                                             }
-
                                             eventViewModel.insertEvents(events)
-
 // After creating and inserting events, navigate back to the Calendar screen
                                             currentScreen = Screen.Calendar
                                         }
