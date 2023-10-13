@@ -161,7 +161,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
         sheetPeekHeight = 80.dp,
         sheetElevation = 20.dp,
         sheetContentColor = Color.White,
-        sheetBackgroundColor = PlannerTheme.colors.uiBackground,
+        sheetBackgroundColor =Color.White,
         sheetGesturesEnabled = true,
         modifier = Modifier.fillMaxSize(),
         contentColor = Color.Transparent,
@@ -237,7 +237,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                     .padding(bottom = 12.dp, end = 24.dp)
                     .align(Alignment.BottomEnd)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(confirmColor)
+                    .background(Color(0x9F4E6AFF))
                     .clickable(onClick = {
                         onEvent(CalendarEvents.GoToCreate)
                     })
@@ -245,7 +245,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
             ) {
 
                 Box(modifier = Modifier
-                    .height(4.dp)
+                    .height(3.dp)
                     .width(24.dp)
                     .clip(RoundedCornerShape(1.dp))
                     .align(
@@ -254,7 +254,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                     .background(Color(0xBAFFFFFF)))
                 Box(modifier = Modifier
                     .height(24.dp)
-                    .width(4.dp)
+                    .width(3.dp)
                     .clip(RoundedCornerShape(1.dp))
                     .align(
                         Center

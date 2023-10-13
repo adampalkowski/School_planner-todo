@@ -43,10 +43,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 
 @Composable
@@ -79,7 +82,7 @@ fun ModDivider(height:Int=1,color:Color=Color(0xFFDADADA),onClick:()->Unit,onCle
             .border(BorderStroke(1.dp, color = lightGray), shape = RoundedCornerShape(8.dp))
             .clickable(onClick = onClear)){
             Row(Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
-                Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription =null, tint = Color(0xFF666666) )
+                Icon(painter = painterResource(id = R.drawable.ic_clear), contentDescription =null, tint = Color(0xFF666666) )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Clear")
             }
@@ -93,11 +96,13 @@ fun ModDivider(height:Int=1,color:Color=Color(0xFFDADADA),onClick:()->Unit,onCle
 }
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun DisplayEventScreen(event:Event,GoBack:()->Unit,SaveNotes:(Event)->Unit){
+fun DisplayEventScreen(event:Event,GoBack:()->Unit,SaveNotes:(Event)->Unit,onDeleteEvent:(Event)->Unit){
     BackHandler() {
         GoBack()
     }
     var notes by remember { mutableStateOf(event.description) }
+    var displayDeleteDialog by remember { mutableStateOf(false) }
+
     // Save the notes whenever they change
     DisposableEffect(notes) {
         onDispose {
@@ -111,7 +116,7 @@ fun DisplayEventScreen(event:Event,GoBack:()->Unit,SaveNotes:(Event)->Unit){
             .padding(start = 24.dp, top = 24.dp)) {
             Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription =null )
         }
-        IconButton(onClick = { notes="" }, modifier = Modifier
+        IconButton(onClick = {  displayDeleteDialog=true}, modifier = Modifier
             .align(Alignment.TopEnd)
             .padding(start = 24.dp, top = 24.dp)) {
             Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription =null )
@@ -156,7 +161,42 @@ fun DisplayEventScreen(event:Event,GoBack:()->Unit,SaveNotes:(Event)->Unit){
 
         }
 
+        if (displayDeleteDialog){
+            Dialog(onDismissRequest = { displayDeleteDialog=false }) {
+                Box(modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp)).background(Color.White)
+                    .padding(16.dp)){
+                    Column(horizontalAlignment =Alignment.CenterHorizontally ) {
+                        Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription =null )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(text="Are you sure you want to delete the class from the calendar?", style = TextStyle(fontFamily = Lexend, fontWeight = FontWeight.Light, fontSize = 14.sp), textAlign = TextAlign.Center)
+                        Spacer(modifier = Modifier.height(16.dp))
 
+                        Row(modifier=Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Text(
+                                text = "Cancel",
+                                modifier = Modifier.clickable(onClick = { displayDeleteDialog=false }),
+                                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal)
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                text = "Confirm",
+                                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = confirmColor),
+                                modifier = Modifier.clickable(onClick = {
+                                    onDeleteEvent(event)
+                                    displayDeleteDialog=false
+
+                                    GoBack()
+                                })
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
 
     }
@@ -306,11 +346,10 @@ fun TextWithTasksEditable(
                                         onDescriptionChange(updatedDescription)
                                     }
                                     true
-                                } else if(event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
+                                } else if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
 
                                     true
-                                }
-                                else {
+                                } else {
                                     false
                                 }
                             },

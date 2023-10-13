@@ -152,6 +152,14 @@ class MainActivity : ComponentActivity() {
                                         coroutineScope.launch {
                                             eventViewModel.updateEvent(event)
                                         }
+                                    }, onDeleteEvent = {
+                                        event->
+                                        coroutineScope.launch {
+
+                                            eventViewModel.deleteAllEvents(event)
+
+                                        }
+
                                     })
                             }
                             is Screen.Create -> {
