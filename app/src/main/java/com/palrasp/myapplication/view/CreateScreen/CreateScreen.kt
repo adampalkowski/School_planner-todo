@@ -116,22 +116,9 @@ fun CreateScreenSchemePrev() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit)
+fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit,eventState: MutableState<Event>)
 {
-    val eventState = rememberEvent(
-        initialEvent = Event(
-            id = generateRandomId(),
-            name = "",
-            color = Color(0xFF7DC1FF),
-            start = LocalDateTime.of(LocalDate.now(), LocalTime.of(12,0)),
-            end = LocalDateTime.of(LocalDate.now(), LocalTime.of(13,30)),
-            description = "",
-            className = "",
-            recurrenceJson = "",
-            compulsory = true,
-            dayOfTheWeek = 1
-        )
-    )
+
     var currentEvent by remember { mutableStateOf<CreateScreenEvent?>(null) }
     CreateScreenScheme(modifier = Modifier, eventState = eventState, onEvent = {
             event->

@@ -1,14 +1,18 @@
 package com.palrasp.myapplication.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.palrasp.myapplication.CalendarClasses.Event
+import com.palrasp.myapplication.Screen
 import com.palrasp.myapplication.data.local.dao.EventDao
 import com.palrasp.myapplication.data.local.entities.EventEntity
+import com.palrasp.myapplication.generateRandomId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +20,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 
@@ -25,6 +31,19 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
     // LiveData to hold the list of events
     private val _allEvents = MutableStateFlow<List<Event>>(emptyList())
     val allEvents: StateFlow<List<Event>> = _allEvents.asStateFlow()
+    val currentScreen: MutableState<Screen> = mutableStateOf(Screen.Calendar)
+    val currentClass: MutableState<Event> = mutableStateOf(Event(
+        id = generateRandomId(),
+        name = "",
+        color = Color(0xFF7DC1FF),
+        start = LocalDateTime.of(LocalDate.now(), LocalTime.of(12,0)),
+        end = LocalDateTime.of(LocalDate.now(), LocalTime.of(13,30)),
+        description = "",
+        className = "",
+        recurrenceJson = "",
+        compulsory = true,
+        dayOfTheWeek = 1
+    ))
 
     suspend fun getEvents()  {
         withContext(Dispatchers.IO) {

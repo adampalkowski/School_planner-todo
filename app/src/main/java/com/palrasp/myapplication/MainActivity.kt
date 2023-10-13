@@ -11,6 +11,9 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -36,7 +39,8 @@ import java.time.*
 import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.random.Random
-
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 sealed class Screen(val route: String) {
     object Calendar : Screen("calendar")
     class Event(val event: com.palrasp.myapplication.CalendarClasses.Event) : Screen("event")
@@ -53,7 +57,6 @@ class MainActivity : ComponentActivity() {
         val eventViewModel =
             ViewModelProvider(this, EventViewModelFactory(eventDao)).get(EventViewModel::class.java)
 
-
         setContent {
             PlannerTheme {
 
@@ -68,8 +71,21 @@ class MainActivity : ComponentActivity() {
                         var addClassDialog by remember {
                             mutableStateOf(false)
                         }
-                        var currentScreen: Screen by remember {
-                            mutableStateOf(Screen.Calendar)
+                        val eventState = remember{
+                            mutableStateOf(eventViewModel.currentClass.value)
+                        }
+
+                        // Convert the saved route back to the Screen instance when needed
+                        var currentScreen :Screen by remember{
+                            mutableStateOf(eventViewModel.currentScreen.value)
+                        }
+
+
+                        DisposableEffect(currentScreen) {
+                            onDispose {
+                                eventViewModel.currentScreen.value = currentScreen
+                                eventViewModel.currentClass.value=eventState.value
+                            }
                         }
                         val classes by eventViewModel.allEvents.collectAsState(emptyList())
                         when (currentScreen) {
@@ -120,11 +136,13 @@ class MainActivity : ComponentActivity() {
                                             currentScreen = Screen.Lessons
 
                                         }
+
                                     }
                                 },classes=classes)
 
 
                             }
+
                             is Screen.Event -> {
                                 val event: com.palrasp.myapplication.CalendarClasses.Event = (currentScreen as Screen.Event).event
                                 DisplayEventScreen(
@@ -138,7 +156,7 @@ class MainActivity : ComponentActivity() {
                             }
                             is Screen.Create -> {
 
-                                CreateScreen(onBack = {currentScreen=Screen.Calendar}, onCreateEvent = {
+                                CreateScreen(onBack = {currentScreen=Screen.Calendar},eventState=eventState, onCreateEvent = {
                                     createdEvent->
                                     coroutineScope.launch {
                                         val startDate = LocalDate.now()
@@ -235,6 +253,8 @@ class MainActivity : ComponentActivity() {
                                         }
                                     })
                             }
+                            else->{}
+
                         }
 
 

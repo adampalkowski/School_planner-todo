@@ -31,6 +31,7 @@ import java.time.temporal.TemporalAdjusters
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role.Companion.Image
@@ -230,20 +231,26 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
 
             Box(
                 modifier = Modifier
-                    .padding(bottom = 24.dp, end = 24.dp)
+                    .padding(bottom = 12.dp, end = 24.dp)
                     .align(Alignment.BottomEnd)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF0EABFF))
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(confirmColor)
                     .clickable(onClick = {
                         onEvent(CalendarEvents.GoToCreate)
                     })
                     .padding(16.dp)
             ) {
-                Icon(
+
+                Box(modifier = Modifier.height(4.dp).width(24.dp).clip(RoundedCornerShape(1.dp)).align(
+                    Center).background(Color(0xBAFFFFFF)))
+                Box(modifier = Modifier.height(24.dp).width(4.dp).clip(RoundedCornerShape(1.dp)).align(
+                    Center).background(Color(0xB9FFFFFF)))
+
+               /* Icon(
                     painter = painterResource(id = com.palrasp.myapplication.R.drawable.ic_add),
                     contentDescription = null,
                     tint = Color.White
-                )
+                )*/
             }
         }
     }
