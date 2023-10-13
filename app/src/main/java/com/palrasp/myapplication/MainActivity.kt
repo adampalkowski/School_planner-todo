@@ -200,6 +200,20 @@ class MainActivity : ComponentActivity() {
                                         }
                                         eventViewModel.insertEvents(events)
                                         currentScreen=Screen.Calendar
+                                        eventViewModel.resetCurrentClass()
+                                        eventState.value=Event(
+                                            id = generateRandomId(),
+                                            name = "",
+                                            color = Color(0xFF7DC1FF),
+                                            start = LocalDateTime.of(LocalDate.now(), LocalTime.of(12,0)),
+                                            end = LocalDateTime.of(LocalDate.now(), LocalTime.of(13,30)),
+                                            description = "",
+                                            className = "",
+                                            recurrenceJson = "",
+                                            compulsory = true,
+                                            dayOfTheWeek = 1
+                                        )
+
                                     }
 
                                 })

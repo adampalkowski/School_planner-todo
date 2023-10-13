@@ -72,6 +72,20 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             eventDao.insertEvents(entities)
         }
     }
+    suspend fun resetCurrentClass() {
+        currentClass.value=Event(
+            id = generateRandomId(),
+            name = "",
+            color = Color(0xFF7DC1FF),
+            start = LocalDateTime.of(LocalDate.now(), LocalTime.of(12,0)),
+            end = LocalDateTime.of(LocalDate.now(), LocalTime.of(13,30)),
+            description = "",
+            className = "",
+            recurrenceJson = "",
+            compulsory = true,
+            dayOfTheWeek = 1
+        )
+    }
 
     suspend fun updateEvent(updatedEvent: Event) {
         viewModelScope.launch(Dispatchers.IO) {

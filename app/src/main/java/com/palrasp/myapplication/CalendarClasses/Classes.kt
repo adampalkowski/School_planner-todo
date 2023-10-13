@@ -19,6 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.Calendar.Event
@@ -34,67 +35,71 @@ fun BasicClass(
     event: com.palrasp.myapplication.CalendarClasses.Event,
     modifier: Modifier = Modifier,
 ) {
-    val classTextColor=
-        if (event.compulsory){
+    val classTextColor =
+        if (event.compulsory) {
             Color(0xFFFFFFFF)
-
-        }else{
-            Color(0xFF100E0E)
+        } else {
+            Color(0x8D100E0E)
         }
-    val classBackgroundColor=
-        if (event.compulsory){
+    val classBackgroundColor =
+        if (event.compulsory) {
             event.color
-        }else{
+        } else {
             Color(0xFFFFFFFF)
         }
-    val border=       if (event.compulsory){
-        BorderStroke(0.dp,color=Color(0xffD6D6D6))
-    }else{
-       BorderStroke(1.dp,color=Color(0xffD6D6D6))
-    }
-    Box(
+
+    val modifierMain = if (event.compulsory) {
         Modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(classBackgroundColor).border(border, shape = RoundedCornerShape(8.dp))) {
+            .background(classBackgroundColor)
+    } else {
+        Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(classBackgroundColor)
+            .border(BorderStroke(1.dp, color = Color(0xffD6D6D6)), shape = RoundedCornerShape(8.dp))
+    }
+
+    Box(
+        modifier = modifierMain
+    ) {
         Box(modifier = Modifier
             .align(Alignment.TopCenter)
-            .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp)).background(Color.White).padding(horizontal = 2.dp)  ){
+            .clip(RoundedCornerShape(bottomStart = 3.dp, bottomEnd =3.dp))
+            .background(Color.White)
+            .padding(horizontal = 2.dp)) {
             Text(
-                text = event.start.toString().takeLast(5),modifier.align(Alignment.Center),style= TextStyle(color=classTimeTextColor,
-                    fontSize = 8.sp,fontWeight = FontWeight.ExtraLight, fontFamily = Lexend),)
+                text = event.start.toString().takeLast(5),
+                modifier = Modifier.align(Alignment.Center),
+                style = TextStyle(color = classTimeTextColor, fontSize = 8.sp, fontWeight = FontWeight.ExtraLight, fontFamily = Lexend),
+            )
         }
         Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(4.dp).padding(vertical = 20.dp)
-
+            modifier = modifier.fillMaxSize().padding(4.dp).padding(vertical = 4.dp)
         ) {
-
+            Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = event.name,
-                style =TextStyle(color=classTextColor,
-                    fontSize = 12.sp,fontWeight = FontWeight.Medium, fontFamily = Lexend),
-                fontWeight = FontWeight.Bold,
-                color=classTextColor
-
+                style = TextStyle(color = classTextColor, fontSize = 10.sp, fontWeight = FontWeight.Medium, fontFamily = Lexend),
+                fontWeight = FontWeight.Normal,
+                color = classTextColor
             )
             Text(
                 text = event.className,
-                style =TextStyle(color=classTextColor,
-                    fontSize = 12.sp,fontWeight = FontWeight.Light, fontFamily = Lexend),
-                fontWeight = FontWeight.Bold,
-
+                style = TextStyle(color = classTextColor, fontSize = 10.sp, fontWeight = FontWeight.ExtraLight, fontFamily = Lexend),
             )
-
+            Spacer(modifier = Modifier.weight(1f))
         }
         Box(modifier = Modifier
             .align(Alignment.BottomCenter)
-            .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)).background(Color.White).padding(horizontal = 2.dp)  ){
+            .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
+            .background(Color.White)
+            .padding(horizontal = 2.dp)) {
             Text(
-                text = event.end.toString().takeLast(5),modifier.align(Alignment.Center),style= TextStyle(color=classTimeTextColor,
-                    fontSize = 8.sp,fontWeight = FontWeight.ExtraLight, fontFamily = Lexend),)
+                text = event.end.toString().takeLast(5),
+                modifier = Modifier.align(Alignment.Center),
+                style = TextStyle(color = classTimeTextColor, fontSize = 8.sp, fontWeight = FontWeight.ExtraLight, fontFamily = Lexend),
+            )
         }
     }
-
 }
 

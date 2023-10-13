@@ -60,7 +60,7 @@ fun Schedule(
 
     // Calculate the dayWidth as 1/5 of the screen width
     var sidebarWidth by remember { mutableStateOf(0) }
-    val dayWidth = ((screenWidth-sidebarWidth.dp) / 5f)
+    val dayWidth = ((screenWidth-sidebarWidth.dp) / 5f)+5.dp
     Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(modifier = Modifier.fillMaxWidth()                    .background(color = topBarColor)
         ){
@@ -76,7 +76,7 @@ fun Schedule(
         }
         CreateDivider()
 
-        Row(modifier = Modifier.weight(1f)) {
+        Row(modifier = Modifier.fillMaxWidth()) {
             ScheduleSidebar(
                 hourHeight = hourHeight,
                 modifier = Modifier
@@ -92,7 +92,6 @@ fun Schedule(
                 dayWidth = dayWidth,
                 hourHeight = hourHeight,
                 modifier = Modifier
-                    .padding(top = (sideBarTextSize).value.dp)
                     .verticalScroll(verticalScrollState)
                     .horizontalScroll(horizontalScrollState)
             )
@@ -124,7 +123,6 @@ fun BasicSchedule(
         },
         modifier = modifier.drawBehind {
             repeat(48) {
-
                 val offsetY = (it * (hourHeight.toPx() / 2)).toFloat() // 30 minutes interval
                 if (it % 2 == 0) {
                     // Draw a line for full hours

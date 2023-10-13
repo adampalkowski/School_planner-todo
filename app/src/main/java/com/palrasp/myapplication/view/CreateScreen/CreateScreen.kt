@@ -141,7 +141,6 @@ fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit,eventState: Mutable
             is CreateScreenEvent.Save->{
                 if (!  eventState.value.start.isAfter(eventState.value.start)){
                     onCreateEvent(eventState.value)
-
                 }
 
             }

@@ -1,5 +1,6 @@
 package com.palrasp.myapplication.utils
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -24,10 +26,8 @@ fun TopBar(lessonsClicked:()->Unit,NextWeek:()->Unit,PrevWeek:()->Unit,openMonth
     Box(modifier = Modifier
         .fillMaxWidth()
         .background(topBarColor)
-        .padding(horizontal = 24.dp, vertical = 8.dp)){
-            /*IconButton(onClick =lessonsClicked, modifier = Modifier.align(Alignment.CenterStart)) {
-                Icon(painter = painterResource(id = R.drawable.ic_book), contentDescription = null)
-            }*/
+        .padding(horizontal = 24.dp, vertical = 2.dp)){
+
             Row(Modifier.align(Alignment.Center), verticalAlignment = Alignment.CenterVertically) {
 
             IconButton(onClick =PrevWeek) {
