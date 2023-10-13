@@ -33,4 +33,6 @@ data class EventEntity(
 
     @ColumnInfo(name = "compulsory")
     val compulsory: Boolean,
+    @ColumnInfo(name = "dayOfTheWeek")
+    val dayOfTheWeek : Int,
 )

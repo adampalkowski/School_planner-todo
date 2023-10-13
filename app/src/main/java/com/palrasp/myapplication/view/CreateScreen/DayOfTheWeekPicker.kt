@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -18,19 +19,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.ui.theme.Lexend
+import com.palrasp.myapplication.view.CreateScreenEvent
 import com.palrasp.myapplication.view.confirmColor
 import com.palrasp.myapplication.view.dividerColor
 import com.palrasp.myapplication.view.textColor
+import java.time.DayOfWeek
 import java.time.format.TextStyle
 
 val selectedTextStyle= androidx.compose.ui.text.TextStyle(fontFamily = Lexend, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color(0xff292929))
 
 @Composable
-fun DayOfTheWeekPicker(event: MutableState<Event>){
+fun DayOfTheWeekPicker(event: MutableState<Event>,onEvent:(CreateScreenEvent)->Unit){
     Box(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 24.dp, vertical = 12.dp)){
@@ -40,16 +44,19 @@ fun DayOfTheWeekPicker(event: MutableState<Event>){
         Box(modifier = Modifier
             .align(Alignment.CenterEnd)
             .clip(RoundedCornerShape(6.dp))
+            .clickable(onClick = {
+                onEvent(CreateScreenEvent.OpenDayOfWeekPicker)
+            })
             .border(BorderStroke(1.dp, color = Color(0xFFD6D6D6)), shape = RoundedCornerShape(6.dp))
             .padding(horizontal = 16.dp, vertical = 8.dp)){
-            Text(text = event.value.start.dayOfWeek.name,style=selectedTextStyle)
+            Text(text =DayOfWeek.of(event.value.dayOfTheWeek).name ,style=selectedTextStyle)
         }
     }
 }
 
 
 @Composable
-fun TimePickerSection(event: MutableState<Event>){
+fun TimePickerSection(event: MutableState<Event>,onEvent:(CreateScreenEvent)->Unit){
     Box(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 24.dp, vertical = 12.dp)){
@@ -61,8 +68,12 @@ fun TimePickerSection(event: MutableState<Event>){
         Box(modifier = Modifier
             .clip(RoundedCornerShape(6.dp))
             .border(BorderStroke(1.dp, color = Color(0xFFD6D6D6)), shape = RoundedCornerShape(6.dp))
+            .clickable(onClick = {
+                onEvent(CreateScreenEvent.OpenTimeStartPicker)
+            })
             .padding(horizontal = 16.dp, vertical = 8.dp)){
-            Text(text = event.value.start.hour.toString()+":"+event.value.start.minute,style=selectedTextStyle)
+            val startTimeText = String.format("%02d:%02d", event.value.start.hour, event.value.start.minute)
+            Text(text = startTimeText, style = selectedTextStyle)
         }
             Spacer(modifier = Modifier.width(8.dp))
             Icon(painter = painterResource(id = com.palrasp.myapplication.R.drawable.ic_long_right), contentDescription =null,tint= selectedTextStyle.color )
@@ -74,11 +85,22 @@ fun TimePickerSection(event: MutableState<Event>){
                     BorderStroke(1.dp, color = Color(0xFFD6D6D6)),
                     shape = RoundedCornerShape(6.dp)
                 )
+                .clickable(onClick = {
+                    onEvent(CreateScreenEvent.OpenTimeEndPicker)
+
+                })
                 .padding(horizontal = 16.dp, vertical = 8.dp)){
-                Text(text = event.value.end.hour.toString()+":"+event.value.end.minute,style=selectedTextStyle)
+                val endTimeText = String.format("%02d:%02d", event.value.end.hour, event.value.end.minute)
+                Text(text = endTimeText, style = selectedTextStyle)
             }
         }
 
+    }
+    if (event.value.start.toLocalTime().isAfter(event.value.end.toLocalTime())){
+        Text(textAlign = TextAlign.Center,modifier = Modifier.padding(horizontal = 24.dp),text = "Start of the class is after the end, please fix this in order to save the class.",style=androidx.compose.ui.text.TextStyle(fontWeight = FontWeight.Normal,color=Color(
+            0xFFFF4848
+        )
+        ))
     }
 }
 @Composable

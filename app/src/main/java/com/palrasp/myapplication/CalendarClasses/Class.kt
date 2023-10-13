@@ -37,6 +37,8 @@ object EventSaver : Saver<Event, java.io.Serializable> {
         map["className"] = value.className
         map["recurrenceJson"] = value.recurrenceJson
         map["compulsory"] = value.compulsory
+        map["dayOfTheWeek"] = value.dayOfTheWeek // Save dayOfTheWeek
+
         return map as java.io.Serializable
     }
 
@@ -51,12 +53,16 @@ object EventSaver : Saver<Event, java.io.Serializable> {
                 description = value["description"] as? String ?: "",
                 className = value["className"] as? String ?: "",
                 recurrenceJson = value["recurrenceJson"] as? String ?: "",
-                compulsory = value["compulsory"] as? Boolean ?: true
+                compulsory = value["compulsory"] as? Boolean ?: true,
+                dayOfTheWeek = (value["dayOfTheWeek"] as? Int) ?: 0 // Restore dayOfTheWeek
+
             )
         }
         return Event() // Default event if restoration fails
     }
 }
+
+
 
 data class Event(
     var id: Long,
@@ -67,10 +73,12 @@ data class Event(
     var description: String,
     var className: String,
     var recurrenceJson: String, // Store Recurrence as JSON string
-    var compulsory:Boolean,
-
-){
-    constructor() : this(0,"", Color.Unspecified, LocalDateTime.now(), LocalDateTime.now(), "","","",true)
+    var compulsory: Boolean,
+    var dayOfTheWeek: Int // New property for day of the week
+) {
+    constructor() : this(
+        0, "", Color.Unspecified, LocalDateTime.now(), LocalDateTime.now(), "", "", "", true, 0
+    )
     val extractedLines: List<String>
         get() = description.lines()
             .filter { it.startsWith("[-]") }

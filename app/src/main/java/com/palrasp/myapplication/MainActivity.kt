@@ -137,19 +137,49 @@ class MainActivity : ComponentActivity() {
                                     })
                             }
                             is Screen.Create -> {
-                                val eventState= rememberEvent(initialEvent =Event(
-                                    id= generateRandomId(),
-                                    name = "",
-                                    color=Color(0xFF123123),
-                                    start=LocalDateTime.now(),
-                                    end= LocalDateTime.now().plusHours(1).plusMinutes(30),
-                                    description = "",
-                                    className="",
-                                    recurrenceJson = "",
-                                    compulsory = true
-                                ))
 
-                                CreateScreen(
+                                CreateScreen(onBack = {currentScreen=Screen.Calendar}, onCreateEvent = {
+                                    createdEvent->
+                                    coroutineScope.launch {
+                                        val startDate = LocalDate.now()
+                                        val endDate = startDate.plusMonths(6)
+
+                                        val totalDays = ChronoUnit.DAYS.between(startDate, endDate)
+                                        val totalWeeks = totalDays / 7
+                                        val selectedDayOfWeekValue = createdEvent.dayOfTheWeek
+
+                                        val daysUntilSelectedDay = (selectedDayOfWeekValue - startDate.dayOfWeek.value + 7) % 7
+
+                                        val events: List<com.palrasp.myapplication.CalendarClasses.Event> = (0 until totalWeeks).map { week ->
+                                            val currentDate = startDate.plusDays(week * 7 + daysUntilSelectedDay.toLong())
+                                            val startTime=createdEvent.start.toLocalTime()
+                                            val endTime=createdEvent.end.toLocalTime()
+                                            val startDateTime = currentDate.atTime(startTime)
+                                            val endDateTime = currentDate.atTime(endTime)
+                                            com.palrasp.myapplication.CalendarClasses.Event(
+                                                id = generateRandomId(),
+                                                name = createdEvent.name,
+                                                color = createdEvent.color,
+                                                start = startDateTime,
+                                                end = endDateTime,
+                                                description = "",
+                                                className = createdEvent.className,
+                                                recurrenceJson = "",
+                                                compulsory = createdEvent.compulsory,
+                                                dayOfTheWeek =createdEvent.dayOfTheWeek
+                                            )
+                                        }
+                                        events.forEach { event ->
+                                            event.setRecurrence(Recurrence(RecurrencePattern.WEEKLY))
+                                        }
+                                        eventViewModel.insertEvents(events)
+                                        currentScreen=Screen.Calendar
+                                    }
+
+                                })
+
+
+                                /*CreateScreen(
                                     modifier = Modifier,eventState=eventState,
                                     onBack = {
                                         currentScreen = Screen.Calendar
@@ -191,7 +221,7 @@ class MainActivity : ComponentActivity() {
 // After creating and inserting events, navigate back to the Calendar screen
                                             currentScreen = Screen.Calendar
                                         }
-                                    })
+                                    })*/
                             }
                             is Screen.Lessons -> {
                                 Log.d("LessonScreen",classes.size.toString())

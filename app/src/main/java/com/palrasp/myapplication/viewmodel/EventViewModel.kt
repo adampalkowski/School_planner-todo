@@ -102,7 +102,8 @@ fun Event.toEventEntity(): EventEntity {
         description = this.description,
         className = this.className,
         recurrenceJson=this.recurrenceJson,
-        compulsory = this.compulsory
+        compulsory = this.compulsory,
+        dayOfTheWeek=this.dayOfTheWeek
     )
 }
 
@@ -117,7 +118,8 @@ fun EventEntity.toEvent(): Event {
         description = this.description,
         className = this.className,
         recurrenceJson=this.recurrenceJson,
-        compulsory = this.compulsory
+        compulsory = this.compulsory,
+        dayOfTheWeek=this.dayOfTheWeek
 
     )
 }

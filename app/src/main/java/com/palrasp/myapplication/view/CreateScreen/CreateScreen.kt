@@ -1,6 +1,5 @@
 package com.palrasp.myapplication.view
 
-import android.widget.EditText
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,23 +7,16 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,14 +25,12 @@ import androidx.compose.ui.window.Dialog
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.CalendarClasses.rememberEvent
 import com.palrasp.myapplication.R
-import com.palrasp.myapplication.Screen
 import com.palrasp.myapplication.generateRandomId
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
-import com.palrasp.myapplication.utils.PlannerEditText
-import com.palrasp.myapplication.utils.TextFieldState
 import com.palrasp.myapplication.view.CreateScreen.*
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
@@ -57,9 +47,8 @@ val confirmColor = Color(0xFF2F69FF)
 val dividerColor = Color(0xffEEEEEE)
 val subjectColor = Color(0xffBFBFBF)
 
-
-
-
+/*
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun CreateScreenSchemePrev() {
@@ -73,43 +62,166 @@ fun CreateScreenSchemePrev() {
             description = "",
             className = "",
             recurrenceJson = "",
-            compulsory = true
+            compulsory = true,
+            dayOfTheWeek = 1
         )
     )
-    CreateScreenScheme(modifier = Modifier, eventState = eventState)
+    var currentEvent by remember { mutableStateOf<CreateScreenEvent?>(null) }
+    val modalBottomSheetState = rememberModalBottomSheetState()
+
+    CreateScreenScheme(modifier = Modifier, eventState = eventState, onEvent = {
+        event->
+        when(event){
+            is CreateScreenEvent.OpenTimeEndPicker->{}
+            is CreateScreenEvent.OpenTimeStartPicker->{}
+            is CreateScreenEvent.OpenDayOfWeekPicker->{}
+            is CreateScreenEvent.OpenColorPicker->{}
+            is CreateScreenEvent.Close->{}
+            is CreateScreenEvent.Save->{}
+            else->{}
+        }
+    })
+    currentEvent?.let { event ->
+        when (event) {
+            is CreateScreenEvent.OpenTimeStartPicker -> {
+                TimePickerDialog(eventState=eventState,onDismissRequest={
+                    currentEvent=null
+                }, isStart = true)
+
+
+            }
+            is CreateScreenEvent.OpenTimeEndPicker -> {
+                ModalBottomSheet(
+                    onDismissRequest = {  currentEvent=null  },
+                    sheetState = modalBottomSheetState,
+                    dragHandle = { BottomSheetDefaults.DragHandle() },
+                ) {
+
+                }
+            }
+            is CreateScreenEvent.OpenDayOfWeekPicker -> {
+                ModalBottomSheet(
+                    onDismissRequest = {  currentEvent=null  },
+                    sheetState = modalBottomSheetState,
+                    dragHandle = { BottomSheetDefaults.DragHandle() },
+                ) {
+                }
+            }
+            else -> {
+            }
+        }
+    }
+
+}*/
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit)
+{
+    val eventState = rememberEvent(
+        initialEvent = Event(
+            id = generateRandomId(),
+            name = "",
+            color = Color(0xFF7DC1FF),
+            start = LocalDateTime.of(LocalDate.now(), LocalTime.of(12,0)),
+            end = LocalDateTime.of(LocalDate.now(), LocalTime.of(13,30)),
+            description = "",
+            className = "",
+            recurrenceJson = "",
+            compulsory = true,
+            dayOfTheWeek = 1
+        )
+    )
+    var currentEvent by remember { mutableStateOf<CreateScreenEvent?>(null) }
+    CreateScreenScheme(modifier = Modifier, eventState = eventState, onEvent = {
+            event->
+        when(event){
+            is CreateScreenEvent.OpenTimeEndPicker->{
+                currentEvent=event
+            }
+            is CreateScreenEvent.OpenTimeStartPicker->{
+                currentEvent=event
+            }
+            is CreateScreenEvent.OpenDayOfWeekPicker->{
+                currentEvent=event
+            }
+            is CreateScreenEvent.Close->{
+                onBack()
+            }
+            is CreateScreenEvent.Save->{
+                if (!  eventState.value.start.isAfter(eventState.value.start)){
+                    onCreateEvent(eventState.value)
+
+                }
+
+            }
+            else->{}
+        }
+    })
+    currentEvent?.let { event ->
+        when (event) {
+            is CreateScreenEvent.OpenTimeStartPicker -> {
+                TimePickerDialog(eventState=eventState,onDismissRequest={
+                    currentEvent=null
+                }, isStart = true)
+            }
+            is CreateScreenEvent.OpenTimeEndPicker -> {
+                TimePickerDialog(eventState=eventState,onDismissRequest={
+                    currentEvent=null
+                }, isStart = false)
+            }
+            is CreateScreenEvent.OpenDayOfWeekPicker -> {
+                CreateBottomSheet(onDismissRequest={
+                    currentEvent=null
+                },eventState=eventState)
+            }
+
+            else -> {
+            }
+        }
+    }
 }
 
-
+sealed class CreateScreenEvent {
+    object Close : CreateScreenEvent()
+    object Save : CreateScreenEvent()
+    object OpenDayOfWeekPicker : CreateScreenEvent()
+    object OpenTimeStartPicker : CreateScreenEvent()
+    object OpenTimeEndPicker : CreateScreenEvent()
+}
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreenScheme(
     modifier: Modifier = Modifier,
+    onEvent:(CreateScreenEvent)->Unit,
     eventState: MutableState<Event>,
-    onCloseClicked: () -> Unit = {},
-    onSaveClicked: () -> Unit = {},
 ) {
+
     PlannerTheme {
+
         Column {
             CreateTopPart(
                 modifier = modifier,
-                onCloseClicked = onCloseClicked,
-                onSaveClicked = onSaveClicked
+                onEvent=onEvent,
+                eventState=eventState
             )
             SubjectInput(eventState)
             ClassroomInput(eventState)
             Spacer(modifier = Modifier.height(24.dp))
-            CreateColorPicker(eventState)
-            DayOfTheWeekPicker(eventState)
+            CreateColorPicker(eventState, onEvent =onEvent)
+            DayOfTheWeekPicker(eventState, onEvent =onEvent)
             CreateDivider()
-            TimePickerSection(eventState)
+            TimePickerSection(eventState, onEvent =onEvent)
             CreateDivider()
             IsNeccesarySection(eventState)
             CreateDivider()
         }
 
+
     }
 
 }
-
+/*
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen(
@@ -132,7 +244,6 @@ fun CreateScreen(
 
     var isDayPickerVisible by remember { mutableStateOf(false) }
     var isColorPickerVisible by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
 
     var selectedColor by remember { mutableStateOf(Color(0xFF3C8ADC)) }
 
@@ -232,7 +343,8 @@ fun CreateScreen(
 
 
             CreateItem(label = "Class name", onClick = { }) {
-                BasicTextField(value = textState,
+                BasicTextField(
+                    value = textState,
                     onValueChange = {
                         textState = it
                     }, singleLine = true, textStyle = TextStyle(color = Color.Black)
@@ -305,7 +417,8 @@ fun CreateScreen(
                                 modifier = Modifier.clickable(onClick = {
                                     displayStartTimeDialog = false
                                 }),
-                                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium))
+                                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                            )
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(
                                 text = "Confirm",
@@ -361,7 +474,8 @@ fun CreateScreen(
                                 modifier = Modifier.clickable(onClick = {
                                     displayEndTimeDialog = false
                                 }),
-                                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium))
+                                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                            )
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(
                                 text = "Confirm",
@@ -476,27 +590,7 @@ fun CreateScreen(
 
 
 }
-
-@Composable
-fun ColorPicker(onColorPicker: (Color) -> Unit, selectedColor: Color?) {
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        contentPadding = PaddingValues(4.dp)
-    ) {
-        items(colors) { color ->
-            ColorSwatch(
-                color = color,
-                onColorSelected = { selectedColor ->
-                    onColorPicker(selectedColor)
-                },
-                isSelected = color == selectedColor,
-
-                )
-        }
-    }
-}
+*/
 
 @Composable
 fun ColorSwatch(color: Color, isSelected: Boolean, onColorSelected: (Color) -> Unit) {
@@ -570,14 +664,19 @@ fun CreateItem(label: String, onClick: () -> Unit, content: @Composable () -> Un
 }
 
 @Composable
-fun CreateTopPart(modifier: Modifier, onCloseClicked: () -> Unit, onSaveClicked: () -> Unit) {
+fun CreateTopPart(modifier: Modifier,onEvent: (CreateScreenEvent) -> Unit,eventState: MutableState<Event>) {
+    val saveColor=if (eventState.value.start.isBefore(eventState.value.end)){
+        confirmColor
+    }else{
+        Color(0xFFC4C4C4)
+    }
     Row(
         modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onCloseClicked) {
+        IconButton(onClick = {onEvent(CreateScreenEvent.Close)}) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_x),
                 contentDescription = null,
@@ -591,26 +690,16 @@ fun CreateTopPart(modifier: Modifier, onCloseClicked: () -> Unit, onSaveClicked:
                 fontFamily = Lexend,
                 fontWeight = FontWeight.Normal,
                 fontSize = 16.sp,
-                color = confirmColor
+                color = saveColor
             ),
-            modifier = Modifier.clip(
-                RoundedCornerShape(10.dp)
-            ).clickable(onClick = onSaveClicked).padding(10.dp)
+            modifier = Modifier
+                .clip(
+                    RoundedCornerShape(10.dp)
+                )
+                .clickable(onClick = {onEvent(CreateScreenEvent.Save)})
+                .padding(10.dp)
         )
         Spacer(modifier = Modifier.width(24.dp))
     }
 }
 
-val colors = listOf(
-    Color(0xFF52B69A),
-    Color(0xFF1BA1EC),
-    Color(0xFFFF8800),
-    Color(0xFF25A244),
-    Color(0xFF293241),
-    Color(0xFFBC4749),
-    Color(0xFFE09F3E),
-    Color(0xFF1A759F),
-
-    Color(0xFF4AD66D),
-
-    )
