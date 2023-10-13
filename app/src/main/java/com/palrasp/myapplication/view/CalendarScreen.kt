@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
+import com.palrasp.myapplication.view.CreateScreen.CreateDivider
 
 sealed class CalendarEvents {
     class GetEventsForWeek(val firstDayOfWeek: String, val endOfWeek: String) : CalendarEvents()
@@ -158,6 +159,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
 
         },
         sheetPeekHeight = 80.dp,
+        sheetElevation = 20.dp,
         sheetContentColor = Color.White,
         sheetBackgroundColor = PlannerTheme.colors.uiBackground,
         sheetGesturesEnabled = true,
@@ -193,9 +195,9 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
             }
             var selectedMonth by remember { mutableStateOf(firstDayOfWeek.month) }
 
-            Column() {
+            Column {
                 TopBar(
-                    iconColor = Color(0xFF2A1A61),
+                    iconColor = textColor,
                     lessonsClicked = {
                         onEvent(CalendarEvents.GoToLesson)
                     },
@@ -214,6 +216,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                     openMonthPicker = { },
                     selectedMonth = selectedMonth.name
                 )
+                CreateDivider()
                 Schedule(modifier = Modifier,
                     events = classes,
                     minDate = firstDayOfWeek,
@@ -241,10 +244,22 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                     .padding(16.dp)
             ) {
 
-                Box(modifier = Modifier.height(4.dp).width(24.dp).clip(RoundedCornerShape(1.dp)).align(
-                    Center).background(Color(0xBAFFFFFF)))
-                Box(modifier = Modifier.height(24.dp).width(4.dp).clip(RoundedCornerShape(1.dp)).align(
-                    Center).background(Color(0xB9FFFFFF)))
+                Box(modifier = Modifier
+                    .height(4.dp)
+                    .width(24.dp)
+                    .clip(RoundedCornerShape(1.dp))
+                    .align(
+                        Center
+                    )
+                    .background(Color(0xBAFFFFFF)))
+                Box(modifier = Modifier
+                    .height(24.dp)
+                    .width(4.dp)
+                    .clip(RoundedCornerShape(1.dp))
+                    .align(
+                        Center
+                    )
+                    .background(Color(0xB9FFFFFF)))
 
                /* Icon(
                     painter = painterResource(id = com.palrasp.myapplication.R.drawable.ic_add),

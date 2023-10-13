@@ -11,31 +11,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.R
+import com.palrasp.myapplication.ui.theme.Lexend
 
+val topBarColor=Color(0x9EFFFFFF)
 @Composable
 fun TopBar(lessonsClicked:()->Unit,NextWeek:()->Unit,PrevWeek:()->Unit,openMonthPicker:()->Unit,iconColor: Color,selectedMonth:String){
     Box(modifier = Modifier
         .fillMaxWidth()
-        .background(Color(0x32639AFF))
+        .background(topBarColor)
         .padding(horizontal = 24.dp, vertical = 8.dp)){
-        Row(verticalAlignment = Alignment.CenterVertically){
-            IconButton(onClick =lessonsClicked) {
+            /*IconButton(onClick =lessonsClicked, modifier = Modifier.align(Alignment.CenterStart)) {
                 Icon(painter = painterResource(id = R.drawable.ic_book), contentDescription = null)
-            }
-            Spacer(modifier = Modifier.weight(1f))
+            }*/
+            Row(Modifier.align(Alignment.Center), verticalAlignment = Alignment.CenterVertically) {
+
             IconButton(onClick =PrevWeek) {
                 Icon(painter = painterResource(id = R.drawable.arrow_left), contentDescription = null, tint = Color.Black)
             }
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(6.dp))
 
-            Text(text =selectedMonth, modifier = Modifier.clickable(onClick = openMonthPicker))
+            Text(text =selectedMonth, modifier = Modifier, style = TextStyle(fontFamily = Lexend, fontWeight = FontWeight.Light, fontSize = 16.sp))
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(6.dp))
             IconButton(onClick =NextWeek) {
                 Icon(painter = painterResource(id = R.drawable.arrow_right), contentDescription = null, tint = Color.Black)
             }
-        }
+            }
+
     }
 }

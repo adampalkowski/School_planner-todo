@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.ui.theme.PlannerTheme
+import com.palrasp.myapplication.view.confirmColor
 import java.time.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,12 +71,12 @@ fun TimePickerDialog (eventState: MutableState<Event>,onDismissRequest:()->Unit,
                     Text(
                         text = "Cancel",
                         modifier = Modifier.clickable(onClick =onDismissRequest),
-                        style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = "Confirm",
-                        style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium),
+                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = confirmColor),
                         modifier = Modifier.clickable(onClick = {
                             val newHour = startState.hour
                             val newMinute = startState.minute

@@ -1,6 +1,7 @@
 package com.palrasp.myapplication.view
 
 import android.app.usage.UsageEvents.Event
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,7 +35,9 @@ fun LessonsScreen(
     onBack: () -> Unit,
     deleteEvent: (com.palrasp.myapplication.CalendarClasses.Event) -> Unit
 ) {
-
+    BackHandler() {
+        onBack()
+    }
     Box(modifier = modifier.fillMaxSize()) {
         Column() {
             IconButton(
@@ -54,11 +57,12 @@ fun LessonsScreen(
                             text = dayOfWeek.toString(),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0x5BE2E2E2))
-                                .padding(8.dp),
-                            fontWeight = FontWeight.Bold,
+                                .background(Color(0x2AE2E2E2))
+                                .padding(8.dp)
+                                .padding(start = 24.dp),
+                            fontWeight = FontWeight.Medium,
                             color = Color.Black,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Start
                         )
                     val eventsForDayOfWeek = events.filter { it.start.dayOfWeek == dayOfWeek }
 
@@ -77,9 +81,9 @@ fun LessonsScreen(
 fun EventItem(event: com.palrasp.myapplication.CalendarClasses.Event,deleteEvent:(com.palrasp.myapplication.CalendarClasses.Event)->Unit) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
+            .wrapContentWidth()
             .padding(6.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(event.color)
             .padding(vertical = 12.dp)
     ) {
@@ -89,30 +93,35 @@ fun EventItem(event: com.palrasp.myapplication.CalendarClasses.Event,deleteEvent
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = event.name+event.start.toString(),
+                text = event.name,
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontFamily = Lexend,
                     fontWeight = FontWeight.SemiBold
-                )
+                ),
+                color=Color.White
             )
-            Row() {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = event.start.toString().takeLast(5),
                     style = TextStyle(
                         fontSize = 12.sp,
                         fontFamily = Lexend,
                         fontWeight = FontWeight.Light
-                    )
+                    ),
+                    color=Color.White
                 )
-                Spacer(modifier = Modifier.width(24.dp))
+                Spacer(modifier = Modifier.width(12.dp))
+                Icon(painter = painterResource(id = R.drawable.ic_long_right), contentDescription =null, tint = Color.Black )
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = event.end.toString().takeLast(5),
                     style = TextStyle(
                         fontSize = 12.sp,
                         fontFamily = Lexend,
                         fontWeight = FontWeight.Light
-                    )
+                    ),
+                    color=Color.White
                 )
             }
         }

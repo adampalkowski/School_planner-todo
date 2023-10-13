@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -93,6 +94,9 @@ fun ModDivider(height:Int=1,color:Color=Color(0xFFDADADA),onClick:()->Unit,onCle
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DisplayEventScreen(event:Event,GoBack:()->Unit,SaveNotes:(Event)->Unit){
+    BackHandler() {
+        GoBack()
+    }
     var notes by remember { mutableStateOf(event.description) }
     // Save the notes whenever they change
     DisposableEffect(notes) {

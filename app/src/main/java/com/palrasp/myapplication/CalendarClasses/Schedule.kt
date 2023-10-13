@@ -2,11 +2,8 @@ package com.palrasp.myapplication.CalendarClasses
 
 import android.util.Log
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +23,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.ui.theme.Lexend
+import com.palrasp.myapplication.utils.topBarColor
+import com.palrasp.myapplication.view.CreateScreen.CreateDivider
+import com.palrasp.myapplication.view.textColor
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -41,7 +41,7 @@ private class EventDataModifier(
 }
 private fun Modifier.eventData(event: Event) = this.then(EventDataModifier(event))
 val sideBarTextSize=12.sp
-val sideBarTextStyle=TextStyle(fontFamily = Lexend, fontSize = sideBarTextSize, fontWeight = FontWeight.SemiBold, color = Color(0xFF010045))
+val sideBarTextStyle=TextStyle(fontFamily = Lexend, fontSize = sideBarTextSize, fontWeight = FontWeight.SemiBold, color = textColor)
 @Composable
 fun Schedule(
     events: List<Event>,
@@ -62,15 +62,20 @@ fun Schedule(
     var sidebarWidth by remember { mutableStateOf(0) }
     val dayWidth = ((screenWidth-sidebarWidth.dp) / 5f)
     Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        ScheduleHeader(
-            minDate = minDate,
-            maxDate = maxDate,
-            dayWidth = dayWidth,
-            modifier = Modifier
-                .horizontalScroll(horizontalScrollState)
-                .padding(start = with(LocalDensity.current) { sidebarWidth.toDp() })
+        Box(modifier = Modifier.fillMaxWidth()                    .background(color = topBarColor)
+        ){
+            ScheduleHeader(
+                minDate = minDate,
+                maxDate = maxDate,
+                dayWidth = dayWidth,
+                modifier = Modifier
+                    .horizontalScroll(horizontalScrollState)
+                    .padding(start = with(LocalDensity.current) { sidebarWidth.toDp() })
 
-        )
+            )
+        }
+        CreateDivider()
+
         Row(modifier = Modifier.weight(1f)) {
             ScheduleSidebar(
                 hourHeight = hourHeight,
@@ -111,7 +116,7 @@ fun BasicSchedule(
     val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
     Layout(
         content = {
-            events.sortedBy(Event::start) .forEach { event ->
+            events.sortedBy(Event::start).forEach { event ->
                 Box(modifier = Modifier.eventData(event)) {
                     classesContent(event)
                 }
@@ -124,14 +129,14 @@ fun BasicSchedule(
                 if (it % 2 == 0) {
                     // Draw a line for full hours
                     drawLine(
-                        dividerColor,
+                        com.palrasp.myapplication.view.dividerColor,
                         start = Offset(0f, offsetY),
                         end = Offset(size.width, offsetY),
                         strokeWidth = 0.8.dp.toPx()
                     )
                 } else {
                     drawLine(
-                        dividerColor,
+                        com.palrasp.myapplication.view.dividerColor,
                         start = Offset(0f, offsetY),
                         end = Offset(size.width, offsetY),
                         strokeWidth = 0.5.dp.toPx()
@@ -141,14 +146,13 @@ fun BasicSchedule(
             }
             repeat(numDays - 1) {
                 drawLine(
-                    dividerColor,
+                    com.palrasp.myapplication.view.dividerColor,
                     start = Offset((it + 1) * dayWidth.toPx(), 0f),
                     end = Offset((it + 1) * dayWidth.toPx(), size.height),
                     strokeWidth = 1.dp.toPx()
                 )
             }
-        }
-        ,
+        },
     ) { measureables, constraints ->
         var height = hourHeight.roundToPx() * 24
         val width = dayWidth.roundToPx() * numDays
