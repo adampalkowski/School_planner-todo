@@ -82,11 +82,11 @@ data class Event(
     val extractedLines: List<String>
         get() = description.lines()
             .filter { it.startsWith("[-]") }
-            .map { it.removePrefix("[-]").trim() }
+            .map { it.removePrefix("[-]") }
     val extractedLinesWithIndices: List<Pair<Int, String>>
         get() = description.lines()
             .filterIndexed { index, line -> line.startsWith("[-]") }
-            .mapIndexed { index, line -> index to line.removePrefix("[-]").trim() }
+            .mapIndexed { index, line -> index to line.removePrefix("[-]") }
 }
 fun Event.getRecurrence(): Recurrence? {
     return recurrenceJson.let {

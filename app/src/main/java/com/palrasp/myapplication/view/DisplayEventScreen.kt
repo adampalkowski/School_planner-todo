@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -36,9 +37,11 @@ import androidx.compose.ui.semantics.SemanticsProperties.EditableText
 import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
 import androidx.compose.ui.semantics.SemanticsProperties.Text
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -53,141 +56,231 @@ import java.time.LocalTime
 
 
 @Composable
-fun PlannerDivider(height:Int=1,color:Color=Color(0xFFDADADA)){
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(height = height.dp)
-        .background(color = color))
-}
-@Composable
-fun ModDivider(height:Int=1,color:Color=Color(0xFFDADADA),onClick:()->Unit,onClear:()->Unit){
-    Row(modifier = Modifier
-        .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
-        Box(modifier = Modifier
-            .weight(1f)
+fun PlannerDivider(height: Int = 1, color: Color = Color(0xFFDADADA)) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
             .height(height = height.dp)
-            .background(color = color))
+            .background(color = color)
+    )
+}
 
-        Box(modifier = Modifier
-            .border(BorderStroke(1.dp, color = lightGray), shape = RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)){
+@Composable
+fun ModDivider(
+    height: Int = 1,
+    color: Color = Color(0xFFDADADA),
+    onClick: () -> Unit,
+    onClear: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(height = height.dp)
+                .background(color = color)
+        )
+
+        Box(
+            modifier = Modifier
+                .border(BorderStroke(1.dp, color = lightGray), shape = RoundedCornerShape(8.dp))
+                .clickable(onClick = onClick)
+        ) {
             Row(Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
-                Icon(painter = painterResource(id = R.drawable.ic_add), contentDescription =null, tint = Color(0xFF666666) )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_add),
+                    contentDescription = null,
+                    tint = Color(0xFF666666)
+                )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Todo")
             }
         }
         Spacer(modifier = Modifier.width(16.dp))
-        Box(modifier = Modifier
-            .border(BorderStroke(1.dp, color = lightGray), shape = RoundedCornerShape(8.dp))
-            .clickable(onClick = onClear)){
+        Box(
+            modifier = Modifier
+                .border(BorderStroke(1.dp, color = lightGray), shape = RoundedCornerShape(8.dp))
+                .clickable(onClick = onClear)
+        ) {
             Row(Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
-                Icon(painter = painterResource(id = R.drawable.ic_clear), contentDescription =null, tint = Color(0xFF666666) )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_clear),
+                    contentDescription = null,
+                    tint = Color(0xFF666666)
+                )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Clear")
             }
         }
-        Box(modifier = Modifier
-            .weight(0.2f)
-            .height(height = height.dp)
-            .background(color = color))
+        Box(
+            modifier = Modifier
+                .weight(0.2f)
+                .height(height = height.dp)
+                .background(color = color)
+        )
     }
 
 }
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun DisplayEventScreen(event:Event,GoBack:()->Unit,SaveNotes:(Event)->Unit,onDeleteEvent:(Event)->Unit){
+fun DisplayEventScreen(
+    event: Event,
+    GoBack: () -> Unit,
+    SaveNotes: (Event) -> Unit,
+    onDeleteEvent: (Event) -> Unit,
+) {
     BackHandler() {
         GoBack()
     }
-    var notes by remember { mutableStateOf(event.description) }
+    var notes = remember { mutableStateOf(event.description) }
     var displayDeleteDialog by remember { mutableStateOf(false) }
 
     // Save the notes whenever they change
     DisposableEffect(notes) {
         onDispose {
-            event.description=notes
+            event.description = notes.value
             SaveNotes(event)
         }
     }
-    Box(modifier = Modifier.fillMaxSize()){
-        IconButton(onClick = GoBack, modifier = Modifier
-            .align(Alignment.TopStart)
-            .padding(start = 24.dp, top = 24.dp)) {
-            Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription =null )
+    Box(modifier = Modifier.fillMaxSize()) {
+        IconButton(
+            onClick = GoBack, modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 24.dp, top = 24.dp)
+        ) {
+            Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = null)
         }
-        IconButton(onClick = {  displayDeleteDialog=true}, modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(start = 24.dp, top = 24.dp)) {
-            Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription =null )
+        IconButton(
+            onClick = { displayDeleteDialog = true }, modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(start = 24.dp, top = 24.dp)
+        ) {
+            Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription = null)
         }
-        Column(Modifier.padding(top=64.dp)) {
-            Column(modifier=Modifier.fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text =event.name, style = TextStyle(fontFamily = Lexend, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center))
+        Column(Modifier.padding(top = 64.dp)) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = event.name,
+                    style = TextStyle(
+                        fontFamily = Lexend,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center
+                    )
+                )
                 Text(text = event.className)
                 Row() {
-                    Text(text = event.start.toString().takeLast(5),style = TextStyle(fontFamily = Lexend, fontSize = 14.sp, fontWeight = FontWeight.Light, textAlign = TextAlign.Center))
+                    Text(
+                        text = event.start.toString().takeLast(5),
+                        style = TextStyle(
+                            fontFamily = Lexend,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            textAlign = TextAlign.Center
+                        )
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Icon(painter = painterResource(id = R.drawable.ic_long_right), contentDescription = null, tint = Color.Black)
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_long_right),
+                        contentDescription = null,
+                        tint = Color.Black
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = event.end.toString().takeLast(5),style = TextStyle(fontFamily = Lexend, fontSize = 14.sp, fontWeight = FontWeight.Light, textAlign = TextAlign.Center))
+                    Text(
+                        text = event.end.toString().takeLast(5),
+                        style = TextStyle(
+                            fontFamily = Lexend,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            textAlign = TextAlign.Center
+                        )
+                    )
                 }
             }
-            var indexState= remember{ mutableStateOf(0) }
+            var indexState = remember { mutableStateOf(0) }
 
             ModDivider(onClick = {
-                val lines=notes.lines()
+                val lines = notes.value.lines()
                 val updatedLines = lines.toMutableList()
-                updatedLines[indexState.value] = "[-]" +updatedLines[indexState.value]
+                updatedLines[indexState.value] = "[-]" + updatedLines[indexState.value]
                 val updatedDescription = updatedLines.joinToString("\n")
-                notes=updatedDescription
+                notes .value= updatedDescription
             }, onClear = {
                 //todo confirm clear??
-                notes=""
+                notes.value = "\n\n\n\n"
+
+
             })
 
             //HERE
-           /* TextField(
-                value = notes,
-                onValueChange = { newValue -> notes = newValue },
-                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-                textStyle = TextStyle(textDecoration = TextDecoration.None)
-            )*/
+            /* TextField(
+                 value = notes,
+                 onValueChange = { newValue -> notes = newValue },
+                 modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                 textStyle = TextStyle(textDecoration = TextDecoration.None)
+             )*/
             // Render the description with tasks
 
             TextWithTasksEditable(notes, onDescriptionChange = {
-                notes = it
-            },indexState)
+                notes.value = it
+            }, indexState)
 
         }
 
-        if (displayDeleteDialog){
-            Dialog(onDismissRequest = { displayDeleteDialog=false }) {
-                Box(modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp)).background(Color.White)
-                    .padding(16.dp)){
-                    Column(horizontalAlignment =Alignment.CenterHorizontally ) {
-                        Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription =null )
+        if (displayDeleteDialog) {
+            Dialog(onDismissRequest = { displayDeleteDialog = false }) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White)
+                        .padding(16.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_delete),
+                            contentDescription = null
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(text="Are you sure you want to delete the class from the calendar?", style = TextStyle(fontFamily = Lexend, fontWeight = FontWeight.Light, fontSize = 14.sp), textAlign = TextAlign.Center)
+                        Text(
+                            text = "Are you sure you want to delete the class from the calendar?",
+                            style = TextStyle(
+                                fontFamily = Lexend,
+                                fontWeight = FontWeight.Light,
+                                fontSize = 14.sp
+                            ),
+                            textAlign = TextAlign.Center
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Row(modifier=Modifier.fillMaxWidth(),
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.End
                         ) {
                             Text(
                                 text = "Cancel",
-                                modifier = Modifier.clickable(onClick = { displayDeleteDialog=false }),
+                                modifier = Modifier.clickable(onClick = {
+                                    displayDeleteDialog = false
+                                }),
                                 style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal)
                             )
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(
                                 text = "Confirm",
-                                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = confirmColor),
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = confirmColor
+                                ),
                                 modifier = Modifier.clickable(onClick = {
                                     onDeleteEvent(event)
-                                    displayDeleteDialog=false
+                                    displayDeleteDialog = false
 
                                     GoBack()
                                 })
@@ -201,32 +294,45 @@ fun DisplayEventScreen(event:Event,GoBack:()->Unit,SaveNotes:(Event)->Unit,onDel
 
     }
 }
-val lightGray=Color(0xFFDADADA)
-@Composable
-fun CheckBoxPlanner(checked:Boolean,onCheckChanged:()->Unit){
 
-    val color=if (checked){
+val lightGray = Color(0xFFDADADA)
+
+@Composable
+fun CheckBoxPlanner(checked: Boolean, onCheckChanged: () -> Unit) {
+
+    val color = if (checked) {
         Color.Blue
-    }else{
+    } else {
         Color.Gray
     }
-    if (checked){
-        Box(modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(Color(0xFF5887FB))
-            .size(24.dp)
-            .clickable(onClick = onCheckChanged)
-            .border(BorderStroke(1.dp, color = Color(0xFF5887FB)), shape = RoundedCornerShape(4.dp))){
-            Icon(painter = painterResource(id = R.drawable.ic_check), contentDescription =null, tint = Color.White )
+    if (checked) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(4.dp))
+                .background(Color(0xFF5887FB))
+                .size(24.dp)
+                .clickable(onClick = onCheckChanged)
+                .border(
+                    BorderStroke(1.dp, color = Color(0xFF5887FB)),
+                    shape = RoundedCornerShape(4.dp)
+                )
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_check),
+                contentDescription = null,
+                tint = Color.White
+            )
         }
-    }else{
-        Box(modifier = Modifier
-            .size(24.dp)
-            .border(BorderStroke(1.dp, color = lightGray), shape = RoundedCornerShape(4.dp))
+    } else {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .border(BorderStroke(1.dp, color = lightGray), shape = RoundedCornerShape(4.dp))
 
-            .clip(RoundedCornerShape(4.dp))
-            .background(PlannerTheme.colors.uiBackground)
-            .clickable(onClick = onCheckChanged))
+                .clip(RoundedCornerShape(4.dp))
+                .background(PlannerTheme.colors.uiBackground)
+                .clickable(onClick = onCheckChanged)
+        )
     }
 
 
@@ -236,54 +342,69 @@ val customTextSelectionColors = TextSelectionColors(
     handleColor = Color.LightGray,
     backgroundColor = Color.LightGray.copy(alpha = 0.4f)
 )
+
 @Composable
 fun TextWithTasksEditable(
-    description: String,
+    description: MutableState<String>,
     onDescriptionChange: (String) -> Unit,
-    indexState:MutableState<Int>,
+    indexState: MutableState<Int>,
 ) {
     val textSize = 18.sp
-    val lines = description.lines()
-    var updatedDescription by remember { mutableStateOf(description) }
-    val focusRequester = remember { FocusRequester() }
+    var lines = description.value.lines()
+    var updatedDescription by remember { mutableStateOf(description.value) }
+    var focusRequesters = remember { lines.map { FocusRequester() } }
+    lines.let {
+        focusRequesters = it.map { FocusRequester() }
+    }
 
+    Log.d("TEXTDEBUG","After")
+    Log.d("TEXTDEBUG",lines.size.toString())
+    Log.d("TEXTDEBUG",focusRequesters.size.toString())
     LazyColumn(
         modifier = Modifier
+            .fillMaxSize() // Fill the whole screen
             .padding(horizontal = 12.dp)
     ) {
         items(lines.size) { index ->
-            val line = lines[index]
+            var line = lines[index]
+            var cursorPosition = remember { mutableStateOf(0) }
+
+            var textState =  TextFieldValue(line, TextRange(cursorPosition.value, cursorPosition.value))
 
             if (line.trim().startsWith("[-]") || line.trim().startsWith("[x]")) {
                 var isChecked = line.trim().startsWith("[x]")
+                var textState =  TextFieldValue(line.substring(3), TextRange(cursorPosition.value, cursorPosition.value))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                 ) {
                     CheckBoxPlanner(isChecked, onCheckChanged = {
-                        if (isChecked){
+                        if (isChecked) {
                             val updatedLines = lines.toMutableList()
-                            updatedLines[index] =  "[-]"+updatedLines[index].substring(3)
+                            updatedLines[index] = "[-]" + updatedLines[index].substring(3)
                             updatedDescription = updatedLines.joinToString("\n")
                             onDescriptionChange(updatedDescription)
-                        }else{
+                        } else {
                             val updatedLines = lines.toMutableList()
-                            updatedLines[index] =  "[x]"+updatedLines[index].substring(3)
+                            updatedLines[index] = "[x]" + updatedLines[index].substring(3)
                             updatedDescription = updatedLines.joinToString("\n")
                             onDescriptionChange(updatedDescription)
                         }
                     })
                     Spacer(modifier = Modifier.width(8.dp))
                     // Use BasicTextField for tasks
+                    val focusRequester = focusRequesters[index]
+
                     SelectionContainer {
 
                         CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
                             BasicTextField(
                                 textStyle = TextStyle(fontSize = textSize),
                                 modifier = Modifier
-                                    .weight(1f)
+                                    .fillMaxWidth()
                                     .wrapContentHeight()
+                                    .focusRequester(focusRequester)
                                     .onKeyEvent { event ->
                                         if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL) {
                                             if (line
@@ -302,22 +423,78 @@ fun TextWithTasksEditable(
                                             false
                                         }
                                     },
-                                value = line.substring(3),
+                                value = textState,
                                 onValueChange = { newLine ->
+                                    cursorPosition.value=newLine.selection.start
+
                                     val updatedLines = lines.toMutableList()
-                                    updatedLines[index] = line.substring(0, 3) + newLine
+                                    updatedLines[index] = line.substring(0, 3) + newLine.text
                                     updatedDescription = updatedLines.joinToString("\n")
                                     onDescriptionChange(updatedDescription)
                                 },
+                                keyboardOptions = KeyboardOptions.Default.copy(
+                                    imeAction = androidx.compose.ui.text.input.ImeAction.Next
+                                ),
+                                keyboardActions = KeyboardActions(
+                                    onNext = {
+                                        // Move focus to the next line
+                                        if (index+1 < lines.size) {
+                                            val updatedLines = lines.toMutableList()
+                                            if (cursorPosition.value > 0 && cursorPosition.value < textState.text.length-1) {
 
-                                )
+                                                var textBeforeCursor = textState.text.substring(0, cursorPosition.value)
+                                                var textAfterCursor = textState.text.substring(cursorPosition.value)
+                                                textAfterCursor="[-]" +textAfterCursor
+                                                textBeforeCursor="[-]" +textBeforeCursor
+                                                val updatedLines = lines.toMutableList()
 
-                        }}
+                                                updatedLines[index] = textBeforeCursor
+                                                updatedLines.add(index+1, textAfterCursor)
+                                                updatedDescription =updatedLines.joinToString("\n")
+
+                                                onDescriptionChange(updatedDescription)
+
+                                                focusRequesters[index + 1].requestFocus()
+                                            }else{
+                                                if(updatedLines[index+1].toString().isEmpty()){
+                                                    if( updatedLines[index+1].startsWith("[-]")){
+                                                        focusRequesters[ index + 1].requestFocus()
+                                                    }else{
+                                                        updatedLines[index+1] = "[-]" + updatedLines[index+1]
+                                                        updatedDescription = updatedLines.joinToString("\n")
+                                                        onDescriptionChange(updatedDescription)
+                                                        focusRequesters[ index + 1].requestFocus()
+                                                    }
+
+
+                                                }else{
+                                                    focusRequesters[ index + 1].requestFocus()
+                                                }
+                                            }
+
+
+
+                                        }else{
+                                            val updatedLines = lines.toMutableList()
+
+                                            updatedLines.add("")
+                                            updatedLines[index+1] = "[-]" + updatedLines[index+1]
+                                            updatedDescription = updatedLines.joinToString("\n")
+                                            onDescriptionChange(updatedDescription)
+                                        }
+                                        true
+                                    }
+                                ),
+                            )
+
+                        }
+                    }
 
                 }
 
             } else {
 
+                var focusRequester = focusRequesters[index]
 
                 Row(
 
@@ -326,49 +503,87 @@ fun TextWithTasksEditable(
                     SelectionContainer {
 
                         CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
-                        BasicTextField(
-                        textStyle = TextStyle(fontSize = textSize),
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester = focusRequester)
-                            .onFocusChanged {
-                                indexState.value = index
+                            BasicTextField(
+                                textStyle = TextStyle(fontSize = textSize),
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .fillMaxWidth()
+                                    .focusRequester(focusRequester = focusRequester)
+                                    .onFocusChanged {
+                                        indexState.value = index
+                                    }
+                                    .onKeyEvent { event ->
+                                        if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL) {
+                                            if (line.length == 0) {
+                                                if (index>0){
+                                                    focusRequesters[index -1].requestFocus()
 
-                            }
-                            .onKeyEvent { event ->
-                                if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL) {
-                                    if (line.length == 0) {
+                                                }
+                                                val updatedLines = lines.toMutableList()
+                                                updatedLines.removeAt(index)
+                                                updatedDescription = updatedLines.joinToString("\n")
+                                                onDescriptionChange(updatedDescription)
+
+                                            }
+                                            true
+                                        }  else {
+                                            false
+                                        }
+                                    },
+                                value = textState,
+                                keyboardOptions = KeyboardOptions.Default.copy(
+                                    imeAction = androidx.compose.ui.text.input.ImeAction.Next
+                                ),
+                                onValueChange = { newLine ->
+                                    cursorPosition.value=newLine.selection.start
+                                    val updatedLines = lines.toMutableList()
+                                    updatedLines[index] = newLine.text
+                                    updatedDescription = updatedLines.joinToString("\n")
+                                    onDescriptionChange(updatedDescription)
+                                },
+                                keyboardActions = KeyboardActions(onAny = {
+                                    // Move focus to the next line
+                                    // Move focus to the next line
+                                    if (index == lines.size - 1) {
 
                                         val updatedLines = lines.toMutableList()
-                                        updatedLines.removeAt(index)
+                                        updatedLines.add("")
                                         updatedDescription = updatedLines.joinToString("\n")
                                         onDescriptionChange(updatedDescription)
+
+                                    } else {
+                                        if (cursorPosition.value >= 0 && cursorPosition.value < line.length) {
+                                            val textBeforeCursor = line.substring(0, cursorPosition.value)
+                                            val textAfterCursor = line.substring(cursorPosition.value)
+
+                                            val updatedLines = lines.toMutableList()
+                                            updatedLines[index] = textBeforeCursor
+                                            updatedDescription = updatedLines.joinToString("\n")
+                                            onDescriptionChange(updatedDescription)
+
+                                            updatedLines.add(index + 1, textAfterCursor)
+                                            updatedDescription = updatedLines.joinToString("\n")
+                                            onDescriptionChange(updatedDescription)
+
+                                            focusRequesters[index + 1].requestFocus()
+                                        }else{
+                                            val updatedLines = lines.toMutableList()
+                                            updatedLines.add("")
+                                            updatedDescription = updatedLines.joinToString("\n")
+                                            onDescriptionChange(updatedDescription)
+                                            focusRequesters[index + 1].requestFocus()
+                                        }
+
+
                                     }
-                                    true
-                                } else if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+
 
                                     true
-                                } else {
-                                    false
-                                }
-                            },
-                        value = line,
-                        onValueChange = { newLine ->
-                            val updatedLines = lines.toMutableList()
-                            updatedLines[index] = newLine
-                            updatedDescription = updatedLines.joinToString("\n")
-                            onDescriptionChange(updatedDescription)
-                        },
-                        keyboardActions = KeyboardActions(onNext = {
-                            Log.d("KEYBOARDDEB","DONE")
-                            val updatedLines = lines.toMutableList()
-                            updatedLines.add(index + 1, "") // Insert a new line at index + 1
-                            updatedDescription = updatedLines.joinToString("\n")
-                            onDescriptionChange(updatedDescription) })
-                        )
-                }                    }                        }
-
+                                })
+                            )
+                        }
+                    }
+                }
 
 
             }
@@ -381,6 +596,7 @@ fun TextWithTasksEditable(
 
     }
 }
+
 enum class Keyboard {
     Opened, Closed
 }

@@ -38,7 +38,7 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
         color = Color(0xFF7DC1FF),
         start = LocalDateTime.of(LocalDate.now(), LocalTime.of(12,0)),
         end = LocalDateTime.of(LocalDate.now(), LocalTime.of(13,30)),
-        description = "",
+        description = "\n\n\n\n",
         className = "",
         recurrenceJson = "",
         compulsory = true,

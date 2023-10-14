@@ -188,7 +188,7 @@ class MainActivity : ComponentActivity() {
                                                 color = createdEvent.color,
                                                 start = startDateTime,
                                                 end = endDateTime,
-                                                description = "",
+                                                description = "\n\n\n\n\n\n\n\n",
                                                 className = createdEvent.className,
                                                 recurrenceJson = "",
                                                 compulsory = createdEvent.compulsory,
