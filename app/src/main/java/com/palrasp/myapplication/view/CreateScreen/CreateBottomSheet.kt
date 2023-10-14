@@ -27,6 +27,7 @@ import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.view.ColorSwatch
 import com.palrasp.myapplication.view.mediumTextStyle
 import java.time.DayOfWeek
+import java.util.*
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,7 +52,7 @@ fun CreateBottomSheet(onDismissRequest:()->Unit,eventState:MutableState<Event>) 
             for (day in DayOfWeek.values()) {
                 if (day.value == eventState.value.dayOfTheWeek) {
                     Text(textAlign = TextAlign.Center,
-                        text = day.toString(), style = mediumTextStyle, color = Color.White,
+                        text = day.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault()), style = mediumTextStyle, color = Color.White,
                         modifier = Modifier
                             .fillMaxWidth().padding(horizontal = 24.dp)
                             .clip(RoundedCornerShape(8.dp))
@@ -68,7 +69,7 @@ fun CreateBottomSheet(onDismissRequest:()->Unit,eventState:MutableState<Event>) 
                     )
                 } else {
                     Text(textAlign = TextAlign.Center,
-                        text = day.toString(), style = mediumTextStyle,
+                        text = day.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault()), style = mediumTextStyle,
                         fontWeight = FontWeight.Light,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -98,6 +99,10 @@ val colorsPicker = listOf(
     Color(0xFF1A759F),
 
     Color(0xFF4AD66D),
+    Color(0xFFbc6c25),
+    Color(0xFFa2d2ff),
+    Color(0xFF7d4f50),
+    Color(0xFF5e548e),
 
     )
 

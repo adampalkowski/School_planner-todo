@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 const val AlphaNearOpaque = 0.95f
 val White = Color(0xfff2ffff)
+val NearlyBlack =Color(0x8D100E0E)
 val Black = Color(0xFF000000)
 val Transparent = Color(0x00000000)
 val Gray = Color(0xFF9A9A9B)

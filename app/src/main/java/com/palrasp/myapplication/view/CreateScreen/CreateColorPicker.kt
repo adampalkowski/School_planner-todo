@@ -16,11 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.CalendarClasses.Event
+import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.view.CreateScreenEvent
 
@@ -39,7 +41,7 @@ fun CreateColorPicker(eventState:MutableState<Event>,onEvent:(CreateScreenEvent)
             pickColors.value = !pickColors.value
         })
         .padding(horizontal = 24.dp, vertical = 12.dp)){
-        Text(text = "Color", style = createTextStyle, color = Color.White)
+        Text(text = stringResource(id = R.string.color), style = createTextStyle, color = Color.White)
     }
     AnimatedVisibility(visible = pickColors.value) {
         LazyRow{

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -194,8 +195,8 @@ fun CreateScreenScheme(
                 onEvent=onEvent,
                 eventState=eventState
             )
-            SubjectInput(eventState)
-            ClassroomInput(eventState)
+            SubjectInput(eventState,label=stringResource(id = R.string.subject_hint))
+            ClassroomInput(eventState,label=stringResource(id = R.string.classroom_hint))
             Spacer(modifier = Modifier.height(24.dp))
             CreateColorPicker(eventState, onEvent =onEvent)
             DayOfTheWeekPicker(eventState, onEvent =onEvent)
@@ -305,7 +306,7 @@ fun CreateTopPart(modifier: Modifier,onEvent: (CreateScreenEvent) -> Unit,eventS
         }
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = "Save",
+            text = stringResource(id = R.string.save_button),
             style = TextStyle(
                 fontFamily = Lexend,
                 fontWeight = FontWeight.Normal,

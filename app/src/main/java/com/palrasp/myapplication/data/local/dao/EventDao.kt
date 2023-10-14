@@ -7,6 +7,9 @@ import com.palrasp.myapplication.data.local.entities.EventEntity
 
 @Dao
 interface EventDao {
+    // Update events based on name, dayOfWeek, and color
+
+
     @Query("SELECT * FROM events WHERE start BETWEEN :weekStart AND :weekEnd")
     fun getEventsWithinWeek(weekStart: String, weekEnd: String): List<EventEntity>
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aplikacja</string>
+    <string name="save_button">Zapisz</string>
+    <string name="subject_hint">Przedmiot</string>
+    <string name="classroom_hint">Sala lekcyjna</string>
+    <string name="color">Kolor</string>
+    <string name="day_of_the_week_button">Dzień tygodnia</string>
+    <string name="time">Godzina</string>
+    <string name="compulsory">Jest obowiązkowy?</string>
+    <string name="time_Error">Ustawiono rozpoczęcie zajęć po godzinie zakończenia zajęc. W celu zapisania przedmiotu wymagana zmiana.</string>
+    <string name="cancel">Anuluj</string>
+    <string name="confirm">Potwierdz</string>
+    <string name="start_time">Czas ropoczęcia</string>
+    <string name="end_time">Czas zakończenia</string>
+    <string name="delete_class">Potwierdz usunięcie zajęc z kalendarza.</string>
+    <string name="clear">Wyczyść</string>
+    <string name="weekly">Tygodniowe</string>
+
+</resources>

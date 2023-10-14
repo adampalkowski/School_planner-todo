@@ -15,12 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.palrasp.myapplication.CalendarClasses.Event
+import com.palrasp.myapplication.R
+import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.confirmColor
 import java.time.*
@@ -31,9 +34,9 @@ fun TimePickerDialog (eventState: MutableState<Event>,onDismissRequest:()->Unit,
     val startState = rememberTimePickerState(is24Hour = true)
 
     val textLabel =if(isStart){
-        "Start time"
+        stringResource(id = R.string.start_time)
     }else{
-        "End time"
+        stringResource(id = R.string.end_time)
     }
 
 
@@ -69,14 +72,19 @@ fun TimePickerDialog (eventState: MutableState<Event>,onDismissRequest:()->Unit,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(id = R.string.cancel),
                         modifier = Modifier.clickable(onClick =onDismissRequest),
-                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal)
+                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Light)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
-                        text = "Confirm",
-                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = confirmColor),
+                        text = stringResource(id = R.string.confirm),
+                        style = TextStyle(
+                            fontFamily = Lexend,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 16.sp,
+                            color = confirmColor
+                        ),
                         modifier = Modifier.clickable(onClick = {
                             val newHour = startState.hour
                             val newMinute = startState.minute
@@ -85,7 +93,6 @@ fun TimePickerDialog (eventState: MutableState<Event>,onDismissRequest:()->Unit,
 
                             val newDateTime =currentDateTime
 
-                            Log.d("TIMEPUNTN",newDateTime.toString()+" "+eventState.value.end.toString()+" "+eventState.value.start.toString())
                            if(isStart){
                                     eventState.value=eventState.value.copy(start = newDateTime)
                                     onDismissRequest()

@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="save_button">Save</string>
+    <string name="subject_hint">Subject</string>
+    <string name="classroom_hint">Classroom</string>
+    <string name="color">Color</string>
+    <string name="day_of_the_week_button">Day of the week</string>
+    <string name="time">Time</string>
+    <string name="compulsory">Is compulsory</string>
+    <string name="time_Error">Start of the class is after the end, please fix this in order to save the class.</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="start_time">Start time</string>
+    <string name="end_time">End time</string>
+    <string name="delete_class">Are you sure you want to delete the class from the calendar?</string>
+    <string name="clear">Clear</string>
+    <string name="weekly">Weekly</string>
+
 </resources>

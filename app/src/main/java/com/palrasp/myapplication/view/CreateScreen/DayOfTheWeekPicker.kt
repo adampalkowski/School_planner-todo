@@ -18,11 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.CalendarClasses.Event
+import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.view.CreateScreenEvent
 import com.palrasp.myapplication.view.confirmColor
@@ -30,6 +32,7 @@ import com.palrasp.myapplication.view.dividerColor
 import com.palrasp.myapplication.view.textColor
 import java.time.DayOfWeek
 import java.time.format.TextStyle
+import java.util.*
 
 val selectedTextStyle= androidx.compose.ui.text.TextStyle(fontFamily = Lexend, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color(0xff292929))
 
@@ -38,7 +41,7 @@ fun DayOfTheWeekPicker(event: MutableState<Event>,onEvent:(CreateScreenEvent)->U
     Box(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 24.dp, vertical = 12.dp)){
-        Text(text = "Day of the week", style = createTextStyle, color = textColor, modifier = Modifier.align(
+        Text(text =  stringResource(id = R.string.day_of_the_week_button), style = createTextStyle, color = textColor, modifier = Modifier.align(
             Alignment.CenterStart))
 
         Box(modifier = Modifier
@@ -49,7 +52,7 @@ fun DayOfTheWeekPicker(event: MutableState<Event>,onEvent:(CreateScreenEvent)->U
             })
             .border(BorderStroke(1.dp, color = Color(0xFFD6D6D6)), shape = RoundedCornerShape(6.dp))
             .padding(horizontal = 16.dp, vertical = 8.dp)){
-            Text(text =DayOfWeek.of(event.value.dayOfTheWeek).name ,style=selectedTextStyle)
+            Text(text =DayOfWeek.of(event.value.dayOfTheWeek).getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault()),style=selectedTextStyle)
         }
     }
 }
@@ -62,7 +65,7 @@ fun TimePickerSection(event: MutableState<Event>,onEvent:(CreateScreenEvent)->Un
         .padding(horizontal = 24.dp, vertical = 12.dp)){
         Row(verticalAlignment = Alignment.CenterVertically) {
 
-        Text(text = "Time", style = createTextStyle, color = textColor)
+        Text(text =  stringResource(id = R.string.time), style = createTextStyle, color = textColor)
         Spacer(modifier = Modifier.weight(1f))
 
         Box(modifier = Modifier
@@ -97,7 +100,7 @@ fun TimePickerSection(event: MutableState<Event>,onEvent:(CreateScreenEvent)->Un
 
     }
     if (event.value.start.toLocalTime().isAfter(event.value.end.toLocalTime())){
-        Text(textAlign = TextAlign.Center,modifier = Modifier.padding(horizontal = 24.dp),text = "Start of the class is after the end, please fix this in order to save the class.",style=androidx.compose.ui.text.TextStyle(fontWeight = FontWeight.Normal,color=Color(
+        Text(textAlign = TextAlign.Center,modifier = Modifier.padding(horizontal = 24.dp),text =  stringResource(id = R.string.color),style=androidx.compose.ui.text.TextStyle(fontWeight = FontWeight.Normal,color=Color(
             0xFFFF4848
         )
         ))
@@ -109,7 +112,7 @@ fun IsNeccesarySection(event: MutableState<Event>){
         .fillMaxWidth()
         .padding(horizontal = 24.dp, vertical = 12.dp)){
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Is compulsory", style = createTextStyle, color = textColor)
+            Text(text = stringResource(id = R.string.compulsory), style = createTextStyle, color = textColor)
             Spacer(modifier = Modifier.weight(1f))
             androidx.compose.material3.Switch(
                 checked = event.value.compulsory,

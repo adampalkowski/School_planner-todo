@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.Calendar.Event
 import com.palrasp.myapplication.ui.theme.Lexend
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import java.time.format.DateTimeFormatter
 
 val EventTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
@@ -39,7 +40,7 @@ fun BasicClass(
         if (event.compulsory) {
             Color(0xFFFFFFFF)
         } else {
-            Color(0x8D100E0E)
+            PlannerTheme.colors.textPrimary
         }
     val classBackgroundColor =
         if (event.compulsory) {

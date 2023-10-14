@@ -79,14 +79,39 @@ data class Event(
     constructor() : this(
         0, "", Color.Unspecified, LocalDateTime.now(), LocalDateTime.now(), "", "", "", true, 0
     )
-    val extractedLines: List<String>
+    val extractedLines: List<Pair<Int, String>>
         get() = description.lines()
-            .filter { it.startsWith("[-]") }
-            .map { it.removePrefix("[-]") }
-    val extractedLinesWithIndices: List<Pair<Int, String>>
+            .mapIndexedNotNull { index, line ->
+                if (line.startsWith("[-]") || line.startsWith("[x]")) {
+                    index to line.removePrefix("[-]").removePrefix("[x]")
+                } else {
+                    null
+                }
+            }
+    val extractedLinesWithIndices: List<Triple<Int, String,Boolean>>
         get() = description.lines()
-            .filterIndexed { index, line -> line.startsWith("[-]") }
-            .mapIndexed { index, line -> index to line.removePrefix("[-]") }
+            .mapIndexedNotNull { index, line ->
+
+                if (line.startsWith("[-]") || line.startsWith("[x]")) {
+                    val isChecked = line.startsWith("[x]")
+
+                    val cleanedLine = line.removePrefix("[-]").removePrefix("[x]")
+                    Triple(index, cleanedLine, isChecked)
+                } else {
+                    null
+                }
+            }
+    val checkedLinesRatio: Float
+        get() {
+            val extractedLines = extractedLinesWithIndices
+            val totalLines = extractedLines.size
+            val checkedLines = extractedLines.count { it.third }
+            return if (totalLines > 0) {
+                checkedLines.toFloat() / totalLines
+            } else {
+                0.0f // Return 0 if there are no lines
+            }
+        }
 }
 fun Event.getRecurrence(): Recurrence? {
     return recurrenceJson.let {

@@ -13,7 +13,7 @@ private val LightColorPalette = PlannerColors(
     uiBackground = Neutral0,
     uiBorder = Neutral1,
     uiFloated = Shadow00,
-    textPrimary = Black,
+    textPrimary = NearlyBlack,
     textHelp = Neutral5,
     textSecondary = Gray7,
     textInteractive = Neutral10,
@@ -67,18 +67,18 @@ fun PlannerTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) DarkColorPalette else LightColorPalette
+    val colors =  LightColorPalette
 
     val sysUiController = rememberSystemUiController()
     SideEffect {
         sysUiController.setSystemBarsColor(
-            color = if(darkTheme) Transparent else Transparent,
-            darkIcons = !darkTheme
+            color = Color.White,
+            darkIcons = true
         )
     }
     ProvideSocialColors(colors) {
         androidx.compose.material.MaterialTheme(
-            colors = debugColors(darkTheme),
+            colors = debugColors(false),
             typography =Typography,
             shapes = Shapes,
             content = content

@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ModifierInfo
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +54,7 @@ import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CreateScreen.CreateDivider
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.util.*
 
 sealed class CalendarEvents {
     class GetEventsForWeek(val firstDayOfWeek: String, val endOfWeek: String) : CalendarEvents()
@@ -73,34 +75,44 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
             )
         )
     )
+    val coroutineScope= rememberCoroutineScope()
 
     BottomSheetScaffold(sheetShape = RoundedCornerShape(topEnd = 48.dp),
 
          drawerGesturesEnabled = true,
         sheetContent = {
+
             Column(
                 Modifier
                     .fillMaxWidth()
             ) {
+                val ratio=remember{ mutableStateOf(0f) }
                 Row(verticalAlignment = CenterVertically, modifier = Modifier
                     .padding(horizontal = 24.dp)
                  ) {
 
                     Box(modifier = Modifier
-                        .height(88.dp)
                         .weight(1f) ){
                         Row(verticalAlignment = Alignment.CenterVertically,) {
                             androidx.compose.material3.Card(modifier = Modifier
-                                .graphicsLayer { translationY = 2f }
 
                                 .border(
                                     BorderStroke(1.dp, Color(0xADE2E2E2)),
-                                    shape = RoundedCornerShape(topEnd = 100.dp, topStart = 100.dp)
+                                    shape = RoundedCornerShape(100.dp)
                                 )
-                                .clip(RoundedCornerShape(topEnd = 100.dp, topStart = 100.dp))
+                                .clip(RoundedCornerShape(100.dp))
                                 .background(color = Color.White)
                                 .clickable(onClick = {
+                                    coroutineScope.launch {
+                                        if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
+                                            bottomSheetScaffoldState.bottomSheetState.collapse()
 
+                                        } else {
+                                            bottomSheetScaffoldState.bottomSheetState.expand()
+
+                                        }
+
+                                    }
 
                                 })
                                 .zIndex(1f), colors = CardDefaults.cardColors(containerColor = Color.White)){
@@ -111,23 +123,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                                         modifier = Modifier.size(64.dp),
                                         contentScale = ContentScale.FillBounds, // Adjust contentScale as needed
                                     )
-                                    if (bottomSheetScaffoldState.bottomSheetState.isExpanded){
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_down),
-                                            contentDescription = null,
-                                            tint = Color(
-                                                0xFF5317FF
-                                            )
-                                        )
-                                    }else{
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_up),
-                                            contentDescription = null,
-                                            tint = Color(
-                                                0xFF5317FF
-                                            )
-                                        )
-                                    }
+
 
                                 }
 
@@ -139,7 +135,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                                     .height(10.dp)
                                     .graphicsLayer { translationX = -10f }
                                     .zIndex(0f),
-                                progress = 0.2f,
+                                progress = ratio.value,
                                 color=Color(0xFF00FF90),
                                 backgroundColor = Color(0x63D8D8D8),
                                 strokeCap = StrokeCap.Round
@@ -147,10 +143,11 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                         }
                     }
 
-
+            
                     Box(
-                        modifier = Modifier.clip(CircleShape)
-                       .border(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .border(
                                 BorderStroke(1.dp, Color(0xADE2E2E2)),
                                 shape = CircleShape
                             )
@@ -178,74 +175,139 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                             )
                             .background(Color(0xBA4F61FF)))
 
+                        
                     }
                 }
+                Spacer(modifier = Modifier.height(24.dp))
                 CreateDivider()
                 Column(modifier = Modifier
                     .fillMaxWidth()
+                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                     .background(Color.White)){
 
                 Row(
                     Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
 
                     Text(
-                        text = "Weekly todo", style = TextStyle(
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 18.sp,
-                            fontFamily = Lexend, color = Color(0xFF5317FF)
+                        text = stringResource(id = R.string.weekly)+" todo", style = TextStyle(
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 16.sp,
+                            fontFamily = Lexend, color = Color(0xFF353535)
                         )
                     )
-                    Spacer(modifier = Modifier.weight(1f))
-
 
 
 
                 }
-                LazyColumn {
-                    var currentWeek = ""
-                    items(classes) { event ->
-                        val weekName = event.start.dayOfWeek.name // Get the name of the week for the event
 
-                        // If the week changes, display the week name
-                        if (weekName != currentWeek) {
-                            currentWeek = weekName
-                            Text(
-                                text = weekName,
-                                modifier = Modifier
-                                    .padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 12.sp,
-                                color = Color(0xFF303030)
-                            )
+                    val daysOfWeek = listOf(
+                        DayOfWeek.MONDAY,
+                        DayOfWeek.TUESDAY,
+                        DayOfWeek.WEDNESDAY,
+                        DayOfWeek.THURSDAY,
+                        DayOfWeek.FRIDAY,
+                        DayOfWeek.SATURDAY,
+                        DayOfWeek.SUNDAY
+                    )
+
+                    var totalLinesForWeek  by remember {
+                        mutableStateOf(0)
+                    }
+
+                    var checkedLinesForWeek  by    remember {
+                        mutableStateOf(0)
+
+                    }
+                    // Find events that match the current day of the week
+                    val checkedCount = classes.sumBy { event ->
+                        event.extractedLinesWithIndices.count { it.third==false }
+                    }
+                    val totalItemCount = classes.sumBy { event ->
+                        event.extractedLinesWithIndices.count { it.third==true }
+                    }
+                    Log.d("PROGESSASDAS",checkedCount.toString()+" "+totalItemCount.toString())
+                    LaunchedEffect(key1 = totalItemCount+checkedCount) {
+                        // Update the ratio based on the checked and total lines for the week
+                        val weekRatio = if (totalItemCount+checkedCount > 0) {
+                            Log.d("PROGESSASDAS",       (checkedCount.toFloat() / totalItemCount+checkedCount).toString())
+
+                            totalItemCount.toFloat() /(totalItemCount+checkedCount)
+                        } else {
+                            0.0f
                         }
 
-                        // Display the extracted lines for the event
-                        event.extractedLinesWithIndices.forEach {(index, line) ->
-                            Column() {
+                        ratio.value = weekRatio
+                    }
+                    LazyColumn {
+
+                        for (day in daysOfWeek) {
+                        // Display the day of the week as a header
+                        item {
+                            Row(modifier=Modifier.fillMaxWidth(), verticalAlignment = CenterVertically){
+                                Box(modifier = Modifier
+                                    .height(1.dp)
+                                    .background(color = dividerColor)
+                                    .width(24.dp))
                                 Text(
-                                    text = event.name, textAlign = TextAlign.Center,
-                                    modifier = Modifier.fillMaxWidth()
-                                    ,
-                                    fontWeight = FontWeight.ExtraLight,
-                                    fontSize = 10.sp,
-                                    color = Color(0xFFD1CFCF)
+                                    text = day.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault()),
+                                    modifier = Modifier.padding(bottom = 5.dp)
+                                     ,
+                                    fontWeight = FontWeight.Light, fontFamily = Lexend,
+                                    fontSize = 14.sp,
+                                    color = Color(0x4B000003)
                                 )
-                                Row(verticalAlignment = CenterVertically, modifier = Modifier.padding(horizontal = 24.dp)) {
-                                    CheckBoxPlanner(checked = false, onCheckChanged = {
-                                        onEvent(CalendarEvents.UpdateEvent(event,index))
-                                    })
-                                    Text(text = line, modifier = Modifier.padding(12.dp), color = Color.Black)
+                                Box(modifier = Modifier
+                                    .height(1.dp)
+                                    .background(color = dividerColor)
+                                    .weight(1f))
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                        }
+                            val eventsForDay = classes.filter { it.dayOfTheWeek== day.value }
+
+
+
+                            // Display the events for the current day
+                        items(eventsForDay) { event ->
+                            event.extractedLinesWithIndices.forEach { (index, line,checked) ->
+                                Log .d("PROGRESSCHEDK",checked.toString())
+
+
+                                Column() {
+                                    Text(
+                                        text = event.name, textAlign = TextAlign.Start,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 24.dp),
+                                        fontWeight = FontWeight.ExtraLight,
+                                        fontSize = 10.sp,
+                                        color = Color(0xFFD1CFCF)
+                                    )
+                                    Row(
+                                        verticalAlignment = CenterVertically,
+                                        modifier = Modifier.padding(horizontal = 24.dp)
+                                    ) {
+                                        CheckBoxPlanner(checked = checked, onCheckChanged = {
+                                            onEvent(CalendarEvents.UpdateEvent(event, index))
+                                        })
+                                        Text(text = line, modifier = Modifier.padding(12.dp),color=textColor,  style = TextStyle(color= textColor, fontWeight = FontWeight.Normal, fontFamily = Lexend))
+                                    }
                                 }
                             }
+                        }
 
 
                         }
-                    }
+
+
                 }
+
                 }
 
             }
@@ -273,6 +335,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                     )
                 )
             }
+
             var endOfWeek = firstDayOfWeek.plusDays(6)
 
             LaunchedEffect(firstDayOfWeek) {
@@ -285,7 +348,8 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                 )
 
             }
-            var selectedMonth by remember { mutableStateOf(firstDayOfWeek.month) }
+            var selectedMonth by remember { mutableStateOf(firstDayOfWeek.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())) }
+
             val coroutineScope= rememberCoroutineScope()
             Column {
                 TopBar(
@@ -298,17 +362,17 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                     NextWeek = {
                         firstDayOfWeek = firstDayOfWeek.plusWeeks(1)
                         selectedMonth =
-                            firstDayOfWeek.month // Update selectedMonth when firstDayOfWeek changes
+                            firstDayOfWeek.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())  // Update selectedMonth when firstDayOfWeek changes
+
 
                     },
                     PrevWeek = {
                         firstDayOfWeek = firstDayOfWeek.minusWeeks(1)
                         selectedMonth =
-                            firstDayOfWeek.month // Update selectedMonth when firstDayOfWeek changes
-
+                            firstDayOfWeek.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())
                     },
                     openMonthPicker = { },
-                    selectedMonth = selectedMonth.name
+                    selectedMonth = selectedMonth
                 )
                 CreateDivider()
                 Schedule(modifier = Modifier.fillMaxSize(),

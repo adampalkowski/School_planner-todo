@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.SemanticsProperties.EditableText
 import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
 import androidx.compose.ui.semantics.SemanticsProperties.Text
@@ -111,7 +112,7 @@ fun ModDivider(
                     tint = Color(0xFF666666)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Clear")
+                Text( stringResource(id = R.string.clear),)
             }
         }
         Box(
@@ -248,7 +249,7 @@ fun DisplayEventScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Are you sure you want to delete the class from the calendar?",
+                            text = stringResource(id = R.string.delete_class),
                             style = TextStyle(
                                 fontFamily = Lexend,
                                 fontWeight = FontWeight.Light,
@@ -264,7 +265,7 @@ fun DisplayEventScreen(
                             horizontalArrangement = Arrangement.End
                         ) {
                             Text(
-                                text = "Cancel",
+                                text =  stringResource(id = R.string.cancel),
                                 modifier = Modifier.clickable(onClick = {
                                     displayDeleteDialog = false
                                 }),
@@ -272,7 +273,7 @@ fun DisplayEventScreen(
                             )
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(
-                                text = "Confirm",
+                                text =  stringResource(id = R.string.confirm),
                                 style = TextStyle(
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Medium,
@@ -515,8 +516,8 @@ fun TextWithTasksEditable(
                                     .onKeyEvent { event ->
                                         if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL) {
                                             if (line.length == 0) {
-                                                if (index>0){
-                                                    focusRequesters[index -1].requestFocus()
+                                                if (index > 0) {
+                                                    focusRequesters[index - 1].requestFocus()
 
                                                 }
                                                 val updatedLines = lines.toMutableList()
@@ -526,7 +527,7 @@ fun TextWithTasksEditable(
 
                                             }
                                             true
-                                        }  else {
+                                        } else {
                                             false
                                         }
                                     },
