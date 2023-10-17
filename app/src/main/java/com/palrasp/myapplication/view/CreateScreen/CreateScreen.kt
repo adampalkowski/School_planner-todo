@@ -118,13 +118,13 @@ fun CreateScreenSchemePrev() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit,eventState: MutableState<Event>)
+fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit,eventState: MutableState<Event>,isUpdate:Boolean)
 {
     BackHandler() {
         onBack()
     }
     var currentEvent by remember { mutableStateOf<CreateScreenEvent?>(null) }
-    CreateScreenScheme(modifier = Modifier, eventState = eventState, onEvent = {
+    CreateScreenScheme(isUpdate=isUpdate,modifier = Modifier, eventState = eventState, onEvent = {
             event->
         when(event){
             is CreateScreenEvent.OpenTimeEndPicker->{
@@ -185,6 +185,7 @@ fun CreateScreenScheme(
     modifier: Modifier = Modifier,
     onEvent:(CreateScreenEvent)->Unit,
     eventState: MutableState<Event>,
+    isUpdate:Boolean
 ) {
 
     PlannerTheme {
@@ -199,9 +200,12 @@ fun CreateScreenScheme(
             ClassroomInput(eventState,label=stringResource(id = R.string.classroom_hint))
             Spacer(modifier = Modifier.height(24.dp))
             CreateColorPicker(eventState, onEvent =onEvent)
-            DayOfTheWeekPicker(eventState, onEvent =onEvent)
-            CreateDivider()
-            TimePickerSection(eventState, onEvent =onEvent)
+            if (!isUpdate){
+                DayOfTheWeekPicker(eventState, onEvent =onEvent)
+                CreateDivider()
+                TimePickerSection(eventState, onEvent =onEvent)
+            }
+
             CreateDivider()
             IsNeccesarySection(eventState)
             CreateDivider()

@@ -15,6 +15,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -37,6 +38,7 @@ import com.palrasp.myapplication.viewmodel.EventViewModelFactory
 import kotlinx.coroutines.launch
 import java.time.*
 import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalAdjusters
 import java.util.*
 import kotlin.random.Random
 
@@ -44,6 +46,7 @@ sealed class Screen(val route: String) {
     object Calendar : Screen("calendar")
     class Event(val event: com.palrasp.myapplication.CalendarClasses.Event) : Screen("event")
     object Create : Screen("create")
+    object Update : Screen("create")
     object Lessons : Screen("lessons")
 }
 
@@ -78,8 +81,16 @@ class MainActivity : ComponentActivity() {
                         var currentScreen: Screen by remember {
                             mutableStateOf(eventViewModel.currentScreen.value)
                         }
+                        val currentDate = LocalDate.now()
 
-
+                        var firstDayOfWeek = rememberSaveable {
+                            mutableStateOf(
+                                currentDate.with(
+                                    TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
+                                )
+                            )
+                        }
+                        var selectedMonth = remember { mutableStateOf(firstDayOfWeek.value.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())) }
 
                         DisposableEffect(currentScreen) {
                             onDispose {
@@ -94,7 +105,7 @@ class MainActivity : ComponentActivity() {
                         ) { screen ->
                             when (screen) {
                                 is Screen.Calendar -> {
-                                    CalendarScreen(onEvent = { event ->
+                                    CalendarScreen(firstDay=firstDayOfWeek,selectedMonth=selectedMonth,onEvent = { event ->
                                         when (event) {
                                             is CalendarEvents.GetEventsForWeek -> {
                                                 coroutineScope.launch {
@@ -102,10 +113,12 @@ class MainActivity : ComponentActivity() {
                                                         event.firstDayOfWeek,
                                                         event.endOfWeek
                                                     )
+
                                                 }
 
                                             }
                                             is CalendarEvents.GoToEvent -> {
+
                                                 currentScreen = Screen.Event(event.event)
 
                                             }
@@ -160,6 +173,8 @@ class MainActivity : ComponentActivity() {
                                 is Screen.Event -> {
                                     val event: com.palrasp.myapplication.CalendarClasses.Event =
                                         screen.event
+
+
                                     DisplayEventScreen(
                                         event,
                                         GoBack = { currentScreen = Screen.Calendar },
@@ -174,6 +189,14 @@ class MainActivity : ComponentActivity() {
 
                                             }
 
+                                        }, onEvent = {
+                                            when(it){
+                                                is DisplayEventScreenEvents.GoToEditClass->{
+                                                    eventViewModel.currentClass.value=it.event
+                                                    eventState.value=it.event
+                                                    currentScreen=Screen.Update
+                                                }
+                                            }
                                         })
                                 }
                                 is Screen.Create -> {
@@ -246,10 +269,59 @@ class MainActivity : ComponentActivity() {
 
                                             }
 
-                                        })
+                                        }, isUpdate = false)
 
 
                                 }
+                                is Screen.Update -> {
+                                    Log
+                                        .d("UPDATEEVENTS","ipad22222e")
+
+                                    val oldEvent = remember {
+                                        mutableStateOf(eventState.value)
+                                    }
+
+                                    CreateScreen(
+                                    onBack = { currentScreen = Screen.Calendar },
+                                    eventState = eventState,
+                                    onCreateEvent = { createdEvent ->
+                                        coroutineScope.launch {
+                                            Log
+
+                                                .d("UPDATEEVENTS","ipade")
+                                            Log
+                                                .d("UPDATEEVENTS",oldEvent.value.toString())
+                                            Log
+                                                .d("UPDATEEVENTS",createdEvent.toString())
+                                            eventViewModel.updateEvents(oldEvent.value,createdEvent)
+
+                                            currentScreen = Screen.Calendar
+                                            eventViewModel.resetCurrentClass()
+                                            eventState.value = Event(
+                                                id = generateRandomId(),
+                                                name = "",
+                                                color = Color(0xFF7DC1FF),
+                                                start = LocalDateTime.of(
+                                                    LocalDate.now(),
+                                                    LocalTime.of(12, 0)
+                                                ),
+                                                end = LocalDateTime.of(
+                                                    LocalDate.now(),
+                                                    LocalTime.of(13, 30)
+                                                ),
+                                                description = "",
+                                                className = "",
+                                                recurrenceJson = "",
+                                                compulsory = true,
+                                                dayOfTheWeek = 1
+                                            )
+
+                                        }
+
+                                    },isUpdate=true)
+
+
+                            }
                                 is Screen.Lessons -> {
                                     Log.d("LessonScreen", classes.size.toString())
                                     LessonsScreen(

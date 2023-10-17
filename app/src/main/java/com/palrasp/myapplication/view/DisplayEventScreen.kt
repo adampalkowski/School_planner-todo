@@ -125,6 +125,10 @@ fun ModDivider(
 
 }
 
+sealed class DisplayEventScreenEvents{
+    class GoToEditClass(val event: Event):DisplayEventScreenEvents()
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DisplayEventScreen(
@@ -132,6 +136,7 @@ fun DisplayEventScreen(
     GoBack: () -> Unit,
     SaveNotes: (Event) -> Unit,
     onDeleteEvent: (Event) -> Unit,
+    onEvent:(DisplayEventScreenEvents)->Unit
 ) {
     BackHandler() {
         GoBack()
@@ -147,20 +152,33 @@ fun DisplayEventScreen(
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
-        IconButton(
-            onClick = GoBack, modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 24.dp, top = 24.dp)
-        ) {
-            Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = null)
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+            .fillMaxWidth()
+            .align(Alignment.TopCenter)) {
+            IconButton(
+                onClick = GoBack, modifier = Modifier
+                    .padding(start = 24.dp, top = 24.dp)
+            ) {
+                Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = null)
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(
+                onClick = {
+                    onEvent(DisplayEventScreenEvents.GoToEditClass(event))
+
+                          }, modifier = Modifier
+                    .padding(start = 24.dp, top = 24.dp)
+            ) {
+                Icon(painter = painterResource(id = R.drawable.ic_edit), contentDescription = null)
+            }
+            IconButton(
+                onClick = { displayDeleteDialog = true }, modifier = Modifier
+                    .padding(start = 24.dp, top = 24.dp)
+            ) {
+                Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription = null)
+            }
         }
-        IconButton(
-            onClick = { displayDeleteDialog = true }, modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(start = 24.dp, top = 24.dp)
-        ) {
-            Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription = null)
-        }
+
         Column(Modifier.padding(top = 64.dp)) {
             Column(
                 modifier = Modifier.fillMaxWidth(),

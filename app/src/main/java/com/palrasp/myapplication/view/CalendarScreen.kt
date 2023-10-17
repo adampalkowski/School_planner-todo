@@ -32,6 +32,7 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Alignment.Companion.Center
@@ -66,7 +67,7 @@ sealed class CalendarEvents {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
+fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<String>,onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = BottomSheetState(
             initialValue = BottomSheetValue.Collapsed,   animationSpec = tween(
@@ -75,8 +76,12 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
             )
         )
     )
-    val coroutineScope= rememberCoroutineScope()
 
+
+
+    var endOfWeek = firstDay.value.plusDays(6)
+
+    val coroutineScope= rememberCoroutineScope()
     BottomSheetScaffold(sheetShape = RoundedCornerShape(topEnd = 48.dp),
 
          drawerGesturesEnabled = true,
@@ -129,17 +134,7 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
 
 
                             }
-                            LinearProgressIndicator(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(10.dp)
-                                    .graphicsLayer { translationX = -10f }
-                                    .zIndex(0f),
-                                progress = ratio.value,
-                                color=Color(0xFF00FF90),
-                                backgroundColor = Color(0x63D8D8D8),
-                                strokeCap = StrokeCap.Round
-                            )
+
                         }
                     }
 
@@ -326,31 +321,18 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                 .fillMaxSize()
                 .background(PlannerTheme.colors.uiBackground)
         ) {
-            val currentDate = LocalDate.now()
 
-            var firstDayOfWeek by remember {
-                mutableStateOf(
-                    currentDate.with(
-                        TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
-                    )
-                )
-            }
-
-            var endOfWeek = firstDayOfWeek.plusDays(6)
-
-            LaunchedEffect(firstDayOfWeek) {
+            LaunchedEffect(firstDay.value) {
 
                 onEvent(
                     CalendarEvents.GetEventsForWeek(
-                        firstDayOfWeek.toString(),
+                        firstDay.value.toString(),
                         endOfWeek.toString()
                     )
                 )
 
             }
-            var selectedMonth by remember { mutableStateOf(firstDayOfWeek.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())) }
 
-            val coroutineScope= rememberCoroutineScope()
             Column {
                 TopBar(
                     iconColor = textColor,
@@ -360,25 +342,25 @@ fun CalendarScreen(onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
                         }
                     },
                     NextWeek = {
-                        firstDayOfWeek = firstDayOfWeek.plusWeeks(1)
-                        selectedMonth =
-                            firstDayOfWeek.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())  // Update selectedMonth when firstDayOfWeek changes
+                        firstDay.value =  firstDay.value.plusWeeks(1)
+                        selectedMonth.value =
+                            firstDay.value.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())  // Update selectedMonth when firstDayOfWeek changes
 
 
                     },
                     PrevWeek = {
-                        firstDayOfWeek = firstDayOfWeek.minusWeeks(1)
-                        selectedMonth =
-                            firstDayOfWeek.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())
+                        firstDay.value =  firstDay.value.minusWeeks(1)
+                        selectedMonth.value =
+                            firstDay.value.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())
                     },
                     openMonthPicker = { },
-                    selectedMonth = selectedMonth
+                    selectedMonth =  selectedMonth.value
                 )
                 CreateDivider()
                 Schedule(modifier = Modifier.fillMaxSize(),
                     events = classes,
-                    minDate = firstDayOfWeek,
-                    maxDate = firstDayOfWeek.plusDays(4),
+                    minDate =  firstDay.value,
+                    maxDate =  firstDay.value.plusDays(4),
                     classesContent = {
                         BasicClass(
                             event = it,

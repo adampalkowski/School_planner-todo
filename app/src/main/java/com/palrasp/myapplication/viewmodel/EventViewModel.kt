@@ -58,6 +58,21 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             _allEvents.value = eventEntities.map { it.toEvent() }
         }
     }
+    suspend fun updateEvents(event: Event,newEvent: Event)  {
+        withContext(Dispatchers.IO) {
+            var filteredEvents = eventDao.getEventsByColorClassNameCompulsory(event.color.toArgb(), event.name, event.compulsory)
+            val updatedEvents = filteredEvents.map { existingEvent ->
+                existingEvent.copy(
+                    color = newEvent.color.toArgb(),
+                    name = newEvent.name,
+                    className = newEvent.className
+                )
+            }
+            Log.d("UPDATEEVENTS","updated events")
+            eventDao.updateEvents(updatedEvents)
+
+        }
+    }
 
     // Function to insert an event into the database
     suspend fun insertEvent(event: Event) {
