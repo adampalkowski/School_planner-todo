@@ -13,6 +13,8 @@ import com.palrasp.myapplication.Screen
 import com.palrasp.myapplication.data.local.dao.EventDao
 import com.palrasp.myapplication.data.local.entities.EventEntity
 import com.palrasp.myapplication.generateRandomId
+import com.palrasp.myapplication.viewmodel.eventViewModel.toEvent
+import com.palrasp.myapplication.viewmodel.eventViewModel.toEventEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -138,46 +140,5 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             eventDao.deleteSimilarEvents(entity.name)
 
         }
-    }
-}
-fun Event.toEventEntity(): EventEntity {
-    return EventEntity(
-        id=this.id,
-        name = this.name,
-        color = this.color.toArgb(), // Convert Color to Int
-        start = this.start.toString(),
-        end = this.end.toString(),
-        description = this.description,
-        className = this.className,
-        recurrenceJson=this.recurrenceJson,
-        compulsory = this.compulsory,
-        dayOfTheWeek=this.dayOfTheWeek
-    )
-}
-
-fun EventEntity.toEvent(): Event {
-    val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-
-    return Event(id=this.id,
-        name = this.name,
-        color = Color(this.color), // Convert Int to Color
-        start = LocalDateTime.parse(this.start, formatter), // Parse String to LocalDateTime
-        end = LocalDateTime.parse(this.end, formatter), // Parse String to LocalDateTime
-        description = this.description,
-        className = this.className,
-        recurrenceJson=this.recurrenceJson,
-        compulsory = this.compulsory,
-        dayOfTheWeek=this.dayOfTheWeek
-
-    )
-}
-
-class EventViewModelFactory(private val eventDao: EventDao) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(EventViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return EventViewModel(eventDao) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }

@@ -15,5 +15,9 @@
     <string name="delete_class">Are you sure you want to delete the class from the calendar?</string>
     <string name="clear">Clear</string>
     <string name="weekly">Weekly</string>
+    <string name="repeat">Repeat</string>
+    <string name="daily">Daily</string>
+    <string name="twoWeeks">Two Weeks</string>
+    <string name="monthly">Monthly</string>
 
 </resources>

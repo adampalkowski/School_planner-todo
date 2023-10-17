@@ -16,5 +16,8 @@
     <string name="delete_class">Potwierdz usunięcie zajęc z kalendarza.</string>
     <string name="clear">Wyczyść</string>
     <string name="weekly">Tygodniowe</string>
-
+    <string name="repeat">Powtarzaj</string>
+    <string name="daily">Codziennie</string>
+    <string name="twoWeeks">Co dwa tygodnie</string>
+    <string name="monthly">Co miesiąc</string>
 </resources>

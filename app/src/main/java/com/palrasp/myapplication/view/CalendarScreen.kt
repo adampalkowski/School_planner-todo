@@ -83,7 +83,11 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
 
     val coroutineScope= rememberCoroutineScope()
     BottomSheetScaffold(sheetShape = RoundedCornerShape(topEnd = 48.dp),
+                drawerContent = {
+                                Column(Modifier.fillMaxWidth()) {
 
+                                }
+                },
          drawerGesturesEnabled = true,
         sheetContent = {
 
@@ -210,14 +214,7 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
                         DayOfWeek.SUNDAY
                     )
 
-                    var totalLinesForWeek  by remember {
-                        mutableStateOf(0)
-                    }
 
-                    var checkedLinesForWeek  by    remember {
-                        mutableStateOf(0)
-
-                    }
                     // Find events that match the current day of the week
                     val checkedCount = classes.sumBy { event ->
                         event.extractedLinesWithIndices.count { it.third==false }
@@ -225,12 +222,9 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
                     val totalItemCount = classes.sumBy { event ->
                         event.extractedLinesWithIndices.count { it.third==true }
                     }
-                    Log.d("PROGESSASDAS",checkedCount.toString()+" "+totalItemCount.toString())
                     LaunchedEffect(key1 = totalItemCount+checkedCount) {
                         // Update the ratio based on the checked and total lines for the week
                         val weekRatio = if (totalItemCount+checkedCount > 0) {
-                            Log.d("PROGESSASDAS",       (checkedCount.toFloat() / totalItemCount+checkedCount).toString())
-
                             totalItemCount.toFloat() /(totalItemCount+checkedCount)
                         } else {
                             0.0f
@@ -271,9 +265,6 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
                             // Display the events for the current day
                         items(eventsForDay) { event ->
                             event.extractedLinesWithIndices.forEach { (index, line,checked) ->
-                                Log .d("PROGRESSCHEDK",checked.toString())
-
-
                                 Column() {
                                     Text(
                                         text = event.name, textAlign = TextAlign.Start,
@@ -334,7 +325,12 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
             }
 
             Column {
-                TopBar(
+                TopBar(OpenDrawer={
+                    coroutineScope.launch {
+                        bottomSheetScaffoldState.drawerState.open()
+
+                    }
+                },
                     iconColor = textColor,
                     lessonsClicked = {
                         coroutineScope.launch() {

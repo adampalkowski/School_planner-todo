@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.palrasp.myapplication.Calendar.Event
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
 import java.time.format.DateTimeFormatter

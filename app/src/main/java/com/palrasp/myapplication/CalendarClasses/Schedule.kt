@@ -57,10 +57,10 @@ fun Schedule(
     val horizontalScrollState = rememberScrollState()
     // Get the screen width
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
+    val days=ChronoUnit.DAYS.between(minDate, maxDate)+1
     // Calculate the dayWidth as 1/5 of the screen width
     var sidebarWidth by remember { mutableStateOf(0) }
-    val dayWidth = ((screenWidth-sidebarWidth.dp) / 5f)+5.dp
+    val dayWidth = ((screenWidth-sidebarWidth.dp) / days.toFloat())+5.dp
     Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(modifier = Modifier.fillMaxWidth()                    .background(color = topBarColor)
         ){
@@ -182,8 +182,10 @@ data class Recurrence(
 )
 
 enum class RecurrencePattern {
-    WEEKLY, // Event repeats weekly
-    // Add more recurrence patterns as needed (e.g., DAILY, MONTHLY, YEARLY, etc.)
+    WEEKLY,
+    MONTHLY,
+    DAILY,
+    TWOWEEKS,
 }
 data class EventInstance(
     val event: Event,

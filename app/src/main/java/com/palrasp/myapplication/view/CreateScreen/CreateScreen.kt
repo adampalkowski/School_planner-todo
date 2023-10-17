@@ -136,6 +136,9 @@ fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit,eventState: Mutable
             is CreateScreenEvent.OpenDayOfWeekPicker->{
                 currentEvent=event
             }
+            is CreateScreenEvent.OpenRepeatPicker->{
+            currentEvent=event
+            }
             is CreateScreenEvent.Close->{
                 onBack()
             }
@@ -165,6 +168,11 @@ fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit,eventState: Mutable
                     currentEvent=null
                 },eventState=eventState)
             }
+            is CreateScreenEvent.OpenRepeatPicker->{
+                RepeatBottomSheet(onDismissRequest={
+                    currentEvent=null
+                },eventState=eventState)
+            }
 
             else -> {
             }
@@ -176,6 +184,7 @@ sealed class CreateScreenEvent {
     object Close : CreateScreenEvent()
     object Save : CreateScreenEvent()
     object OpenDayOfWeekPicker : CreateScreenEvent()
+    object OpenRepeatPicker : CreateScreenEvent()
     object OpenTimeStartPicker : CreateScreenEvent()
     object OpenTimeEndPicker : CreateScreenEvent()
 }
@@ -209,6 +218,7 @@ fun CreateScreenScheme(
             CreateDivider()
             IsNeccesarySection(eventState)
             CreateDivider()
+            RepeatSection(eventState,onEvent=onEvent)
         }
 
 

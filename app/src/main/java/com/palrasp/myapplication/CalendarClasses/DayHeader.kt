@@ -61,7 +61,7 @@ fun BasicDayHeader(
     var textColor =if (isToday){
         Color(0xFFFFFFFF)
     }else{
-        PlannerTheme .colors.textPrimary
+        Color(0xFF303030)
 
     }
     Card( shape = RoundedCornerShape(0.dp), contentColor = Color.Transparent, elevation =

@@ -4,13 +4,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,20 +23,37 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
-import com.palrasp.myapplication.Calendar.ClassesGraph
-import com.palrasp.myapplication.Calendar.SleepGraphData
 import com.palrasp.myapplication.CalendarClasses.*
 import com.palrasp.myapplication.data.local.database.AppDatabase
 import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.*
 import com.palrasp.myapplication.viewmodel.EventViewModel
-import com.palrasp.myapplication.viewmodel.EventViewModelFactory
+import com.palrasp.myapplication.viewmodel.eventViewModel.EventViewModelFactory
 import kotlinx.coroutines.launch
 import java.time.*
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 import kotlin.random.Random
+
+val sampleEvent = Event(
+    id = generateRandomId(),
+    name = "",
+    color = Color(0xFF7DC1FF),
+    start = LocalDateTime.of(
+        LocalDate.now(),
+        LocalTime.of(12, 0)
+    ),
+    end = LocalDateTime.of(
+        LocalDate.now(),
+        LocalTime.of(13, 30)
+    ),
+    description = "",
+    className = "",
+    recurrenceJson = "",
+    compulsory = true,
+    dayOfTheWeek = 1
+)
 
 sealed class Screen(val route: String) {
     object Calendar : Screen("calendar")
@@ -54,25 +67,20 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //Access room database
         val database = AppDatabase.getInstance(applicationContext)
         val eventDao = database.eventDao()
+        //only Instance of eventViewModel
         val eventViewModel =
             ViewModelProvider(this, EventViewModelFactory(eventDao)).get(EventViewModel::class.java)
-
         setContent {
-            PlannerTheme (darkTheme = false){
-
-                // A surface container using the 'background' color from the theme
+            PlannerTheme(darkTheme = false) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = PlannerTheme.colors.uiBackground
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
-
                         val coroutineScope = rememberCoroutineScope()
-                        var addClassDialog by remember {
-                            mutableStateOf(false)
-                        }
                         val eventState = remember {
                             mutableStateOf(eventViewModel.currentClass.value)
                         }
@@ -90,7 +98,15 @@ class MainActivity : ComponentActivity() {
                                 )
                             )
                         }
-                        var selectedMonth = remember { mutableStateOf(firstDayOfWeek.value.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())) }
+                        var selectedMonth = remember {
+                            mutableStateOf(
+                                firstDayOfWeek.value.month.getDisplayName(
+                                    java.time.format.TextStyle.FULL_STANDALONE,
+                                    Locale.getDefault()
+                                )
+                            )
+                        }
+                        val classes by eventViewModel.allEvents.collectAsState(emptyList())
 
                         DisposableEffect(currentScreen) {
                             onDispose {
@@ -98,74 +114,73 @@ class MainActivity : ComponentActivity() {
                                 eventViewModel.currentClass.value = eventState.value
                             }
                         }
-                        val classes by eventViewModel.allEvents.collectAsState(emptyList())
                         Crossfade(
                             targetState = currentScreen,
                             animationSpec = tween(durationMillis = 300)
                         ) { screen ->
                             when (screen) {
                                 is Screen.Calendar -> {
-                                    CalendarScreen(firstDay=firstDayOfWeek,selectedMonth=selectedMonth,onEvent = { event ->
-                                        when (event) {
-                                            is CalendarEvents.GetEventsForWeek -> {
-                                                coroutineScope.launch {
-                                                    eventViewModel.getEventsForWeek(
-                                                        event.firstDayOfWeek,
-                                                        event.endOfWeek
-                                                    )
+                                    CalendarScreen(
+                                        firstDay = firstDayOfWeek,
+                                        selectedMonth = selectedMonth,
+                                        onEvent = { event ->
+                                            when (event) {
+                                                is CalendarEvents.GetEventsForWeek -> {
+                                                    coroutineScope.launch {
+                                                        eventViewModel.getEventsForWeek(
+                                                            event.firstDayOfWeek,
+                                                            event.endOfWeek
+                                                        )
+
+                                                    }
+
+                                                }
+                                                is CalendarEvents.GoToEvent -> {
+
+                                                    currentScreen = Screen.Event(event.event)
+
+                                                }
+                                                is CalendarEvents.UpdateEvent -> {
+                                                    coroutineScope.launch {
+                                                        val eventIndex = event.eventIndex
+                                                        val updatedDescription =
+                                                            event.event.description
+                                                                .split("\n") // Split the description into lines
+                                                                .mapIndexed { index, line ->
+                                                                    if (index == eventIndex && line.startsWith(
+                                                                            "[-]"
+                                                                        )
+                                                                    ) {
+                                                                        // Replace "[-]" with "[x]" only at the specified index
+                                                                        line.replaceFirst(
+                                                                            "[-]",
+                                                                            "[x]"
+                                                                        )
+                                                                    } else {
+                                                                        line
+                                                                    }
+                                                                }
+                                                                .joinToString("\n") // Join the modified lines back together
+                                                        val updatedEvent =
+                                                            event.event.copy(description = updatedDescription)
+                                                        eventViewModel.updateEvent(updatedEvent = updatedEvent)
+                                                    }
+
+
+                                                }
+                                                is CalendarEvents.GoToCreate -> {
+                                                    currentScreen = Screen.Create
+
+                                                }
+                                                is CalendarEvents.GoToLesson -> {
+                                                    currentScreen = Screen.Lessons
 
                                                 }
 
                                             }
-                                            is CalendarEvents.GoToEvent -> {
-
-                                                currentScreen = Screen.Event(event.event)
-
-                                            }
-                                            is CalendarEvents.UpdateEvent -> {
-                                                coroutineScope.launch {
-                                                    val eventIndex = event.eventIndex
-                                                    Log.d(
-                                                        "CALENDARCLASS",
-                                                        "UPDATE EVENT" + eventIndex
-                                                    )
-                                                    val updatedDescription = event.event.description
-                                                        .split("\n") // Split the description into lines
-                                                        .mapIndexed { index, line ->
-                                                            if (index == eventIndex && line.startsWith(
-                                                                    "[-]"
-                                                                )
-                                                            ) {
-                                                                // Replace "[-]" with "[x]" only at the specified index
-                                                                line.replaceFirst("[-]", "[x]")
-                                                            } else {
-                                                                line
-                                                            }
-                                                        }
-                                                        .joinToString("\n") // Join the modified lines back together
-                                                    val updatedEvent =
-                                                        event.event.copy(description = updatedDescription)
-                                                    Log.d(
-                                                        "CALENDARCLASS",
-                                                        "UPDATE EVENT" + event.event
-                                                            .description + "   " + updatedEvent.description
-                                                    )
-                                                    eventViewModel.updateEvent(updatedEvent = updatedEvent)
-                                                }
-
-
-                                            }
-                                            is CalendarEvents.GoToCreate -> {
-                                                currentScreen = Screen.Create
-
-                                            }
-                                            is CalendarEvents.GoToLesson -> {
-                                                currentScreen = Screen.Lessons
-
-                                            }
-
-                                        }
-                                    }, classes = classes)
+                                        },
+                                        classes = classes
+                                    )
 
 
                                 }
@@ -173,7 +188,6 @@ class MainActivity : ComponentActivity() {
                                 is Screen.Event -> {
                                     val event: com.palrasp.myapplication.CalendarClasses.Event =
                                         screen.event
-
 
                                     DisplayEventScreen(
                                         event,
@@ -190,11 +204,11 @@ class MainActivity : ComponentActivity() {
                                             }
 
                                         }, onEvent = {
-                                            when(it){
-                                                is DisplayEventScreenEvents.GoToEditClass->{
-                                                    eventViewModel.currentClass.value=it.event
-                                                    eventState.value=it.event
-                                                    currentScreen=Screen.Update
+                                            when (it) {
+                                                is DisplayEventScreenEvents.GoToEditClass -> {
+                                                    eventViewModel.currentClass.value = it.event
+                                                    eventState.value = it.event
+                                                    currentScreen = Screen.Update
                                                 }
                                             }
                                         })
@@ -248,82 +262,45 @@ class MainActivity : ComponentActivity() {
                                                 eventViewModel.insertEvents(events)
                                                 currentScreen = Screen.Calendar
                                                 eventViewModel.resetCurrentClass()
-                                                eventState.value = Event(
-                                                    id = generateRandomId(),
-                                                    name = "",
-                                                    color = Color(0xFF7DC1FF),
-                                                    start = LocalDateTime.of(
-                                                        LocalDate.now(),
-                                                        LocalTime.of(12, 0)
-                                                    ),
-                                                    end = LocalDateTime.of(
-                                                        LocalDate.now(),
-                                                        LocalTime.of(13, 30)
-                                                    ),
-                                                    description = "",
-                                                    className = "",
-                                                    recurrenceJson = "",
-                                                    compulsory = true,
-                                                    dayOfTheWeek = 1
-                                                )
+                                                eventState.value = sampleEvent
 
                                             }
 
-                                        }, isUpdate = false)
+                                        }, isUpdate = false
+                                    )
 
 
                                 }
                                 is Screen.Update -> {
-                                    Log
-                                        .d("UPDATEEVENTS","ipad22222e")
 
                                     val oldEvent = remember {
                                         mutableStateOf(eventState.value)
                                     }
 
                                     CreateScreen(
-                                    onBack = { currentScreen = Screen.Calendar },
-                                    eventState = eventState,
-                                    onCreateEvent = { createdEvent ->
-                                        coroutineScope.launch {
-                                            Log
-
-                                                .d("UPDATEEVENTS","ipade")
-                                            Log
-                                                .d("UPDATEEVENTS",oldEvent.value.toString())
-                                            Log
-                                                .d("UPDATEEVENTS",createdEvent.toString())
-                                            eventViewModel.updateEvents(oldEvent.value,createdEvent)
-
+                                        onBack = {
+                                            eventState.value = sampleEvent
                                             currentScreen = Screen.Calendar
-                                            eventViewModel.resetCurrentClass()
-                                            eventState.value = Event(
-                                                id = generateRandomId(),
-                                                name = "",
-                                                color = Color(0xFF7DC1FF),
-                                                start = LocalDateTime.of(
-                                                    LocalDate.now(),
-                                                    LocalTime.of(12, 0)
-                                                ),
-                                                end = LocalDateTime.of(
-                                                    LocalDate.now(),
-                                                    LocalTime.of(13, 30)
-                                                ),
-                                                description = "",
-                                                className = "",
-                                                recurrenceJson = "",
-                                                compulsory = true,
-                                                dayOfTheWeek = 1
-                                            )
+                                        },
+                                        eventState = eventState,
+                                        onCreateEvent = { createdEvent ->
+                                            coroutineScope.launch {
+                                                eventViewModel.updateEvents(
+                                                    oldEvent.value,
+                                                    createdEvent
+                                                )
 
-                                        }
+                                                currentScreen = Screen.Calendar
+                                                eventViewModel.resetCurrentClass()
+                                                eventState.value = sampleEvent
+                                            }
 
-                                    },isUpdate=true)
+                                        }, isUpdate = true
+                                    )
 
 
-                            }
+                                }
                                 is Screen.Lessons -> {
-                                    Log.d("LessonScreen", classes.size.toString())
                                     LessonsScreen(
                                         modifier = Modifier,
                                         classes,
@@ -334,20 +311,10 @@ class MainActivity : ComponentActivity() {
                                             }
                                         })
                                 }
-                                else -> {}
 
                             }
 
                         }
-
-
-                        if (addClassDialog) {
-                            CreateClassesDialog(
-                                modifier = Modifier.align(Alignment.Center),
-                                onClick = { dayOfTheWeek, startTime, endTime ->
-                                })
-                        }
-
 
                     }
 
@@ -355,62 +322,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-
-@Composable
-private fun ClassesGraphMain(sleepGraphData: SleepGraphData) {
-    // Create a state to hold the day names and numbers
-    var weekDays by remember { mutableStateOf(listOf<Pair<String, Int>>()) }
-
-    // Use LaunchedEffect to update the day names and numbers
-    LaunchedEffect(key1 = weekDays) {
-        val today = LocalDate.now()
-        val currentDayOfWeek = today.dayOfWeek // The current day of the week
-
-        val days = mutableListOf<Pair<String, Int>>()
-
-        // Calculate and add the day name and number for each day of the week
-        for (i in 1..7) {
-            val day = today.plusDays(i.toLong() - currentDayOfWeek.value)
-            val dayName =
-                day.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, Locale.getDefault())
-            val dayNumber = day.dayOfMonth
-            days.add(Pair(dayName, dayNumber))
-        }
-
-        weekDays = days
-    }
-    val scrollState = rememberScrollState()
-    val hours = (sleepGraphData.earliestStartHour..23) + (0..sleepGraphData.latestEndHour)
-
-    ClassesGraph(
-        modifier = Modifier
-            .horizontalScroll(scrollState)
-            .wrapContentSize(),
-        hoursItemsCount = sleepGraphData.sleepDayData.size,
-        daysHeader = {
-            DaysHeader(weekDays)
-        },
-        hourLabel = { index ->
-
-            val data = sleepGraphData.sleepDayData[index]
-            HourLabel(index)
-        },
-        bar = { index ->
-            val data = sleepGraphData.sleepDayData[index]
-            // We have access to Modifier.timeGraphBar() as we are now in TimeGraphScope
-            ClassesBar(
-                sleepData = data,
-                modifier = Modifier
-                    .padding(bottom = 8.dp)
-                    .classesGraphBar(
-                        start = data.firstSleepStart,
-                        end = data.lastSleepEnd,
-                        hours = hours,
-                    )
-            )
-        }
-    )
 }
 
 
