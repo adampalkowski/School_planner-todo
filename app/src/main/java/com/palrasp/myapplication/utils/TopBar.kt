@@ -28,7 +28,7 @@ fun TopBar(lessonsClicked:()->Unit,NextWeek:()->Unit,PrevWeek:()->Unit,ChangeDiv
         .background(topBarColor)
         .padding(horizontal = 24.dp, vertical = 2.dp)){
         IconButton(onClick =OpenDrawer,Modifier.align(Alignment.CenterStart) ) {
-            Icon(painter = painterResource(id = R.drawable.ic_menu), contentDescription =null, tint = Color.Black )
+            Icon(painter = painterResource(id = R.drawable.ic_book), contentDescription =null, tint = Color.Black )
 
         }
         IconButton(onClick =ChangeDiv,Modifier.align(Alignment.CenterEnd) ) {

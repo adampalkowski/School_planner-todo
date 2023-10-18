@@ -327,8 +327,7 @@ fun CalendarScreen(
             onEvent(CalendarEvents.GoToSettings)
                 }, OpenDrawer = {
                     coroutineScope.launch {
-                        bottomSheetScaffoldState.drawerState.open()
-
+                        onEvent(CalendarEvents.GoToLesson)
                     }
                 },
                     iconColor = textColor,

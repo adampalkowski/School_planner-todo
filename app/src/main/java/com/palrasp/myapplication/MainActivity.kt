@@ -370,6 +370,13 @@ class MainActivity : ComponentActivity() {
                                             coroutineScope.launch {
                                                 eventViewModel.deleteAllEvents(event)
                                             }
+                                        }, onEvent = {
+                                            when(it){
+                                                is LessonsScreenEvents.GoToEvent->{
+
+                                                    currentScreen = Screen.Event(it.event)
+                                                }
+                                            }
                                         })
                                 }
 
