@@ -21,9 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.palrasp.myapplication.CalendarClasses.Event
-import com.palrasp.myapplication.CalendarClasses.RecurrencePattern
-import com.palrasp.myapplication.CalendarClasses.getRecurrence
+import com.palrasp.myapplication.CalendarClasses.*
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.view.mediumTextStyle
 import java.time.DayOfWeek
@@ -66,7 +64,8 @@ fun RepeatBottomSheet(onDismissRequest:()->Unit,eventState: MutableState<Event>)
                                 Color(0xFF47A0FF)
                             )
                             .clickable {
-
+                                val recurance=Recurrence(pattern=repeat)
+                                eventState.value.setRecurrence(recurance)
                                 onDismissRequest()
 
                             }
@@ -79,7 +78,10 @@ fun RepeatBottomSheet(onDismissRequest:()->Unit,eventState: MutableState<Event>)
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
+                                val recurance=Recurrence(pattern=repeat)
+                                eventState.value.setRecurrence(recurance)
                                 onDismissRequest()
+
                             }
                             .padding(8.dp)
                     )

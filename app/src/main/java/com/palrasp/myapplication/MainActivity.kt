@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Yellow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +28,10 @@ import com.palrasp.myapplication.CalendarClasses.*
 import com.palrasp.myapplication.data.local.database.AppDatabase
 import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.*
+import com.palrasp.myapplication.view.SettingsScreen.getSelectedCalendarOption
+import com.palrasp.myapplication.view.SettingsScreen.getSelectedHour
+import com.palrasp.myapplication.view.SettingsScreen.saveSelectedCalendarOption
+import com.palrasp.myapplication.view.SettingsScreen.saveSelectedHour
 import com.palrasp.myapplication.viewmodel.EventViewModel
 import com.palrasp.myapplication.viewmodel.eventViewModel.EventViewModelFactory
 import kotlinx.coroutines.launch
@@ -59,6 +64,7 @@ sealed class Screen(val route: String) {
     object Calendar : Screen("calendar")
     class Event(val event: com.palrasp.myapplication.CalendarClasses.Event) : Screen("event")
     object Create : Screen("create")
+    object Settings : Screen("settings")
     object Update : Screen("create")
     object Lessons : Screen("lessons")
 }
@@ -89,8 +95,18 @@ class MainActivity : ComponentActivity() {
                         var currentScreen: Screen by remember {
                             mutableStateOf(eventViewModel.currentScreen.value)
                         }
-                        val currentDate = LocalDate.now()
+                        val context= LocalContext.current
 
+                        val currentDate = LocalDate.now()
+                        var calendarOption= remember {
+                            mutableStateOf(CalendarOption.HALF_WEEK)
+                        }
+
+                        var option=getSelectedCalendarOption(context)
+                        var hour= getSelectedHour(context)
+                        if (option!=null && option.label.isNotEmpty()){
+                            calendarOption.value=option
+                        }
                         var firstDayOfWeek = rememberSaveable {
                             mutableStateOf(
                                 currentDate.with(
@@ -98,6 +114,23 @@ class MainActivity : ComponentActivity() {
                                 )
                             )
                         }
+                        var startHour = rememberSaveable {
+                            mutableStateOf(hour)
+                        }
+                        if(calendarOption.value==CalendarOption.WEEKEND){
+                            firstDayOfWeek.value=
+                                currentDate.with(
+                                    TemporalAdjusters.previousOrSame(DayOfWeek.FRIDAY)
+                                )
+
+                        }else{
+                            firstDayOfWeek.value=
+                                currentDate.with(
+                                    TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
+                                )
+                        }
+
+
                         var selectedMonth = remember {
                             mutableStateOf(
                                 firstDayOfWeek.value.month.getDisplayName(
@@ -108,23 +141,51 @@ class MainActivity : ComponentActivity() {
                         }
                         val classes by eventViewModel.allEvents.collectAsState(emptyList())
 
+
                         DisposableEffect(currentScreen) {
                             onDispose {
                                 eventViewModel.currentScreen.value = currentScreen
                                 eventViewModel.currentClass.value = eventState.value
                             }
                         }
+
                         Crossfade(
                             targetState = currentScreen,
                             animationSpec = tween(durationMillis = 300)
                         ) { screen ->
                             when (screen) {
+                                is Screen.Settings->{
+
+                                    SettingsScreen(onEvent = {
+                                        when(it){
+                                            is SettingsScreenEvents.GoBack->{
+                                                currentScreen=Screen.Calendar
+                                            }
+                                            is SettingsScreenEvents.ChangeCalendarOption->{
+                                                saveSelectedCalendarOption(context = context,it.option)
+                                                calendarOption.value=it.option
+                                            }
+                                            is SettingsScreenEvents.ChangeStartHour->{
+                                                saveSelectedHour(context = context,it.hour)
+                                                startHour.value=it.hour
+                                            }
+                                            else->{}
+                                        }
+                                    }, modifier = Modifier,calendarOption=calendarOption.value,startHour=startHour)
+
+                                }
                                 is Screen.Calendar -> {
-                                    CalendarScreen(
+                                    CalendarScreen(startHour=startHour.value,
                                         firstDay = firstDayOfWeek,
                                         selectedMonth = selectedMonth,
+                                        calendarOption=calendarOption.value,
                                         onEvent = { event ->
                                             when (event) {
+                                                is CalendarEvents.GoToSettings->{
+
+                                                    currentScreen = Screen.Settings
+
+                                                }
                                                 is CalendarEvents.GetEventsForWeek -> {
                                                     coroutineScope.launch {
                                                         eventViewModel.getEventsForWeek(

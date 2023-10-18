@@ -52,6 +52,7 @@ import androidx.compose.ui.zIndex
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
+import com.palrasp.myapplication.view.CreateScreen.ButtonCreate
 import com.palrasp.myapplication.view.CreateScreen.CreateDivider
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -60,149 +61,128 @@ import java.util.*
 sealed class CalendarEvents {
     class GetEventsForWeek(val firstDayOfWeek: String, val endOfWeek: String) : CalendarEvents()
     object GoToLesson : CalendarEvents()
+    object GoToSettings : CalendarEvents()
     object GoToCreate : CalendarEvents()
     class GoToEvent(val event: Event) : CalendarEvents()
-    class UpdateEvent(val event: Event,val eventIndex:Int) : CalendarEvents()
+    class UpdateEvent(val event: Event, val eventIndex: Int) : CalendarEvents()
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<String>,onEvent: (CalendarEvents) -> Unit, classes: List<Event>) {
+fun CalendarScreen(
+    firstDay: MutableState<LocalDate>,
+    selectedMonth: MutableState<String>,
+    calendarOption:CalendarOption,
+    onEvent: (CalendarEvents) -> Unit,
+    classes: List<Event>,
+    startHour:Float
+) {
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = BottomSheetState(
-            initialValue = BottomSheetValue.Collapsed,   animationSpec = tween(
+            initialValue = BottomSheetValue.Collapsed, animationSpec = tween(
                 durationMillis = 300, // Adjust the duration as needed
                 easing = LinearOutSlowInEasing
             )
         )
     )
+    var daysLength = remember { mutableStateOf(6) }
 
+    when(calendarOption){
+        CalendarOption.HALF_WEEK->{
+            daysLength.value=4
+        }
+        CalendarOption.FULL_WEEK->{
+            daysLength.value=6
 
+        }
+        CalendarOption.WEEKEND->{
+            daysLength.value=2
+        }
+    }
+    var endOfWeek = firstDay.value.plusDays(daysLength.value.toLong())
 
-    var endOfWeek = firstDay.value.plusDays(6)
+    LaunchedEffect(daysLength.value) {
+        endOfWeek = firstDay.value.plusDays(daysLength.value.toLong())
+    }
 
-    val coroutineScope= rememberCoroutineScope()
-    BottomSheetScaffold(sheetShape = RoundedCornerShape(topEnd = 48.dp),
-                drawerContent = {
-                                Column(Modifier.fillMaxWidth()) {
-
-                                }
-                },
-         drawerGesturesEnabled = true,
+    val coroutineScope = rememberCoroutineScope()
+    BottomSheetScaffold(
+        sheetShape = RoundedCornerShape(topEnd = 48.dp),
+        drawerBackgroundColor = PlannerTheme.colors.uiBackground,
+        drawerScrimColor = Color.Black.copy(alpha = 0.2f),
+        drawerGesturesEnabled = true,
         sheetContent = {
 
             Column(
                 Modifier
                     .fillMaxWidth()
             ) {
-                val ratio=remember{ mutableStateOf(0f) }
-                Row(verticalAlignment = CenterVertically, modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                 ) {
+                val ratio = remember { mutableStateOf(0f) }
+                Row(
+                    verticalAlignment = CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                ) {
 
-                    Box(modifier = Modifier
-                        .weight(1f) ){
-                        Row(verticalAlignment = Alignment.CenterVertically,) {
-                            androidx.compose.material3.Card(modifier = Modifier
-
-                                .border(
-                                    BorderStroke(1.dp, Color(0xADE2E2E2)),
-                                    shape = RoundedCornerShape(100.dp)
-                                )
-                                .clip(RoundedCornerShape(100.dp))
-                                .background(color = Color.White)
-                                .clickable(onClick = {
-                                    coroutineScope.launch {
-                                        if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
-                                            bottomSheetScaffoldState.bottomSheetState.collapse()
-
-                                        } else {
-                                            bottomSheetScaffoldState.bottomSheetState.expand()
-
-                                        }
-
-                                    }
-
-                                })
-                                .zIndex(1f), colors = CardDefaults.cardColors(containerColor = Color.White)){
-                                Column(horizontalAlignment = CenterHorizontally) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                                        contentDescription = "SVG Image",
-                                        modifier = Modifier.size(64.dp),
-                                        contentScale = ContentScale.FillBounds, // Adjust contentScale as needed
-                                    )
-
-
-                                }
-
-
-                            }
-
-                        }
-                    }
-
-            
-                    Box(
+                    androidx.compose.material3.Card(
                         modifier = Modifier
-                            .clip(CircleShape)
                             .border(
                                 BorderStroke(1.dp, Color(0xADE2E2E2)),
-                                shape = CircleShape
+                                shape = RoundedCornerShape(100.dp)
                             )
-                            .background(Color(0xFFFFFFFF))
+                            .clip(RoundedCornerShape(100.dp))
+                            .background(color = Color.White)
                             .clickable(onClick = {
-                                onEvent(CalendarEvents.GoToCreate)
+                                coroutineScope.launch {
+                                    if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
+                                        bottomSheetScaffoldState.bottomSheetState.collapse()
+                                    } else {
+                                        bottomSheetScaffoldState.bottomSheetState.expand()
+                                    }
+                                }
                             })
-                            .padding(16.dp)
+                            .zIndex(1f),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
                     ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                            contentDescription = "SVG Image",
+                            modifier = Modifier.size(64.dp),
+                            contentScale = ContentScale.FillBounds, // Adjust contentScale as needed
+                        )
 
-                        Box(modifier = Modifier
-                            .height(3.dp)
-                            .width(24.dp)
-                            .clip(RoundedCornerShape(1.dp))
-                            .align(
-                                Center
-                            )
-                            .background(Color(0xBA4F61FF)))
-                        Box(modifier = Modifier
-                            .height(24.dp)
-                            .width(3.dp)
-                            .clip(RoundedCornerShape(1.dp))
-                            .align(
-                                Center
-                            )
-                            .background(Color(0xBA4F61FF)))
-
-                        
                     }
+
+
+                    ButtonCreate(onCreate = {
+                        onEvent(CalendarEvents.GoToCreate)
+                    })
+
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 CreateDivider()
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                    .background(Color.White)){
-
-                Row(
-                    Modifier
+                Column(
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                        .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                        .background(Color.White)
                 ) {
 
-                    Text(
-                        text = stringResource(id = R.string.weekly)+" todo", style = TextStyle(
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp,
-                            fontFamily = Lexend, color = Color(0xFF353535)
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.weekly) + " todo",
+                            style = TextStyle(
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 16.sp,
+                                fontFamily = Lexend, color = Color(0xFF353535)
+                            )
                         )
-                    )
-
-
-
-                }
+                    }
 
                     val daysOfWeek = listOf(
                         DayOfWeek.MONDAY,
@@ -217,15 +197,15 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
 
                     // Find events that match the current day of the week
                     val checkedCount = classes.sumBy { event ->
-                        event.extractedLinesWithIndices.count { it.third==false }
+                        event.extractedLinesWithIndices.count { it.third == false }
                     }
                     val totalItemCount = classes.sumBy { event ->
-                        event.extractedLinesWithIndices.count { it.third==true }
+                        event.extractedLinesWithIndices.count { it.third == true }
                     }
-                    LaunchedEffect(key1 = totalItemCount+checkedCount) {
+                    LaunchedEffect(key1 = totalItemCount + checkedCount) {
                         // Update the ratio based on the checked and total lines for the week
-                        val weekRatio = if (totalItemCount+checkedCount > 0) {
-                            totalItemCount.toFloat() /(totalItemCount+checkedCount)
+                        val weekRatio = if (totalItemCount + checkedCount > 0) {
+                            totalItemCount.toFloat() / (totalItemCount + checkedCount)
                         } else {
                             0.0f
                         }
@@ -235,64 +215,81 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
                     LazyColumn {
 
                         for (day in daysOfWeek) {
-                        // Display the day of the week as a header
-                        item {
-                            Row(modifier=Modifier.fillMaxWidth(), verticalAlignment = CenterVertically){
-                                Box(modifier = Modifier
-                                    .height(1.dp)
-                                    .background(color = dividerColor)
-                                    .width(24.dp))
-                                Text(
-                                    text = day.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault()),
-                                    modifier = Modifier.padding(bottom = 5.dp)
-                                     ,
-                                    fontWeight = FontWeight.Light, fontFamily = Lexend,
-                                    fontSize = 14.sp,
-                                    color = Color(0x4B000003)
-                                )
-                                Box(modifier = Modifier
-                                    .height(1.dp)
-                                    .background(color = dividerColor)
-                                    .weight(1f))
+                            // Display the day of the week as a header
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .background(color = dividerColor)
+                                            .width(24.dp)
+                                    )
+                                    Text(
+                                        text = day.getDisplayName(
+                                            java.time.format.TextStyle.FULL_STANDALONE,
+                                            Locale.getDefault()
+                                        ),
+                                        modifier = Modifier.padding(bottom = 5.dp),
+                                        fontWeight = FontWeight.Light, fontFamily = Lexend,
+                                        fontSize = 14.sp,
+                                        color = Color(0x4B000003)
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .background(color = dividerColor)
+                                            .weight(1f)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                        }
-                            val eventsForDay = classes.filter { it.dayOfTheWeek== day.value }
-
+                            val eventsForDay = classes.filter { it.dayOfTheWeek == day.value }
 
 
                             // Display the events for the current day
-                        items(eventsForDay) { event ->
-                            event.extractedLinesWithIndices.forEach { (index, line,checked) ->
-                                Column() {
-                                    Text(
-                                        text = event.name, textAlign = TextAlign.Start,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(start = 24.dp),
-                                        fontWeight = FontWeight.ExtraLight,
-                                        fontSize = 10.sp,
-                                        color = Color(0xFFD1CFCF)
-                                    )
-                                    Row(
-                                        verticalAlignment = CenterVertically,
-                                        modifier = Modifier.padding(horizontal = 24.dp)
-                                    ) {
-                                        CheckBoxPlanner(checked = checked, onCheckChanged = {
-                                            onEvent(CalendarEvents.UpdateEvent(event, index))
-                                        })
-                                        Text(text = line, modifier = Modifier.padding(12.dp),color=textColor,  style = TextStyle(color= textColor, fontWeight = FontWeight.Normal, fontFamily = Lexend))
+                            items(eventsForDay) { event ->
+                                event.extractedLinesWithIndices.forEach { (index, line, checked) ->
+                                    Column() {
+                                        Text(
+                                            text = event.name, textAlign = TextAlign.Start,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 24.dp),
+                                            fontWeight = FontWeight.ExtraLight,
+                                            fontSize = 10.sp,
+                                            color = Color(0xFFD1CFCF)
+                                        )
+                                        Row(
+                                            verticalAlignment = CenterVertically,
+                                            modifier = Modifier.padding(horizontal = 24.dp)
+                                        ) {
+                                            CheckBoxPlanner(checked = checked, onCheckChanged = {
+                                                onEvent(CalendarEvents.UpdateEvent(event, index))
+                                            })
+                                            Text(
+                                                text = line,
+                                                modifier = Modifier.padding(12.dp),
+                                                color = textColor,
+                                                style = TextStyle(
+                                                    color = textColor,
+                                                    fontWeight = FontWeight.Normal,
+                                                    fontFamily = Lexend
+                                                )
+                                            )
+                                        }
                                     }
                                 }
                             }
-                        }
 
 
                         }
 
 
-                }
+                    }
 
                 }
 
@@ -301,7 +298,7 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
         sheetPeekHeight = 80.dp,
         sheetElevation = 0.dp,
         sheetContentColor = Color.White,
-        sheetBackgroundColor =Color.Transparent,
+        sheetBackgroundColor = Color.Transparent,
         sheetGesturesEnabled = true,
         modifier = Modifier.fillMaxSize(),
         contentColor = Color.Transparent,
@@ -319,13 +316,16 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
                     CalendarEvents.GetEventsForWeek(
                         firstDay.value.toString(),
                         endOfWeek.toString()
+
                     )
                 )
 
             }
 
             Column {
-                TopBar(OpenDrawer={
+                TopBar(ChangeDiv = {
+            onEvent(CalendarEvents.GoToSettings)
+                }, OpenDrawer = {
                     coroutineScope.launch {
                         bottomSheetScaffoldState.drawerState.open()
 
@@ -338,25 +338,31 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
                         }
                     },
                     NextWeek = {
-                        firstDay.value =  firstDay.value.plusWeeks(1)
+                        firstDay.value = firstDay.value.plusWeeks(1)
                         selectedMonth.value =
-                            firstDay.value.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())  // Update selectedMonth when firstDayOfWeek changes
+                            firstDay.value.month.getDisplayName(
+                                java.time.format.TextStyle.FULL_STANDALONE,
+                                Locale.getDefault()
+                            )  // Update selectedMonth when firstDayOfWeek changes
 
 
                     },
                     PrevWeek = {
-                        firstDay.value =  firstDay.value.minusWeeks(1)
+                        firstDay.value = firstDay.value.minusWeeks(1)
                         selectedMonth.value =
-                            firstDay.value.month.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault())
+                            firstDay.value.month.getDisplayName(
+                                java.time.format.TextStyle.FULL_STANDALONE,
+                                Locale.getDefault()
+                            )
                     },
                     openMonthPicker = { },
-                    selectedMonth =  selectedMonth.value
+                    selectedMonth = selectedMonth.value
                 )
                 CreateDivider()
                 Schedule(modifier = Modifier.fillMaxSize(),
                     events = classes,
-                    minDate =  firstDay.value,
-                    maxDate =  firstDay.value.plusDays(4),
+                    minDate = firstDay.value,
+                    maxDate = firstDay.value.plusDays(daysLength.value.toLong()),
                     classesContent = {
                         BasicClass(
                             event = it,
@@ -365,7 +371,7 @@ fun CalendarScreen(firstDay:MutableState<LocalDate>,selectedMonth:MutableState<S
 
                             })
                         )
-                    })
+                    }, startHour = startHour)
             }
 
 

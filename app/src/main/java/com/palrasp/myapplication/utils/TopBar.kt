@@ -22,7 +22,7 @@ import com.palrasp.myapplication.ui.theme.Lexend
 
 val topBarColor=Color(0x9EFFFFFF)
 @Composable
-fun TopBar(lessonsClicked:()->Unit,NextWeek:()->Unit,PrevWeek:()->Unit,openMonthPicker:()->Unit,OpenDrawer:()->Unit,iconColor: Color,selectedMonth:String){
+fun TopBar(lessonsClicked:()->Unit,NextWeek:()->Unit,PrevWeek:()->Unit,ChangeDiv:()->Unit,openMonthPicker:()->Unit,OpenDrawer:()->Unit,iconColor: Color,selectedMonth:String){
     Box(modifier = Modifier
         .fillMaxWidth()
         .background(topBarColor)
@@ -31,7 +31,10 @@ fun TopBar(lessonsClicked:()->Unit,NextWeek:()->Unit,PrevWeek:()->Unit,openMonth
             Icon(painter = painterResource(id = R.drawable.ic_menu), contentDescription =null, tint = Color.Black )
 
         }
+        IconButton(onClick =ChangeDiv,Modifier.align(Alignment.CenterEnd) ) {
+            Icon(painter = painterResource(id = R.drawable.ic_divide), contentDescription =null, tint = Color.Black )
 
+        }
         Row(Modifier.align(Alignment.Center), verticalAlignment = Alignment.CenterVertically) {
 
             IconButton(onClick =PrevWeek) {

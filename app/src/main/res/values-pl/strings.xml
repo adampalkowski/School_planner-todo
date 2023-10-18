@@ -20,4 +20,9 @@
     <string name="daily">Codziennie</string>
     <string name="twoWeeks">Co dwa tygodnie</string>
     <string name="monthly">Co miesiąc</string>
+    <string name="calendar_time">Początkowy czas kalendarza</string>
+    <string name="inital_time">Początkowy czas kalendarza</string>
+    <string name="calendar_option">Typ kalendarza</string>
+
+
 </resources>

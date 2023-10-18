@@ -49,11 +49,12 @@ fun Schedule(
     classesContent: @Composable (event:Event) -> Unit,
     minDate: LocalDate = events.minByOrNull(Event::start)?.start?.toLocalDate() ?: LocalDate.now(),
     maxDate: LocalDate = events.maxByOrNull(Event::end)?.end?.toLocalDate() ?: LocalDate.now().plusDays(4),
+    startHour:Float
 ){
     val hourHeight = 64.dp
     //move the inital state to 8 oclock
     val pixels=LocalDensity.current.run { hourHeight.toPx() }
-    val verticalScrollState = rememberScrollState(initial=(pixels*8).toInt())
+    val verticalScrollState = rememberScrollState(initial=(pixels*startHour).toInt())
     val horizontalScrollState = rememberScrollState()
     // Get the screen width
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -111,7 +112,6 @@ fun BasicSchedule(
     dayWidth: Dp,
     hourHeight: Dp,
 ) {
-    val  dividerColor=Color(0xFFE7E7E7)
     val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
     Layout(
         content = {

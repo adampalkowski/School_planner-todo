@@ -12,6 +12,7 @@
     <string name="confirm">Confirm</string>
     <string name="start_time">Start time</string>
     <string name="end_time">End time</string>
+    <string name="calendar_time">Calendar initial time</string>
     <string name="delete_class">Are you sure you want to delete the class from the calendar?</string>
     <string name="clear">Clear</string>
     <string name="weekly">Weekly</string>
@@ -19,5 +20,7 @@
     <string name="daily">Daily</string>
     <string name="twoWeeks">Two Weeks</string>
     <string name="monthly">Monthly</string>
+    <string name="inital_time">Initial calendar start</string>
+    <string name="calendar_option">Calendar type</string>
 
 </resources>

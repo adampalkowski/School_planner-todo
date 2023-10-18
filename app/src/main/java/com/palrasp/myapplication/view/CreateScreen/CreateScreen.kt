@@ -196,9 +196,7 @@ fun CreateScreenScheme(
     eventState: MutableState<Event>,
     isUpdate:Boolean
 ) {
-
     PlannerTheme {
-
         Column {
             CreateTopPart(
                 modifier = modifier,
@@ -220,7 +218,6 @@ fun CreateScreenScheme(
             CreateDivider()
             RepeatSection(eventState,onEvent=onEvent)
         }
-
 
     }
 
