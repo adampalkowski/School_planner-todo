@@ -22,5 +22,8 @@
     <string name="monthly">Monthly</string>
     <string name="inital_time">Initial calendar start</string>
     <string name="calendar_option">Calendar type</string>
+    <string name="Full_week">Full week</string>
+    <string name="Half_week">Weekdays</string>
+    <string name="Weekend">Weekend</string>
 
 </resources>

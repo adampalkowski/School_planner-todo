@@ -21,8 +21,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.gson.Gson
 import com.palrasp.myapplication.CalendarClasses.*
 import com.palrasp.myapplication.R
+import com.palrasp.myapplication.view.CreateScreenEvent
 import com.palrasp.myapplication.view.mediumTextStyle
 import java.time.DayOfWeek
 import java.time.format.TextStyle
@@ -67,7 +69,6 @@ fun RepeatBottomSheet(onDismissRequest:()->Unit,eventState: MutableState<Event>)
                                 val recurance=Recurrence(pattern=repeat)
                                 eventState.value.setRecurrence(recurance)
                                 onDismissRequest()
-
                             }
                             .padding(8.dp)
                     )
@@ -76,10 +77,12 @@ fun RepeatBottomSheet(onDismissRequest:()->Unit,eventState: MutableState<Event>)
                         text =displayName, style = mediumTextStyle,
                         fontWeight = FontWeight.Light,
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth() .clip(RoundedCornerShape(8.dp))
                             .clickable {
                                 val recurance=Recurrence(pattern=repeat)
-                                eventState.value.setRecurrence(recurance)
+                                val gson = Gson()
+                                val recurrenceJson = gson.toJson(recurance)
+                                eventState.value=eventState.value.copy(recurrenceJson =recurrenceJson )
                                 onDismissRequest()
 
                             }

@@ -36,8 +36,8 @@ import com.palrasp.myapplication.view.CreateScreen.selectedTextStyle
 import java.time.LocalTime
 
 enum class CalendarOption(val label: String) {
-    FULL_WEEK("Full Week"),
-    HALF_WEEK("Half Week"),
+    FULL_WEEK("Full_week"),
+    HALF_WEEK("Half_Week"),
     WEEKEND("Weekend")
 }
 
@@ -112,7 +112,7 @@ fun CalendarOptionSection(checked: MutableState<CalendarOption>,checkChanged:(Ca
                     checked = checked.value == CalendarOption.FULL_WEEK,
                     onCheckedChange = {
                         checkChanged(CalendarOption.FULL_WEEK)
-                    })
+                    },stringResource(id = R.string.Full_week))
                 CalendarOptionPicker(
                     option = CalendarOption.HALF_WEEK,
                     checked = checked.value == CalendarOption.HALF_WEEK,
@@ -120,7 +120,7 @@ fun CalendarOptionSection(checked: MutableState<CalendarOption>,checkChanged:(Ca
                         checkChanged(CalendarOption.HALF_WEEK)
 
 
-                    })
+                    },stringResource(id = R.string.Half_week))
                 CalendarOptionPicker(
                     option = CalendarOption.WEEKEND,
                     checked = checked.value == CalendarOption.WEEKEND,
@@ -128,7 +128,7 @@ fun CalendarOptionSection(checked: MutableState<CalendarOption>,checkChanged:(Ca
                         checkChanged(CalendarOption.WEEKEND)
 
 
-                    })
+                    },stringResource(id = R.string.Weekend))
             }
 
 
@@ -300,17 +300,18 @@ fun TimePickerDialogOnly(onDismissRequest: () -> Unit, onEvent: (SettingsScreenE
 }
 
 @Composable
-fun CalendarOptionPicker(option: CalendarOption, checked: Boolean, onCheckedChange: () -> Unit) {
+fun CalendarOptionPicker(option: CalendarOption, checked: Boolean, onCheckedChange: () -> Unit,text:String) {
 
     Row(
         modifier = Modifier
-            .padding(vertical = 4.dp, horizontal = 0.dp).padding(start = 24.dp)
+            .padding(vertical = 4.dp, horizontal = 0.dp)
+            .padding(start = 24.dp)
             .clip(RoundedCornerShape(7.dp))
             .background(Color(0x2DE4E4E4))
             .padding(8.dp)
     ) {
         Text(
-            text = option.label,
+            text =text ,
             style = TextStyle(
                 fontFamily = Lexend,
                 fontSize = 12.sp,

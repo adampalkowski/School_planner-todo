@@ -34,6 +34,7 @@ import com.palrasp.myapplication.view.SettingsScreen.saveSelectedCalendarOption
 import com.palrasp.myapplication.view.SettingsScreen.saveSelectedHour
 import com.palrasp.myapplication.viewmodel.EventViewModel
 import com.palrasp.myapplication.viewmodel.eventViewModel.EventViewModelFactory
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.*
 import java.time.temporal.ChronoUnit
@@ -140,7 +141,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         val classes by eventViewModel.allEvents.collectAsState(emptyList())
-
 
                         DisposableEffect(currentScreen) {
                             onDispose {
@@ -256,6 +256,8 @@ class MainActivity : ComponentActivity() {
                                         SaveNotes = { event ->
                                             coroutineScope.launch {
                                                 eventViewModel.updateEvent(event)
+
+
                                             }
                                         }, onDeleteEvent = { event ->
                                             coroutineScope.launch {
@@ -292,34 +294,129 @@ class MainActivity : ComponentActivity() {
 
                                                 val daysUntilSelectedDay =
                                                     (selectedDayOfWeekValue - startDate.dayOfWeek.value + 7) % 7
+                                                val recurrance=eventState.value.getRecurrence()!!
 
                                                 val events: List<com.palrasp.myapplication.CalendarClasses.Event> =
                                                     (0 until totalWeeks).map { week ->
-                                                        val currentDate =
-                                                            startDate.plusDays(week * 7 + daysUntilSelectedDay.toLong())
-                                                        val startTime =
-                                                            createdEvent.start.toLocalTime()
-                                                        val endTime = createdEvent.end.toLocalTime()
-                                                        val startDateTime =
-                                                            currentDate.atTime(startTime)
-                                                        val endDateTime =
-                                                            currentDate.atTime(endTime)
-                                                        com.palrasp.myapplication.CalendarClasses.Event(
-                                                            id = generateRandomId(),
-                                                            name = createdEvent.name,
-                                                            color = createdEvent.color,
-                                                            start = startDateTime,
-                                                            end = endDateTime,
-                                                            description = "\n\n\n\n\n\n\n\n",
-                                                            className = createdEvent.className,
-                                                            recurrenceJson = "",
-                                                            compulsory = createdEvent.compulsory,
-                                                            dayOfTheWeek = createdEvent.dayOfTheWeek
-                                                        )
+                                                        when(recurrance.pattern){
+                                                            RecurrencePattern.WEEKLY->{
+                                                                val currentDate =
+                                                                    startDate.plusDays(week * 7 + daysUntilSelectedDay.toLong())
+                                                                val startTime =
+                                                                    createdEvent.start.toLocalTime()
+                                                                val endTime = createdEvent.end.toLocalTime()
+                                                                val startDateTime =
+                                                                    currentDate.atTime(startTime)
+                                                                val endDateTime =
+                                                                    currentDate.atTime(endTime)
+                                                                com.palrasp.myapplication.CalendarClasses.Event(
+                                                                    id = generateRandomId(),
+                                                                    name = createdEvent.name,
+                                                                    color = createdEvent.color,
+                                                                    start = startDateTime,
+                                                                    end = endDateTime,
+                                                                    description = "\n\n\n\n\n\n\n\n",
+                                                                    className = createdEvent.className,
+                                                                    recurrenceJson = "",
+                                                                    compulsory = createdEvent.compulsory,
+                                                                    dayOfTheWeek = createdEvent.dayOfTheWeek
+                                                                )
+                                                            }
+                                                            RecurrencePattern.TWOWEEKS->{
+                                                                val currentDate = startDate.plusDays(week * 14 + daysUntilSelectedDay.toLong())
+
+                                                                val startTime =
+                                                                    createdEvent.start.toLocalTime()
+                                                                val endTime = createdEvent.end.toLocalTime()
+                                                                val startDateTime =
+                                                                    currentDate.atTime(startTime)
+                                                                val endDateTime =
+                                                                    currentDate.atTime(endTime)
+                                                                com.palrasp.myapplication.CalendarClasses.Event(
+                                                                    id = generateRandomId(),
+                                                                    name = createdEvent.name,
+                                                                    color = createdEvent.color,
+                                                                    start = startDateTime,
+                                                                    end = endDateTime,
+                                                                    description = "\n\n\n\n\n\n\n\n",
+                                                                    className = createdEvent.className,
+                                                                    recurrenceJson = "",
+                                                                    compulsory = createdEvent.compulsory,
+                                                                    dayOfTheWeek = createdEvent.dayOfTheWeek
+                                                                )
+                                                            }
+                                                            RecurrencePattern.MONTHLY->{
+                                                                val currentDate = startDate.plusMonths(week)
+
+                                                                val startTime =
+                                                                    createdEvent.start.toLocalTime()
+                                                                val endTime = createdEvent.end.toLocalTime()
+                                                                val startDateTime =
+                                                                    currentDate.atTime(startTime)
+                                                                val endDateTime =
+                                                                    currentDate.atTime(endTime)
+                                                                com.palrasp.myapplication.CalendarClasses.Event(
+                                                                    id = generateRandomId(),
+                                                                    name = createdEvent.name,
+                                                                    color = createdEvent.color,
+                                                                    start = startDateTime,
+                                                                    end = endDateTime,
+                                                                    description = "\n\n\n\n\n\n\n\n",
+                                                                    className = createdEvent.className,
+                                                                    recurrenceJson = "",
+                                                                    compulsory = createdEvent.compulsory,
+                                                                    dayOfTheWeek = createdEvent.dayOfTheWeek
+                                                                )
+                                                            }
+                                                            RecurrencePattern.DAILY->{
+                                                                val currentDate = startDate.plusDays(week)
+                                                                val startTime =
+                                                                    createdEvent.start.toLocalTime()
+                                                                val endTime = createdEvent.end.toLocalTime()
+                                                                val startDateTime =
+                                                                    currentDate.atTime(startTime)
+                                                                val endDateTime =
+                                                                    currentDate.atTime(endTime)
+                                                                com.palrasp.myapplication.CalendarClasses.Event(
+                                                                    id = generateRandomId(),
+                                                                    name = createdEvent.name,
+                                                                    color = createdEvent.color,
+                                                                    start = startDateTime,
+                                                                    end = endDateTime,
+                                                                    description = "\n\n\n\n\n\n\n\n",
+                                                                    className = createdEvent.className,
+                                                                    recurrenceJson = "",
+                                                                    compulsory = createdEvent.compulsory,
+                                                                    dayOfTheWeek = createdEvent.dayOfTheWeek
+                                                                )
+                                                            }
+                                                            else -> {
+                                                                val currentDate =
+                                                                    startDate.plusDays(week * 7 + daysUntilSelectedDay.toLong())
+                                                                val startTime =
+                                                                    createdEvent.start.toLocalTime()
+                                                                val endTime = createdEvent.end.toLocalTime()
+                                                                val startDateTime =
+                                                                    currentDate.atTime(startTime)
+                                                                val endDateTime =
+                                                                    currentDate.atTime(endTime)
+                                                                com.palrasp.myapplication.CalendarClasses.Event(
+                                                                    id = generateRandomId(),
+                                                                    name = createdEvent.name,
+                                                                    color = createdEvent.color,
+                                                                    start = startDateTime,
+                                                                    end = endDateTime,
+                                                                    description = "\n\n\n\n\n\n\n\n",
+                                                                    className = createdEvent.className,
+                                                                    recurrenceJson = "",
+                                                                    compulsory = createdEvent.compulsory,
+                                                                    dayOfTheWeek = createdEvent.dayOfTheWeek
+                                                                )
+                                                            }
+                                                        }
+
                                                     }
-                                                events.forEach { event ->
-                                                    event.setRecurrence(Recurrence(RecurrencePattern.WEEKLY))
-                                                }
+
                                                 eventViewModel.insertEvents(events)
                                                 currentScreen = Screen.Calendar
                                                 eventViewModel.resetCurrentClass()

@@ -23,6 +23,8 @@
     <string name="calendar_time">Początkowy czas kalendarza</string>
     <string name="inital_time">Początkowy czas kalendarza</string>
     <string name="calendar_option">Typ kalendarza</string>
-
+    <string name="Full_week">Cały tydzień</string>
+    <string name="Half_week">Dnie powszednie</string>
+    <string name="Weekend">Weekend</string>
 
 </resources>

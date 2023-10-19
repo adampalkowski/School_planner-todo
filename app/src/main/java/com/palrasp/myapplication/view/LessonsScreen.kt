@@ -129,9 +129,9 @@ fun EventItem(event: com.palrasp.myapplication.CalendarClasses.Event,deleteEvent
             Text(
                 text = event.name,
                 style = TextStyle(
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     fontFamily = Lexend,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Medium
                 ),
                 color=textColor
             )

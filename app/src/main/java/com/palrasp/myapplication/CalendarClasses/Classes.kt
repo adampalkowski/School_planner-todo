@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,7 +66,7 @@ fun BasicClass(
     ) {
         Box(modifier = Modifier
             .align(Alignment.TopCenter)
-            .clip(RoundedCornerShape(bottomStart = 3.dp, bottomEnd =3.dp))
+            .clip(RoundedCornerShape(bottomStart = 3.dp, bottomEnd = 3.dp))
             .background(Color.White)
             .padding(horizontal = 2.dp)) {
             Text(
@@ -74,7 +76,10 @@ fun BasicClass(
             )
         }
         Column(
-            modifier = modifier.fillMaxSize().padding(4.dp).padding(vertical = 4.dp)
+            modifier = modifier
+                .fillMaxSize()
+                .padding(4.dp)
+                .padding(vertical = 4.dp)
         ) {
             Spacer(modifier = Modifier.weight(1f))
             Text(
@@ -100,6 +105,19 @@ fun BasicClass(
                 style = TextStyle(color = classTimeTextColor, fontSize = 8.sp, fontWeight = FontWeight.ExtraLight, fontFamily = Lexend),
             )
         }
+
+
+        if( event.checkedLinesRatio==1f){
+            Box(modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .background(Color(0x572B68FF))
+                .padding(horizontal = 2.dp)) {
+                Icon(painter = painterResource(id = com.palrasp.myapplication.R.drawable.ic_check), contentDescription =null, tint = Color.White, modifier = Modifier.align(
+                    Alignment.CenterEnd) )
+            }
+        }
+
     }
 }
 

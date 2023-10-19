@@ -56,7 +56,6 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
     suspend fun getEventsForWeek(startDate:String,endDate:String)  {
         withContext(Dispatchers.IO) {
             val eventEntities = eventDao.getEventsWithinWeek(startDate,endDate)
-            Log.d("getEventsForWeek",eventEntities.size.toString()+"asdsa")
             _allEvents.value = eventEntities.map { it.toEvent() }
         }
     }
@@ -70,7 +69,6 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
                     className = newEvent.className
                 )
             }
-            Log.d("UPDATEEVENTS","updated events")
             eventDao.updateEvents(updatedEvents)
 
         }
@@ -108,19 +106,21 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             // Convert the updated event to an entity
             val updatedEntity = updatedEvent.toEventEntity()
-
             // Update the event in the database
             eventDao.updateEvent(updatedEntity)
             _allEvents.update { events ->
                 val updatedEventIndex = events.indexOfFirst { it.id == updatedEvent.id }
                 if (updatedEventIndex != -1) {
-                    events.toMutableList().apply {
-                        set(updatedEventIndex, updatedEvent)
-                    }
+                    val updatedEvents = events.toMutableList()
+
+                    updatedEvents[updatedEventIndex] = updatedEvent
+                    updatedEvents.toList()
                 } else {
                     events
                 }
             }
+
+
         }
     }
     suspend fun deleteEvent(event: Event) {

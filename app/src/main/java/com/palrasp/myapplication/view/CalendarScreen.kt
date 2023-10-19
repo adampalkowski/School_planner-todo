@@ -112,7 +112,6 @@ fun CalendarScreen(
         drawerScrimColor = Color.Black.copy(alpha = 0.2f),
         drawerGesturesEnabled = true,
         sheetContent = {
-
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -212,8 +211,9 @@ fun CalendarScreen(
 
                         ratio.value = weekRatio
                     }
-                    LazyColumn {
+                    var previousEventName by remember { mutableStateOf<String?>(null) }
 
+                    LazyColumn {
                         for (day in daysOfWeek) {
                             // Display the day of the week as a header
                             item {
@@ -254,15 +254,20 @@ fun CalendarScreen(
                             items(eventsForDay) { event ->
                                 event.extractedLinesWithIndices.forEach { (index, line, checked) ->
                                     Column() {
-                                        Text(
-                                            text = event.name, textAlign = TextAlign.Start,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(start = 24.dp),
-                                            fontWeight = FontWeight.ExtraLight,
-                                            fontSize = 10.sp,
-                                            color = Color(0xFFD1CFCF)
-                                        )
+                                        val showEventName = event.name != previousEventName
+                                        if (showEventName) {
+                                            // Render the event name text
+                                            Text(
+                                                text = event.name,
+                                                textAlign = TextAlign.Start,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(start = 24.dp),
+                                                fontWeight = FontWeight.ExtraLight,
+                                                fontSize = 10.sp,
+                                                color = Color(0xFFD1CFCF)
+                                            )
+                                        }
                                         Row(
                                             verticalAlignment = CenterVertically,
                                             modifier = Modifier.padding(horizontal = 24.dp)
@@ -281,6 +286,8 @@ fun CalendarScreen(
                                                 )
                                             )
                                         }
+                                        previousEventName = event.name
+
                                     }
                                 }
                             }
@@ -311,11 +318,10 @@ fun CalendarScreen(
         ) {
 
             LaunchedEffect(firstDay.value) {
-
                 onEvent(
                     CalendarEvents.GetEventsForWeek(
                         firstDay.value.toString(),
-                        endOfWeek.toString()
+                        endOfWeek.plusDays(1).toString()
 
                     )
                 )

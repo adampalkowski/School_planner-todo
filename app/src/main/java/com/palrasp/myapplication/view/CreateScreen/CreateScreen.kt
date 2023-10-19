@@ -211,88 +211,18 @@ fun CreateScreenScheme(
                 DayOfTheWeekPicker(eventState, onEvent =onEvent)
                 CreateDivider()
                 TimePickerSection(eventState, onEvent =onEvent)
+                CreateDivider()
+                RepeatSection(eventState,onEvent=onEvent)
             }
 
             CreateDivider()
             IsNeccesarySection(eventState)
-            CreateDivider()
-            RepeatSection(eventState,onEvent=onEvent)
+
+
         }
 
     }
 
-}
-
-
-@Composable
-fun ColorSwatch(color: Color, isSelected: Boolean, onColorSelected: (Color) -> Unit) {
-    if (isSelected) {
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-                .size(32.dp)
-                .clip(CircleShape)
-                .background(color = color, shape = CircleShape)
-                .clickable {
-                    onColorSelected(color)
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_check),
-                contentDescription = null,
-                tint = Color.White
-            )
-        }
-    } else {
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-                .size(32.dp)
-                .clip(CircleShape)
-                .background(color = color, shape = CircleShape)
-                .clickable {
-                    onColorSelected(color)
-                },
-            contentAlignment = Alignment.Center
-        ) {
-
-        }
-    }
-}
-
-@Composable
-fun CreateItem(label: String, onClick: () -> Unit, content: @Composable () -> Unit) {
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = label, color = Color(0xFFC9C9C9))
-                Spacer(modifier = Modifier.weight(1f))
-                content()
-            }
-            Spacer(modifier = Modifier.height(6.dp))
-            Box(
-                modifier = Modifier
-                    .height(1.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .background(
-                        Color(
-                            0xFFE0E0E0
-                        )
-                    )
-            )
-        }
-
-    }
 }
 
 @Composable

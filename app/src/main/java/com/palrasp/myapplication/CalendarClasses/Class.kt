@@ -91,7 +91,6 @@ data class Event(
     val extractedLinesWithIndices: List<Triple<Int, String,Boolean>>
         get() = description.lines()
             .mapIndexedNotNull { index, line ->
-
                 if (line.startsWith("[-]") || line.startsWith("[x]")) {
                     val isChecked = line.startsWith("[x]")
 

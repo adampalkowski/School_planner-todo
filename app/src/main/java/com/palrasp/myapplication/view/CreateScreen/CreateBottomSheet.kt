@@ -24,7 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.palrasp.myapplication.CalendarClasses.Event
-import com.palrasp.myapplication.view.ColorSwatch
 import com.palrasp.myapplication.view.mediumTextStyle
 import java.time.DayOfWeek
 import java.util.*
