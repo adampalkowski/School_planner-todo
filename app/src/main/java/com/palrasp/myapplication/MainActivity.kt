@@ -1,5 +1,6 @@
 package com.palrasp.myapplication
 
+import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -24,9 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.ads.mediationtestsuite.viewmodels.ViewModelFactory
 import com.palrasp.myapplication.CalendarClasses.*
 import com.palrasp.myapplication.data.local.database.AppDatabase
 import com.palrasp.myapplication.ui.theme.PlannerTheme
+import com.palrasp.myapplication.utils.generateRandomId
+import com.palrasp.myapplication.utils.sampleEvent
 import com.palrasp.myapplication.view.*
 import com.palrasp.myapplication.view.SettingsScreen.getSelectedCalendarOption
 import com.palrasp.myapplication.view.SettingsScreen.getSelectedHour
@@ -34,6 +39,8 @@ import com.palrasp.myapplication.view.SettingsScreen.saveSelectedCalendarOption
 import com.palrasp.myapplication.view.SettingsScreen.saveSelectedHour
 import com.palrasp.myapplication.viewmodel.EventViewModel
 import com.palrasp.myapplication.viewmodel.eventViewModel.EventViewModelFactory
+import com.palrasp.myapplication.viewmodel.eventViewModel.SettingsViewModel
+import com.palrasp.myapplication.viewmodel.eventViewModel.SettingsViewModelFactory
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.*
@@ -42,33 +49,8 @@ import java.time.temporal.TemporalAdjusters
 import java.util.*
 import kotlin.random.Random
 
-val sampleEvent = Event(
-    id = generateRandomId(),
-    name = "",
-    color = Color(0xFF7DC1FF),
-    start = LocalDateTime.of(
-        LocalDate.now(),
-        LocalTime.of(12, 0)
-    ),
-    end = LocalDateTime.of(
-        LocalDate.now(),
-        LocalTime.of(13, 30)
-    ),
-    description = "",
-    className = "",
-    recurrenceJson = "",
-    compulsory = true,
-    dayOfTheWeek = 1
-)
 
-sealed class Screen(val route: String) {
-    object Calendar : Screen("calendar")
-    class Event(val event: com.palrasp.myapplication.CalendarClasses.Event) : Screen("event")
-    object Create : Screen("create")
-    object Settings : Screen("settings")
-    object Update : Screen("create")
-    object Lessons : Screen("lessons")
-}
+
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -80,8 +62,18 @@ class MainActivity : ComponentActivity() {
         //only Instance of eventViewModel
         val eventViewModel =
             ViewModelProvider(this, EventViewModelFactory(eventDao)).get(EventViewModel::class.java)
+
         setContent {
             PlannerTheme(darkTheme = false) {
+                val settingsViewModel: SettingsViewModel = viewModel(
+                    factory = SettingsViewModelFactory(application = LocalContext.current.applicationContext as Application)
+                )
+                NavigationComponent(
+                    eventViewModel=eventViewModel,
+                    settingsViewModel=settingsViewModel
+                )
+
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = PlannerTheme.colors.uiBackground
@@ -489,60 +481,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-@Composable
-private fun HourLabel(hour: Int) {
-    Text(
-        text = hour.toString(),
-        Modifier.run {
-            height(24.dp)
-                .padding(start = 8.dp, end = 24.dp)
-        },
-        textAlign = TextAlign.Center
-    )
-}
-
-@Composable
-private fun DaysHeader(days: List<Pair<String, Int>>) {
-    Row(
-        Modifier
-            .padding(bottom = 16.dp)
-            .drawBehind {
-                val brush = Brush.linearGradient(listOf(Yellow, Yellow))
-                drawRoundRect(
-                    brush,
-                    cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx()),
-                )
-            }
-    ) {
-        days.forEach { (dayName, dayNumber) ->
-            Column() {
-                Text(
-                    text = "$dayName",
-                    fontSize = 8.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .width(50.dp)
-                        .padding(vertical = 4.dp),
-                )
-                Text(
-                    text = "$dayNumber",
-                    fontSize = 6.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .width(50.dp)
-                        .padding(vertical = 4.dp),
-                )
-            }
-
-        }
-    }
-}
-
-fun generateRandomId(): Long {
-    val random = Random.Default
-    // Define the range for your random ID. Adjust the values as needed.
-    val minIdValue = 1L
-    val maxIdValue = Long.MAX_VALUE
-    return random.nextLong(minIdValue, maxIdValue)
-}

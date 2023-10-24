@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace 'com.palrasp.myapplication'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.palrasp.myapplication"
         minSdk 28
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
         compileSdkPreview = "UpsideDownCake"
@@ -51,8 +51,11 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.ads:mediation-test-suite:3.0.0'
     def room_version = "2.5.2"
     implementation 'com.google.code.gson:gson:2.10.1'
+
+
 
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
@@ -60,19 +63,19 @@ dependencies {
     // optional - RxJava3 support for Room
     implementation "androidx.room:room-rxjava3:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
-
+    implementation "androidx.navigation:navigation-compose:2.7.4"
 
     implementation "androidx.compose.material3:material3:1.1.2"
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.28.0"
     androidTestImplementation  "dev.chrisbanes.snapper:snapper:v0.3.0"
     implementation "com.github.commandiron:WheelPickerCompose:1.1.11"
     implementation "androidx.compose.ui:ui-util:$compose_ui_version"
-    implementation 'androidx.core:core-ktx:1.10.1'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
-    implementation 'androidx.activity:activity-compose:1.5.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
+    implementation 'androidx.activity:activity-compose:1.8.0'
     implementation "androidx.compose.ui:ui:$compose_ui_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
-    implementation 'androidx.compose.material:material:1.5.3'
+    implementation 'androidx.compose.material:material:1.5.4'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

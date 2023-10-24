@@ -12,7 +12,7 @@ import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.Screen
 import com.palrasp.myapplication.data.local.dao.EventDao
 import com.palrasp.myapplication.data.local.entities.EventEntity
-import com.palrasp.myapplication.generateRandomId
+import com.palrasp.myapplication.utils.generateRandomId
 import com.palrasp.myapplication.viewmodel.eventViewModel.toEvent
 import com.palrasp.myapplication.viewmodel.eventViewModel.toEventEntity
 import kotlinx.coroutines.Dispatchers
