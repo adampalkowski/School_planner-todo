@@ -1,10 +1,8 @@
 package com.palrasp.myapplication.Navigation
 
 import android.content.Context
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandIn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -24,6 +22,7 @@ import com.palrasp.myapplication.viewmodel.eventViewModel.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+val durationMillis = 500
 
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.mainGraph(
@@ -39,11 +38,19 @@ fun NavGraphBuilder.mainGraph(
         composable(
             "Calendar",
             enterTransition = {
-                when (targetState.destination.route) {
-                    "Calendar" ->
+                when (initialState.destination.route) {
+                    "Lessons" ->
+                        slideIntoContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
+                        )
+                    "Create" ->
+                        fadeIn(   animationSpec = tween(durationMillis))
+
+                    "Settings" ->
                         slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
@@ -53,17 +60,37 @@ fun NavGraphBuilder.mainGraph(
                     "Calendar" ->
                         slideOutOfContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
+                        )
+                    "Lessons" ->
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Right,
+                            animationSpec = tween(durationMillis)
+                        )
+                    "Settings" ->
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
             },
             popEnterTransition = {
-                when (targetState.destination.route) {
+                when (initialState.destination.route) {
                     "Calendar" ->
                         slideIntoContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
+                        )
+                    "Lessons" ->
+                        slideIntoContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
+                        )
+                    "Settings" ->
+                        slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
@@ -73,12 +100,24 @@ fun NavGraphBuilder.mainGraph(
                     "Calendar" ->
                         slideOutOfContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
+                        )
+                    "Lessons" ->
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Right,
+                            animationSpec = tween(durationMillis)
+                        )
+                    "Settings" ->
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
             }
         ) { backStackEntry ->
+            val allEvents by eventViewModel.allEvents.collectAsState()
+
             CalendarScreen(
                 startHour = settingsViewModel.startHour.value,
                 firstDay = settingsViewModel.firstDayOfWeek,
@@ -100,13 +139,11 @@ fun NavGraphBuilder.mainGraph(
                         is CalendarEvents.GoToEvent -> {
                             eventViewModel.setCurrentClass(event.event)
                             navController.navigate("Event")
-
                         }
                         is CalendarEvents.UpdateEvent -> {
                             coroutineScope.launch {
                                 updateEventDescription(event, eventViewModel)
                             }
-
                         }
                         is CalendarEvents.GoToCreate -> {
                             navController.navigate("Create")
@@ -117,7 +154,7 @@ fun NavGraphBuilder.mainGraph(
 
                     }
                 },
-                classes = eventViewModel.allEvents.value
+                classes = allEvents
             )
 
 
@@ -127,10 +164,11 @@ fun NavGraphBuilder.mainGraph(
             "Settings",
             enterTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
+
+                    "Settings" ->
                         slideIntoContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
@@ -140,17 +178,18 @@ fun NavGraphBuilder.mainGraph(
                     "Calendar" ->
                         slideOutOfContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
             },
             popEnterTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
+
+                    "Settings" ->
                         slideIntoContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
@@ -160,7 +199,7 @@ fun NavGraphBuilder.mainGraph(
                     "Calendar" ->
                         slideOutOfContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
@@ -195,35 +234,29 @@ fun NavGraphBuilder.mainGraph(
             enterTransition = {
                 when (targetState.destination.route) {
                     "Event" ->
-                        expandIn(animationSpec = tween(700))
+                        expandIn(animationSpec = tween(durationMillis))
 
                     else -> null
                 }
             },
             exitTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
-                        slideOutOfContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
+
+
                     else -> null
                 }
             },
             popEnterTransition = {
                 when (targetState.destination.route) {
                     "Event" ->
-                        expandIn(animationSpec = tween(700))
+                        expandIn(animationSpec = tween(durationMillis))
                     else -> null
                 }
             },
             popExitTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
-                        slideOutOfContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
+
+
                     else -> null
                 }
             }
@@ -263,38 +296,26 @@ fun NavGraphBuilder.mainGraph(
                     "Calendar" ->
                         slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
             },
             exitTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
-                        slideOutOfContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
+
                     else -> null
                 }
             },
             popEnterTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
-                        slideIntoContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
+
                     else -> null
                 }
             },
             popExitTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
-                        slideOutOfContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
+
                     else -> null
                 }
             }
@@ -336,7 +357,7 @@ fun NavGraphBuilder.mainGraph(
                     "Calendar" ->
                         slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
@@ -346,7 +367,7 @@ fun NavGraphBuilder.mainGraph(
                     "Calendar" ->
                         slideOutOfContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
@@ -356,7 +377,7 @@ fun NavGraphBuilder.mainGraph(
                     "Calendar" ->
                         slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
@@ -366,7 +387,7 @@ fun NavGraphBuilder.mainGraph(
                     "Calendar" ->
                         slideOutOfContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
@@ -401,40 +422,50 @@ fun NavGraphBuilder.mainGraph(
             "Lessons",
             enterTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
+                    "Lessons" ->
                         slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
             },
             exitTransition = {
                 when (targetState.destination.route) {
+                    "Lessons" ->
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
+                        )
                     "Calendar" ->
                         slideOutOfContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
             },
             popEnterTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
+                    "Lessons" ->
                         slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }
             },
             popExitTransition = {
                 when (targetState.destination.route) {
+                    "Lessons" ->
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
+                        )
                     "Calendar" ->
                         slideOutOfContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis)
                         )
                     else -> null
                 }

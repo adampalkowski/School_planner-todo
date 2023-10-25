@@ -3,7 +3,9 @@ package com.palrasp.myapplication.view
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -133,7 +135,6 @@ fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit,eventState: Mutable
                 if (!  eventState.value.start.isAfter(eventState.value.start)){
                     onCreateEvent(eventState.value)
                 }
-
             }
             else->{}
         }
@@ -184,7 +185,7 @@ fun CreateScreenScheme(
     isUpdate:Boolean
 ) {
     PlannerTheme {
-        Column {
+        Column (modifier=Modifier.verticalScroll(rememberScrollState())){
             CreateTopPart(
                 modifier = modifier,
                 onEvent=onEvent,
@@ -210,45 +211,5 @@ fun CreateScreenScheme(
 
     }
 
-}
-
-@Composable
-fun CreateTopPart(modifier: Modifier,onEvent: (CreateScreenEvent) -> Unit,eventState: MutableState<Event>) {
-    val saveColor=if (eventState.value.start.isBefore(eventState.value.end)){
-        confirmColor
-    }else{
-        Color(0xFFC4C4C4)
-    }
-    Row(
-        modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 24.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = {onEvent(CreateScreenEvent.Close)}) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_x),
-                contentDescription = null,
-                tint = textColor
-            )
-        }
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
-            text = stringResource(id = R.string.save_button),
-            style = TextStyle(
-                fontFamily = Lexend,
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp,
-                color = saveColor
-            ),
-            modifier = Modifier
-                .clip(
-                    RoundedCornerShape(10.dp)
-                )
-                .clickable(onClick = { onEvent(CreateScreenEvent.Save) })
-                .padding(10.dp)
-        )
-        Spacer(modifier = Modifier.width(24.dp))
-    }
 }
 

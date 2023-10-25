@@ -11,15 +11,27 @@ import androidx.lifecycle.ViewModelProvider
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.utils.sampleEvent
 import com.palrasp.myapplication.view.CalendarOption
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 import java.util.*
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val sharedPreferences = application.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-
-    private val _firstDayOfWeek = mutableStateOf(
-        LocalDate.ofEpochDay(sharedPreferences.getLong("firstDayOfWeek", LocalDate.now().toEpochDay()))
+    private fun getDefaultFirstDayOfWeekFromPreferences(): LocalDate {
+        val optionName = sharedPreferences.getString(
+            "selectedCalendarOption",
+            CalendarOption.HALF_WEEK.name
+        )
+        val defaultDayOfWeek = when (CalendarOption.valueOf(optionName!!)) {
+            CalendarOption.WEEKEND -> DayOfWeek.FRIDAY
+            else -> DayOfWeek.MONDAY
+        }
+        return LocalDate.now().with(TemporalAdjusters.previousOrSame(defaultDayOfWeek))
+    }
+    private val _firstDayOfWeek =mutableStateOf(
+        getDefaultFirstDayOfWeekFromPreferences()
     )
     val firstDayOfWeek: MutableState<LocalDate> = _firstDayOfWeek
 
@@ -29,6 +41,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     // You can add a function to update the selected month if needed
     fun updateCalendarOption(calendarOption: CalendarOption) {
         _calendarOption.value = calendarOption
+        if (calendarOption == CalendarOption.WEEKEND) {
+            // Set _firstDayOfWeek to Friday for WEEKEND option
+            _firstDayOfWeek.value = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.FRIDAY))
+        }else{
+            _firstDayOfWeek.value = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        }
     }
     fun updateStartHour(startHour: Float) {
         _startHour.value = startHour
