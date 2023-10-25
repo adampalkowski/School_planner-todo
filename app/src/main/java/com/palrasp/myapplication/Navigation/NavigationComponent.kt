@@ -46,7 +46,7 @@ fun NavigationComponent(navController: NavHostController = rememberNavController
 
     }
     LaunchedEffect(Unit) {
-        delay(2000) // Delay for 1 second (1000 milliseconds)
+        delay(0) // Delay for 1 second (1000 milliseconds)
         displaySplashScreen.value =
             false // Change the value of displaySplashScreen after the delay
     }

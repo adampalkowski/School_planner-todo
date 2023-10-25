@@ -51,7 +51,6 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.ads:mediation-test-suite:3.0.0'
     def room_version = "2.5.2"
     implementation 'com.google.code.gson:gson:2.10.1'
 

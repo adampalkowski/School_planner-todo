@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -38,13 +39,12 @@ fun NavGraphBuilder.mainGraph(
     navController: NavController,
     eventViewModel: EventViewModel,
     settingsViewModel: SettingsViewModel,
-    coroutineScope:CoroutineScope,
-    context: Context
+    coroutineScope: CoroutineScope,
+    context: Context,
 
-) {
+    ) {
 
     navigation(startDestination = "Calendar", route = "Main") {
-
         composable(
             "Calendar",
             enterTransition = {
@@ -88,31 +88,26 @@ fun NavGraphBuilder.mainGraph(
                 }
             }
         ) { backStackEntry ->
-            CalendarScreen(startHour=settingsViewModel.startHour.value,
+            CalendarScreen(
+                startHour = settingsViewModel.startHour.value,
                 firstDay = settingsViewModel.firstDayOfWeek,
                 selectedMonth = settingsViewModel.selectedMonth,
-                calendarOption=settingsViewModel.calendarOption.value,
+                calendarOption = settingsViewModel.calendarOption.value,
                 onEvent = { event ->
                     when (event) {
-                        is CalendarEvents.GoToSettings->{
+                        is CalendarEvents.GoToSettings -> {
                             navController.navigate("Settings")
-
                         }
                         is CalendarEvents.GetEventsForWeek -> {
-
                             coroutineScope.launch {
                                 eventViewModel.getEventsForWeek(
                                     event.firstDayOfWeek,
                                     event.endOfWeek
                                 )
-
                             }
-
                         }
                         is CalendarEvents.GoToEvent -> {
                             navController.navigate("Event")
-                            /*          currentScreen = Screen.Event(event.event)
-*/
 
                         }
                         is CalendarEvents.UpdateEvent -> {
@@ -145,11 +140,9 @@ fun NavGraphBuilder.mainGraph(
                         }
                         is CalendarEvents.GoToCreate -> {
                             navController.navigate("Create")
-
                         }
                         is CalendarEvents.GoToLesson -> {
                             navController.navigate("Lessons")
-
                         }
 
                     }
@@ -203,36 +196,37 @@ fun NavGraphBuilder.mainGraph(
                 }
             }
         ) { backStackEntry ->
-            SettingsScreen(onEvent = {
-                when(it){
-                    is SettingsScreenEvents.GoBack->{
-                        navController.navigate("Calendar")
+            SettingsScreen(
+                onEvent = {
+                    when (it) {
+                        is SettingsScreenEvents.GoBack -> {
+                            navController.navigate("Calendar")
+                        }
+                        is SettingsScreenEvents.ChangeCalendarOption -> {
+                            saveSelectedCalendarOption(context = context, it.option)
+                            settingsViewModel.updateCalendarOption(it.option)
+                        }
+                        is SettingsScreenEvents.ChangeStartHour -> {
+                            saveSelectedHour(context = context, it.hour)
+                            settingsViewModel.updateStartHour(it.hour)
+                        }
+                        else -> {}
                     }
-                    is SettingsScreenEvents.ChangeCalendarOption->{
-                        saveSelectedCalendarOption(context = context,it.option)
-                        settingsViewModel.updateCalendarOption(it.option)
-                    }
-                    is SettingsScreenEvents.ChangeStartHour->{
-                        saveSelectedHour(context = context,it.hour)
-                        settingsViewModel.updateStartHour(it.hour)
-                    }
-                    else->{}
-                }
-            }, modifier = Modifier,calendarOption=settingsViewModel.calendarOption.value,startHour=settingsViewModel.startHour)
+                },
+                modifier = Modifier,
+                calendarOption = settingsViewModel.calendarOption.value,
+                startHour = settingsViewModel.startHour
+            )
 
         }
-
-
 
         composable(
             "Event",
             enterTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
-                        slideIntoContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
+                    "Event" ->
+                        expandIn(   animationSpec = tween(700))
+
                     else -> null
                 }
             },
@@ -248,11 +242,8 @@ fun NavGraphBuilder.mainGraph(
             },
             popEnterTransition = {
                 when (targetState.destination.route) {
-                    "Calendar" ->
-                        slideIntoContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
+                    "Event" ->
+                        expandIn(   animationSpec = tween(700))
                     else -> null
                 }
             },
@@ -273,11 +264,10 @@ fun NavGraphBuilder.mainGraph(
 
             DisplayEventScreen(
                 currentEvent,
-                GoBack = {     navController.navigate("Calendar") },
+                GoBack = { navController.navigate("Calendar") },
                 SaveNotes = { event ->
                     coroutineScope.launch {
                         eventViewModel.updateEvent(event)
-
 
                     }
                 }, onDeleteEvent = { event ->
@@ -344,7 +334,7 @@ fun NavGraphBuilder.mainGraph(
             CreateScreen(
                 onBack = {
                     navController.navigate("Calendar")
-                   },
+                },
                 eventState = eventViewModel.currentClass,
                 onCreateEvent = { createdEvent ->
                     coroutineScope.launch {
@@ -359,12 +349,12 @@ fun NavGraphBuilder.mainGraph(
 
                         val daysUntilSelectedDay =
                             (selectedDayOfWeekValue - startDate.dayOfWeek.value + 7) % 7
-                        val recurrance=eventViewModel.currentClass.value.getRecurrence()!!
+                        val recurrance = eventViewModel.currentClass.value.getRecurrence()!!
 
                         val events: List<com.palrasp.myapplication.CalendarClasses.Event> =
                             (0 until totalWeeks).map { week ->
-                                when(recurrance.pattern){
-                                    RecurrencePattern.WEEKLY->{
+                                when (recurrance.pattern) {
+                                    RecurrencePattern.WEEKLY -> {
                                         val currentDate =
                                             startDate.plusDays(week * 7 + daysUntilSelectedDay.toLong())
                                         val startTime =
@@ -387,8 +377,9 @@ fun NavGraphBuilder.mainGraph(
                                             dayOfTheWeek = createdEvent.dayOfTheWeek
                                         )
                                     }
-                                    RecurrencePattern.TWOWEEKS->{
-                                        val currentDate = startDate.plusDays(week * 14 + daysUntilSelectedDay.toLong())
+                                    RecurrencePattern.TWOWEEKS -> {
+                                        val currentDate =
+                                            startDate.plusDays(week * 14 + daysUntilSelectedDay.toLong())
 
                                         val startTime =
                                             createdEvent.start.toLocalTime()
@@ -410,7 +401,7 @@ fun NavGraphBuilder.mainGraph(
                                             dayOfTheWeek = createdEvent.dayOfTheWeek
                                         )
                                     }
-                                    RecurrencePattern.MONTHLY->{
+                                    RecurrencePattern.MONTHLY -> {
                                         val currentDate = startDate.plusMonths(week)
 
                                         val startTime =
@@ -433,7 +424,7 @@ fun NavGraphBuilder.mainGraph(
                                             dayOfTheWeek = createdEvent.dayOfTheWeek
                                         )
                                     }
-                                    RecurrencePattern.DAILY->{
+                                    RecurrencePattern.DAILY -> {
                                         val currentDate = startDate.plusDays(week)
                                         val startTime =
                                             createdEvent.start.toLocalTime()
@@ -566,6 +557,7 @@ fun NavGraphBuilder.mainGraph(
                 }, isUpdate = true
             )
         }
+
         composable(
             "Lessons",
             enterTransition = {
@@ -621,8 +613,8 @@ fun NavGraphBuilder.mainGraph(
                         eventViewModel.deleteAllEvents(event)
                     }
                 }, onEvent = {
-                    when(it){
-                        is LessonsScreenEvents.GoToEvent->{
+                    when (it) {
+                        is LessonsScreenEvents.GoToEvent -> {
                             currentScreen = Screen.Event(it.event)
                         }
                     }

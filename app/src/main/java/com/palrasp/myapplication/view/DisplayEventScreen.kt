@@ -127,19 +127,19 @@ fun ModDivider(
 
 sealed class DisplayEventScreenEvents{
     class GoToEditClass(val event: Event):DisplayEventScreenEvents()
+    class DeleteEvents(val event: Event):DisplayEventScreenEvents()
+    object GoBack:DisplayEventScreenEvents()
+    class SaveNotes(val event: Event):DisplayEventScreenEvents()
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DisplayEventScreen(
     event: Event,
-    GoBack: () -> Unit,
-    SaveNotes: (Event) -> Unit,
-    onDeleteEvent: (Event) -> Unit,
     onEvent:(DisplayEventScreenEvents)->Unit
 ) {
     BackHandler() {
-        GoBack()
+        onEvent(DisplayEventScreenEvents.GoBack)
     }
     var notes = remember { mutableStateOf(event.description) }
     var displayDeleteDialog by remember { mutableStateOf(false) }
@@ -148,7 +148,7 @@ fun DisplayEventScreen(
     DisposableEffect(notes) {
         onDispose {
             event.description = notes.value
-            SaveNotes(event)
+            onEvent(DisplayEventScreenEvents.SaveNotes(event))
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -156,7 +156,7 @@ fun DisplayEventScreen(
             .fillMaxWidth()
             .align(Alignment.TopCenter)) {
             IconButton(
-                onClick = GoBack, modifier = Modifier
+                onClick = { onEvent(DisplayEventScreenEvents.GoBack) }, modifier = Modifier
                     .padding(start = 24.dp, top = 24.dp)
             ) {
                 Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = null)
@@ -237,15 +237,6 @@ fun DisplayEventScreen(
 
             })
 
-            //HERE
-            /* TextField(
-                 value = notes,
-                 onValueChange = { newValue -> notes = newValue },
-                 modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-                 textStyle = TextStyle(textDecoration = TextDecoration.None)
-             )*/
-            // Render the description with tasks
-
             TextWithTasksEditable(notes, onDescriptionChange = {
                 notes.value = it
             }, indexState)
@@ -298,10 +289,9 @@ fun DisplayEventScreen(
                                     color = confirmColor
                                 ),
                                 modifier = Modifier.clickable(onClick = {
-                                    onDeleteEvent(event)
+                                    onEvent(DisplayEventScreenEvents.DeleteEvents(event))
                                     displayDeleteDialog = false
-
-                                    GoBack()
+                                    onEvent(DisplayEventScreenEvents.GoBack)
                                 })
                             )
                         }
@@ -616,32 +606,4 @@ fun TextWithTasksEditable(
     }
 }
 
-enum class Keyboard {
-    Opened, Closed
-}
 
-@Composable
-fun keyboardAsState(): State<Int> {
-    val keyboardState = remember { mutableStateOf(0) }
-    val view = LocalView.current
-    DisposableEffect(view) {
-        val onGlobalListener = ViewTreeObserver.OnGlobalLayoutListener {
-            val rect = Rect()
-            view.getWindowVisibleDisplayFrame(rect)
-            val screenHeight = view.rootView.height
-            val keypadHeight = screenHeight - rect.bottom
-            keyboardState.value = if (keypadHeight > screenHeight * 0.15) {
-                keypadHeight
-            } else {
-                0
-            }
-        }
-        view.viewTreeObserver.addOnGlobalLayoutListener(onGlobalListener)
-
-        onDispose {
-            view.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalListener)
-        }
-    }
-
-    return keyboardState
-}
