@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.palrasp.myapplication.CalendarClasses.Event
+import com.palrasp.myapplication.utils.sampleEvent
 import com.palrasp.myapplication.view.CalendarOption
 import java.time.LocalDate
 import java.util.*
@@ -45,6 +47,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         )
     )
     val selectedMonth: MutableState<String> = _selectedMonth
+
+
 
     // ... other functions ...
 

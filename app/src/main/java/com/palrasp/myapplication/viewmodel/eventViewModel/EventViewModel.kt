@@ -13,6 +13,7 @@ import com.palrasp.myapplication.Screen
 import com.palrasp.myapplication.data.local.dao.EventDao
 import com.palrasp.myapplication.data.local.entities.EventEntity
 import com.palrasp.myapplication.utils.generateRandomId
+import com.palrasp.myapplication.utils.sampleEvent
 import com.palrasp.myapplication.viewmodel.eventViewModel.toEvent
 import com.palrasp.myapplication.viewmodel.eventViewModel.toEventEntity
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,8 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
     private val _allEvents = MutableStateFlow<List<Event>>(emptyList())
     val allEvents: StateFlow<List<Event>> = _allEvents.asStateFlow()
     val currentScreen: MutableState<Screen> = mutableStateOf(Screen.Calendar)
-    val currentClass: MutableState<Event> = mutableStateOf(Event(
+
+    private val _currentClass = mutableStateOf(Event(
         id = generateRandomId(),
         name = "",
         color = Color(0xFF7DC1FF),
@@ -46,7 +48,7 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
         compulsory = true,
         dayOfTheWeek = 1
     ))
-
+    val currentClass: MutableState<Event> = _currentClass
     suspend fun getEvents()  {
         withContext(Dispatchers.IO) {
             val eventEntities = eventDao.getAllEventsLiveData()
@@ -87,8 +89,11 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
             eventDao.insertEvents(entities)
         }
     }
+    fun setCurrentClass(event: Event){
+        _currentClass.value=event
+    }
     suspend fun resetCurrentClass() {
-        currentClass.value=Event(
+        _currentClass.value=Event(
             id = generateRandomId(),
             name = "",
             color = Color(0xFF7DC1FF),
@@ -141,4 +146,5 @@ class EventViewModel(private val eventDao: EventDao) : ViewModel() {
 
         }
     }
+
 }

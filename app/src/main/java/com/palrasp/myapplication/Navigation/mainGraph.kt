@@ -1,26 +1,20 @@
 package com.palrasp.myapplication.Navigation
 
 import android.content.Context
-import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import androidx.navigation.navArgument
-import com.palrasp.myapplication.CalendarClasses.Event
-import com.palrasp.myapplication.CalendarClasses.RecurrencePattern
 import com.palrasp.myapplication.CalendarClasses.getRecurrence
 import com.palrasp.myapplication.Screen
-import com.palrasp.myapplication.utils.generateRandomId
+import com.palrasp.myapplication.updateEventDescription
+import com.palrasp.myapplication.utils.generateEventsForPattern
 import com.palrasp.myapplication.utils.sampleEvent
 import com.palrasp.myapplication.view.*
 import com.palrasp.myapplication.view.SettingsScreen.saveSelectedCalendarOption
@@ -29,10 +23,7 @@ import com.palrasp.myapplication.viewmodel.EventViewModel
 import com.palrasp.myapplication.viewmodel.eventViewModel.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.io.File
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
-import java.util.concurrent.Executor
 
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.mainGraph(
@@ -107,35 +98,14 @@ fun NavGraphBuilder.mainGraph(
                             }
                         }
                         is CalendarEvents.GoToEvent -> {
+                            eventViewModel.setCurrentClass(event.event)
                             navController.navigate("Event")
 
                         }
                         is CalendarEvents.UpdateEvent -> {
                             coroutineScope.launch {
-                                val eventIndex = event.eventIndex
-                                val updatedDescription =
-                                    event.event.description
-                                        .split("\n") // Split the description into lines
-                                        .mapIndexed { index, line ->
-                                            if (index == eventIndex && line.startsWith(
-                                                    "[-]"
-                                                )
-                                            ) {
-                                                // Replace "[-]" with "[x]" only at the specified index
-                                                line.replaceFirst(
-                                                    "[-]",
-                                                    "[x]"
-                                                )
-                                            } else {
-                                                line
-                                            }
-                                        }
-                                        .joinToString("\n") // Join the modified lines back together
-                                val updatedEvent =
-                                    event.event.copy(description = updatedDescription)
-                                eventViewModel.updateEvent(updatedEvent = updatedEvent)
+                                updateEventDescription(event, eventViewModel)
                             }
-
 
                         }
                         is CalendarEvents.GoToCreate -> {
@@ -225,7 +195,7 @@ fun NavGraphBuilder.mainGraph(
             enterTransition = {
                 when (targetState.destination.route) {
                     "Event" ->
-                        expandIn(   animationSpec = tween(700))
+                        expandIn(animationSpec = tween(700))
 
                     else -> null
                 }
@@ -243,7 +213,7 @@ fun NavGraphBuilder.mainGraph(
             popEnterTransition = {
                 when (targetState.destination.route) {
                     "Event" ->
-                        expandIn(   animationSpec = tween(700))
+                        expandIn(animationSpec = tween(700))
                     else -> null
                 }
             },
@@ -258,30 +228,28 @@ fun NavGraphBuilder.mainGraph(
                 }
             }
         ) { backStackEntry ->
-            var currentEvent: Event by remember {
-                mutableStateOf(eventViewModel.currentClass.value)
-            }
 
             DisplayEventScreen(
-                currentEvent,
-                GoBack = { navController.navigate("Calendar") },
-                SaveNotes = { event ->
-                    coroutineScope.launch {
-                        eventViewModel.updateEvent(event)
-
-                    }
-                }, onDeleteEvent = { event ->
-                    coroutineScope.launch {
-
-                        eventViewModel.deleteAllEvents(event)
-
-                    }
-
-                }, onEvent = {
+                eventViewModel.currentClass.value,
+                onEvent = {
                     when (it) {
                         is DisplayEventScreenEvents.GoToEditClass -> {
                             eventViewModel.currentClass.value = it.event
                             navController.navigate("Update")
+                        }
+                        is DisplayEventScreenEvents.DeleteEvents -> {
+                            coroutineScope.launch {
+                                eventViewModel.deleteAllEvents(it.event)
+                            }
+                        }
+                        is DisplayEventScreenEvents.GoBack -> {
+                            navController.navigate("Calendar")
+                        }
+                        is DisplayEventScreenEvents.SaveNotes -> {
+                            coroutineScope.launch {
+                                eventViewModel.updateEvent(it.event)
+
+                            }
                         }
                     }
                 })
@@ -339,146 +307,22 @@ fun NavGraphBuilder.mainGraph(
                 onCreateEvent = { createdEvent ->
                     coroutineScope.launch {
                         val startDate = LocalDate.now()
-                        val endDate = startDate.plusMonths(6)
-
-                        val totalDays =
-                            ChronoUnit.DAYS.between(startDate, endDate)
-                        val totalWeeks = totalDays / 7
-                        val selectedDayOfWeekValue =
-                            createdEvent.dayOfTheWeek
-
                         val daysUntilSelectedDay =
-                            (selectedDayOfWeekValue - startDate.dayOfWeek.value + 7) % 7
+                            (createdEvent.dayOfTheWeek - startDate.dayOfWeek.value + 7) % 7
                         val recurrance = eventViewModel.currentClass.value.getRecurrence()!!
 
-                        val events: List<com.palrasp.myapplication.CalendarClasses.Event> =
-                            (0 until totalWeeks).map { week ->
-                                when (recurrance.pattern) {
-                                    RecurrencePattern.WEEKLY -> {
-                                        val currentDate =
-                                            startDate.plusDays(week * 7 + daysUntilSelectedDay.toLong())
-                                        val startTime =
-                                            createdEvent.start.toLocalTime()
-                                        val endTime = createdEvent.end.toLocalTime()
-                                        val startDateTime =
-                                            currentDate.atTime(startTime)
-                                        val endDateTime =
-                                            currentDate.atTime(endTime)
-                                        com.palrasp.myapplication.CalendarClasses.Event(
-                                            id = generateRandomId(),
-                                            name = createdEvent.name,
-                                            color = createdEvent.color,
-                                            start = startDateTime,
-                                            end = endDateTime,
-                                            description = "\n\n\n\n\n\n\n\n",
-                                            className = createdEvent.className,
-                                            recurrenceJson = "",
-                                            compulsory = createdEvent.compulsory,
-                                            dayOfTheWeek = createdEvent.dayOfTheWeek
-                                        )
-                                    }
-                                    RecurrencePattern.TWOWEEKS -> {
-                                        val currentDate =
-                                            startDate.plusDays(week * 14 + daysUntilSelectedDay.toLong())
-
-                                        val startTime =
-                                            createdEvent.start.toLocalTime()
-                                        val endTime = createdEvent.end.toLocalTime()
-                                        val startDateTime =
-                                            currentDate.atTime(startTime)
-                                        val endDateTime =
-                                            currentDate.atTime(endTime)
-                                        com.palrasp.myapplication.CalendarClasses.Event(
-                                            id = generateRandomId(),
-                                            name = createdEvent.name,
-                                            color = createdEvent.color,
-                                            start = startDateTime,
-                                            end = endDateTime,
-                                            description = "\n\n\n\n\n\n\n\n",
-                                            className = createdEvent.className,
-                                            recurrenceJson = "",
-                                            compulsory = createdEvent.compulsory,
-                                            dayOfTheWeek = createdEvent.dayOfTheWeek
-                                        )
-                                    }
-                                    RecurrencePattern.MONTHLY -> {
-                                        val currentDate = startDate.plusMonths(week)
-
-                                        val startTime =
-                                            createdEvent.start.toLocalTime()
-                                        val endTime = createdEvent.end.toLocalTime()
-                                        val startDateTime =
-                                            currentDate.atTime(startTime)
-                                        val endDateTime =
-                                            currentDate.atTime(endTime)
-                                        com.palrasp.myapplication.CalendarClasses.Event(
-                                            id = generateRandomId(),
-                                            name = createdEvent.name,
-                                            color = createdEvent.color,
-                                            start = startDateTime,
-                                            end = endDateTime,
-                                            description = "\n\n\n\n\n\n\n\n",
-                                            className = createdEvent.className,
-                                            recurrenceJson = "",
-                                            compulsory = createdEvent.compulsory,
-                                            dayOfTheWeek = createdEvent.dayOfTheWeek
-                                        )
-                                    }
-                                    RecurrencePattern.DAILY -> {
-                                        val currentDate = startDate.plusDays(week)
-                                        val startTime =
-                                            createdEvent.start.toLocalTime()
-                                        val endTime = createdEvent.end.toLocalTime()
-                                        val startDateTime =
-                                            currentDate.atTime(startTime)
-                                        val endDateTime =
-                                            currentDate.atTime(endTime)
-                                        com.palrasp.myapplication.CalendarClasses.Event(
-                                            id = generateRandomId(),
-                                            name = createdEvent.name,
-                                            color = createdEvent.color,
-                                            start = startDateTime,
-                                            end = endDateTime,
-                                            description = "\n\n\n\n\n\n\n\n",
-                                            className = createdEvent.className,
-                                            recurrenceJson = "",
-                                            compulsory = createdEvent.compulsory,
-                                            dayOfTheWeek = createdEvent.dayOfTheWeek
-                                        )
-                                    }
-                                    else -> {
-                                        val currentDate =
-                                            startDate.plusDays(week * 7 + daysUntilSelectedDay.toLong())
-                                        val startTime =
-                                            createdEvent.start.toLocalTime()
-                                        val endTime = createdEvent.end.toLocalTime()
-                                        val startDateTime =
-                                            currentDate.atTime(startTime)
-                                        val endDateTime =
-                                            currentDate.atTime(endTime)
-                                        com.palrasp.myapplication.CalendarClasses.Event(
-                                            id = generateRandomId(),
-                                            name = createdEvent.name,
-                                            color = createdEvent.color,
-                                            start = startDateTime,
-                                            end = endDateTime,
-                                            description = "\n\n\n\n\n\n\n\n",
-                                            className = createdEvent.className,
-                                            recurrenceJson = "",
-                                            compulsory = createdEvent.compulsory,
-                                            dayOfTheWeek = createdEvent.dayOfTheWeek
-                                        )
-                                    }
-                                }
-
-                            }
+                        val events = generateEventsForPattern(
+                            recurrance.pattern,
+                            startDate,
+                            daysUntilSelectedDay,
+                            createdEvent
+                        )
 
                         eventViewModel.insertEvents(events)
                         navController.navigate("Calendar")
 
                         eventViewModel.resetCurrentClass()
                         eventViewModel.currentClass.value = sampleEvent
-
                     }
 
                 }, isUpdate = false
@@ -528,32 +372,27 @@ fun NavGraphBuilder.mainGraph(
                 }
             }
         ) { backStackEntry ->
-            val eventState = remember {
-                mutableStateOf(eventViewModel.currentClass.value)
-            }
-
             val oldEvent = remember {
-                mutableStateOf(eventState.value)
+                mutableStateOf(eventViewModel.currentClass.value)
             }
 
             CreateScreen(
                 onBack = {
-                    eventState.value = sampleEvent
+                    coroutineScope.launch {
+                        eventViewModel.resetCurrentClass()
+                    }
                     navController.navigate("Calendar")
                 },
-                eventState = eventState,
+                eventState = eventViewModel.currentClass,
                 onCreateEvent = { createdEvent ->
                     coroutineScope.launch {
                         eventViewModel.updateEvents(
                             oldEvent.value,
                             createdEvent
                         )
-
                         navController.navigate("Calendar")
                         eventViewModel.resetCurrentClass()
-                        eventState.value = sampleEvent
                     }
-
                 }, isUpdate = true
             )
         }
@@ -607,7 +446,7 @@ fun NavGraphBuilder.mainGraph(
             LessonsScreen(
                 modifier = Modifier,
                 eventViewModel.allEvents.value,
-                onBack = { currentScreen = Screen.Calendar },
+                onBack = { navController.navigate("Calendar") },
                 deleteEvent = { event ->
                     coroutineScope.launch {
                         eventViewModel.deleteAllEvents(event)
@@ -615,7 +454,8 @@ fun NavGraphBuilder.mainGraph(
                 }, onEvent = {
                     when (it) {
                         is LessonsScreenEvents.GoToEvent -> {
-                            currentScreen = Screen.Event(it.event)
+                            eventViewModel.setCurrentClass(it.event)
+                            navController.navigate("Event")
                         }
                     }
                 })
