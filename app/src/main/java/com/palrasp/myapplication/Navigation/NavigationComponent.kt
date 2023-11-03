@@ -26,35 +26,11 @@ import com.palrasp.myapplication.viewmodel.eventViewModel.SettingsViewModel
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationComponent(navController: NavHostController = rememberNavController(), eventViewModel: EventViewModel, settingsViewModel: SettingsViewModel) {
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    var displaySplashScreen = rememberSaveable { mutableStateOf(true) }
     val coroutineScope= rememberCoroutineScope()
     val context = LocalContext.current
 
     NavHost(navController, startDestination = "Main") {
         mainGraph(navController,eventViewModel,settingsViewModel=settingsViewModel, coroutineScope = coroutineScope,context=context)
     }
-
-
-    /* SPLASH SCREEN
-    AnimatedVisibility(
-        visible = displaySplashScreen.value,
-        enter = fadeIn(animationSpec = tween(800)),
-        exit = fadeOut(animationSpec = tween(800))
-    ) {
-        SplashScreen()
-
-    }
-    LaunchedEffect(Unit) {
-        delay(0) // Delay for 1 second (1000 milliseconds)
-        displaySplashScreen.value =
-            false // Change the value of displaySplashScreen after the delay
-    }*/
 }
 
-@Composable
-fun SplashScreen(){
-    Box(modifier = Modifier.fillMaxSize().background(Color.Gray)){
-
-    }
-}

@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -25,7 +26,7 @@ import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.SettingsScreenEvents
-import com.palrasp.myapplication.view.confirmColor
+
 import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +62,9 @@ fun TimePickerDialogOnly(onDismissRequest: () -> Unit, onEvent: (SettingsScreenE
 
                     TimeInput(
                         state = startState,
-                        modifier = Modifier.padding(12.dp)
+                        modifier = Modifier.padding(12.dp),
+                        colors= TimePickerDefaults.colors(timeSelectorSelectedContainerColor =PlannerTheme.colors.uiBackground, timeSelectorUnselectedContainerColor =PlannerTheme.colors.uiBackground, timeSelectorSelectedContentColor =  PlannerTheme.colors.textSecondary, timeSelectorUnselectedContentColor = PlannerTheme.colors.textSecondary)
+
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(
@@ -79,7 +82,7 @@ fun TimePickerDialogOnly(onDismissRequest: () -> Unit, onEvent: (SettingsScreenE
                                 fontFamily = Lexend,
                                 fontWeight = FontWeight.Normal,
                                 fontSize = 16.sp,
-                                color = confirmColor
+                                color = PlannerTheme.colors.textInteractive
                             ),
                             modifier = Modifier.clickable(onClick = {
                                 val newHour = startState.hour

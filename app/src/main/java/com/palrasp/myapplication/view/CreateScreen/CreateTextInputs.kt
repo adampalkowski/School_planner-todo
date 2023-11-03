@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.ui.theme.Lexend
-import com.palrasp.myapplication.view.subjectColor
-import com.palrasp.myapplication.view.textColor
+import com.palrasp.myapplication.ui.theme.PlannerTheme
+
 
 @Composable
 fun SubjectInput(eventState: MutableState<Event>, label: String = "Subject") {
@@ -34,7 +34,7 @@ fun SubjectInput(eventState: MutableState<Event>, label: String = "Subject") {
                         eventState.value = eventState.value.copy(name = it)
                     },
                     textStyle = TextStyle(
-                        color = textColor,
+                        color = PlannerTheme.colors.textSecondary,
                         fontFamily = Lexend,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Light
@@ -46,7 +46,7 @@ fun SubjectInput(eventState: MutableState<Event>, label: String = "Subject") {
                     Text(
                         text = label,
                         style = TextStyle(
-                            color = subjectColor,
+                            color = PlannerTheme.colors.textSecondary.copy(0.7f),
                             fontFamily = Lexend,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Light
@@ -76,7 +76,7 @@ fun ClassroomInput(eventState: MutableState<Event>, label: String = "Classroom")
                         eventState.value = eventState.value.copy(className = it)
                     },
                     textStyle = TextStyle(
-                        color = textColor,
+                        color = PlannerTheme.colors.textSecondary,
                         fontFamily = Lexend,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Light
@@ -88,7 +88,7 @@ fun ClassroomInput(eventState: MutableState<Event>, label: String = "Classroom")
                     Text(
                         text = label,
                         style = TextStyle(
-                            color = subjectColor,
+                            color = PlannerTheme.colors.textSecondary.copy(0.7f),
                             fontFamily = Lexend,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Light

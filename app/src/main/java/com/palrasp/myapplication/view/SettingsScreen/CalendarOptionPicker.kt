@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.ui.theme.Lexend
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CalendarOption
 import com.palrasp.myapplication.view.CheckBoxPlanner
 
@@ -36,7 +37,8 @@ fun CalendarOptionPicker(option: CalendarOption, checked: Boolean, onCheckedChan
                 fontFamily = Lexend,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Normal
-            )
+            ),
+            color= PlannerTheme.colors.textSecondary
         )
         Spacer(modifier = Modifier.width(24.dp))
         CheckBoxPlanner(checked = checked, onCheckChanged = onCheckedChange)

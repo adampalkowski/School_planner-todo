@@ -12,7 +12,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.ui.theme.Lexend
-import com.palrasp.myapplication.view.dividerColor
+import com.palrasp.myapplication.ui.theme.PlannerTheme
+
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.*
@@ -28,7 +29,7 @@ fun DayItem(day:DayOfWeek){
         Box(
             modifier = Modifier
                 .height(1.dp)
-                .background(color = dividerColor)
+                .background(color = PlannerTheme.colors.iconInteractiveInactive)
                 .width(24.dp)
         )
         Text(
@@ -39,12 +40,13 @@ fun DayItem(day:DayOfWeek){
             modifier = Modifier.padding(bottom = 5.dp),
             fontWeight = FontWeight.Light, fontFamily = Lexend,
             fontSize = 14.sp,
-            color = Color(0x4B000003)
+             color = PlannerTheme.colors.textSecondary
+
         )
         Box(
             modifier = Modifier
                 .height(1.dp)
-                .background(color = dividerColor)
+                .background(color = PlannerTheme.colors.iconInteractiveInactive)
                 .weight(1f)
         )
     }

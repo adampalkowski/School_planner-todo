@@ -22,10 +22,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.palrasp.myapplication.CalendarClasses.*
 import com.palrasp.myapplication.R
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CreateScreenEvent
-import com.palrasp.myapplication.view.confirmColor
-import com.palrasp.myapplication.view.dividerColor
-import com.palrasp.myapplication.view.textColor
+
 fun getRecurrencePatternStringResource(pattern: RecurrencePattern, context: Context): String {
     val patternStringResId = when (pattern) {
         RecurrencePattern.DAILY -> R.string.daily
@@ -48,12 +47,12 @@ fun RepeatSection(event: MutableState<Event>,onEvent:(CreateScreenEvent)->Unit){
         .fillMaxWidth()
         .padding(horizontal = 24.dp, vertical = 12.dp)){
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = stringResource(id = R.string.repeat), style = createTextStyle, color = textColor)
+            Text(text = stringResource(id = R.string.repeat), style = createTextStyle, color = PlannerTheme.colors.textSecondary)
             Spacer(modifier = Modifier.weight(1f))
 
             Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable(onClick = {onEvent(CreateScreenEvent.OpenRepeatPicker)})){
 
-                Text(text = getRecurrencePatternStringResource( event.value.getRecurrence()!!.pattern,context))
+                Text(text = getRecurrencePatternStringResource( event.value.getRecurrence()!!.pattern,context), color = PlannerTheme.colors.textSecondary)
             }
 
         }

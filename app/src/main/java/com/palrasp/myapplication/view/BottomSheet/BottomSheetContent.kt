@@ -28,6 +28,7 @@ import androidx.compose.ui.zIndex
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CalendarEvents
 import com.palrasp.myapplication.view.CreateScreen.ButtonCreate
 import com.palrasp.myapplication.view.CreateScreen.CreateDivider
@@ -69,11 +70,11 @@ fun BottomSheetContent(
             Card(
                 modifier = Modifier
                     .border(
-                        BorderStroke(1.dp, Color(0xADE2E2E2)),
+                        BorderStroke(1.dp, PlannerTheme.colors.iconInteractiveInactive),
                         shape = RoundedCornerShape(100.dp)
                     )
                     .clip(RoundedCornerShape(100.dp))
-                    .background(color = Color.White)
+                    .background(color = PlannerTheme.colors.uiBackground)
                     .clickable(onClick = {
                         if (isExpanded) {
                             bottomSheetEvent(BottomSheetEvents.Close)
@@ -82,14 +83,24 @@ fun BottomSheetContent(
                         }
                     })
                     .zIndex(1f),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(containerColor = PlannerTheme.colors.uiBackground)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                    contentDescription = "SVG Image",
-                    modifier = Modifier.size(64.dp),
-                    contentScale = ContentScale.FillBounds, // Adjust contentScale as needed
-                )
+                if(isSystemInDarkTheme()){
+                    Image(
+                        painter = painterResource(id = R.drawable.dark123),
+                        contentDescription = "SVG Image",
+                        modifier = Modifier.padding(16.dp).size(32.dp),
+                        contentScale = ContentScale.FillBounds, // Adjust contentScale as needed
+                    )
+                }else{
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                        contentDescription = "SVG Image",
+                        modifier = Modifier.size(64.dp),
+                        contentScale = ContentScale.FillBounds, // Adjust contentScale as needed
+                    )
+                }
+
 
             }
 
@@ -104,7 +115,7 @@ fun BottomSheetContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                .background(Color.White)
+                .background(PlannerTheme.colors.uiBackground)
         ) {
 
                 Text( modifier= Modifier
@@ -117,6 +128,7 @@ fun BottomSheetContent(
                         fontFamily = Lexend, color = Color(0xFF353535)
                     ),
                     textAlign = TextAlign.Center
+                , color = PlannerTheme.colors.textSecondary
                 )
 
             // Find events that match the current day of the week

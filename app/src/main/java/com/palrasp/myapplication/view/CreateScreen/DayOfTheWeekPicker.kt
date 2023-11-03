@@ -26,10 +26,9 @@ import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CreateScreenEvent
-import com.palrasp.myapplication.view.confirmColor
-import com.palrasp.myapplication.view.dividerColor
-import com.palrasp.myapplication.view.textColor
+
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.*
@@ -41,7 +40,7 @@ fun DayOfTheWeekPicker(event: MutableState<Event>,onEvent:(CreateScreenEvent)->U
     Box(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 24.dp, vertical = 12.dp)){
-        Text(text =  stringResource(id = R.string.day_of_the_week_button), style = createTextStyle, color = textColor, modifier = Modifier.align(
+        Text(text =  stringResource(id = R.string.day_of_the_week_button), style = createTextStyle, color = PlannerTheme.colors.textSecondary, modifier = Modifier.align(
             Alignment.CenterStart))
 
         Box(modifier = Modifier
@@ -50,9 +49,9 @@ fun DayOfTheWeekPicker(event: MutableState<Event>,onEvent:(CreateScreenEvent)->U
             .clickable(onClick = {
                 onEvent(CreateScreenEvent.OpenDayOfWeekPicker)
             })
-            .border(BorderStroke(1.dp, color = Color(0xFFD6D6D6)), shape = RoundedCornerShape(6.dp))
+            .border(BorderStroke(1.dp, color = PlannerTheme.colors.iconInteractiveInactive), shape = RoundedCornerShape(6.dp))
             .padding(horizontal = 16.dp, vertical = 8.dp)){
-            Text(text =DayOfWeek.of(event.value.dayOfTheWeek).getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault()),style=selectedTextStyle)
+            Text(text =DayOfWeek.of(event.value.dayOfTheWeek).getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, Locale.getDefault()),style=selectedTextStyle,color=PlannerTheme.colors.textSecondary)
         }
     }
 }
@@ -65,27 +64,27 @@ fun TimePickerSection(event: MutableState<Event>,onEvent:(CreateScreenEvent)->Un
         .padding(horizontal = 24.dp, vertical = 12.dp)){
         Row(verticalAlignment = Alignment.CenterVertically) {
 
-        Text(text =  stringResource(id = R.string.time), style = createTextStyle, color = textColor)
+        Text(text =  stringResource(id = R.string.time), style = createTextStyle, color = PlannerTheme.colors.textSecondary)
         Spacer(modifier = Modifier.weight(1f))
 
         Box(modifier = Modifier
             .clip(RoundedCornerShape(6.dp))
-            .border(BorderStroke(1.dp, color = Color(0xFFD6D6D6)), shape = RoundedCornerShape(6.dp))
+            .border(BorderStroke(1.dp, color = PlannerTheme.colors.iconInteractiveInactive), shape = RoundedCornerShape(6.dp))
             .clickable(onClick = {
                 onEvent(CreateScreenEvent.OpenTimeStartPicker)
             })
             .padding(horizontal = 16.dp, vertical = 8.dp)){
             val startTimeText = String.format("%02d:%02d", event.value.start.hour, event.value.start.minute)
-            Text(text = startTimeText, style = selectedTextStyle)
+            Text(text = startTimeText, style = selectedTextStyle,color=PlannerTheme.colors.textSecondary,)
         }
             Spacer(modifier = Modifier.width(8.dp))
-            Icon(painter = painterResource(id = com.palrasp.myapplication.R.drawable.ic_long_right), contentDescription =null,tint= selectedTextStyle.color )
+            Icon(painter = painterResource(id = com.palrasp.myapplication.R.drawable.ic_long_right), contentDescription =null,tint= PlannerTheme.colors.iconPrimary )
             Spacer(modifier = Modifier.width(8.dp))
 
             Box(modifier = Modifier
                 .clip(RoundedCornerShape(6.dp))
                 .border(
-                    BorderStroke(1.dp, color = Color(0xFFD6D6D6)),
+                    BorderStroke(1.dp, color = PlannerTheme.colors.iconInteractiveInactive),
                     shape = RoundedCornerShape(6.dp)
                 )
                 .clickable(onClick = {
@@ -94,13 +93,13 @@ fun TimePickerSection(event: MutableState<Event>,onEvent:(CreateScreenEvent)->Un
                 })
                 .padding(horizontal = 16.dp, vertical = 8.dp)){
                 val endTimeText = String.format("%02d:%02d", event.value.end.hour, event.value.end.minute)
-                Text(text = endTimeText, style = selectedTextStyle)
+                Text(text = endTimeText, style = selectedTextStyle,color=PlannerTheme.colors.textSecondary)
             }
         }
 
     }
     if (event.value.start.toLocalTime().isAfter(event.value.end.toLocalTime())){
-        Text(textAlign = TextAlign.Center,modifier = Modifier.padding(horizontal = 24.dp),text =  stringResource(id = R.string.color),style=androidx.compose.ui.text.TextStyle(fontWeight = FontWeight.Normal,color=Color(
+        Text(textAlign = TextAlign.Center,modifier = Modifier.padding(horizontal = 24.dp),text =  stringResource(id = R.string.time_Error),style=androidx.compose.ui.text.TextStyle(fontWeight = FontWeight.Normal,color=Color(
             0xFFFF4848
         )
         ))
@@ -112,20 +111,20 @@ fun IsNeccesarySection(event: MutableState<Event>){
         .fillMaxWidth()
         .padding(horizontal = 24.dp, vertical = 12.dp)){
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = stringResource(id = R.string.compulsory), style = createTextStyle, color = textColor)
+            Text(text = stringResource(id = R.string.compulsory), style = createTextStyle, color = PlannerTheme.colors.textSecondary)
             Spacer(modifier = Modifier.weight(1f))
             androidx.compose.material3.Switch(
                 checked = event.value.compulsory,
                 onCheckedChange = {   event.value = event.value.copy(compulsory = it) },
                 modifier = Modifier.padding(start = 16.dp),
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = confirmColor,
-                    checkedTrackColor =  dividerColor, uncheckedTrackColor =  dividerColor,
-                    checkedIconColor = confirmColor,
+                    checkedThumbColor = PlannerTheme.colors.textInteractive,
+                    checkedTrackColor =  PlannerTheme.colors.iconInteractiveInactive, uncheckedTrackColor =  PlannerTheme.colors.iconInteractiveInactive,
+                    checkedIconColor = PlannerTheme.colors.textInteractive,
                     uncheckedThumbColor = Color.White,
                     uncheckedIconColor = Color.White,
-                    uncheckedBorderColor = dividerColor,
-                    checkedBorderColor =  dividerColor
+                    uncheckedBorderColor = PlannerTheme.colors.iconInteractiveInactive,
+                    checkedBorderColor =  PlannerTheme.colors.iconInteractiveInactive
                 ), thumbContent = {
                     AnimatedVisibility(visible = event.value.compulsory) {
                         androidx.compose.material3.Icon(

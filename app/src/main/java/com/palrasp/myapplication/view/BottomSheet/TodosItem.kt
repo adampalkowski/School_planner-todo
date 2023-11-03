@@ -17,9 +17,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.ui.theme.Lexend
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CalendarEvents
 import com.palrasp.myapplication.view.CheckBoxPlanner
-import com.palrasp.myapplication.view.textColor
+
 
 @Composable
 fun TodosItem(event:com.palrasp.myapplication.CalendarClasses.Event,previousEventName: MutableState<String?>,onEvent:(CalendarEvents)->Unit){
@@ -36,7 +37,8 @@ fun TodosItem(event:com.palrasp.myapplication.CalendarClasses.Event,previousEven
                         .padding(start = 24.dp),
                     fontWeight = FontWeight.ExtraLight,
                     fontSize = 10.sp,
-                    color = Color(0xFFD1CFCF)
+                    color = PlannerTheme.colors.textSecondary
+
                 )
             }
             Row(
@@ -49,9 +51,9 @@ fun TodosItem(event:com.palrasp.myapplication.CalendarClasses.Event,previousEven
                 Text(
                     text = line,
                     modifier = Modifier.padding(12.dp),
-                    color = textColor,
+                    color = PlannerTheme.colors.textSecondary,
                     style = TextStyle(
-                        color = textColor,
+                        color = PlannerTheme.colors.textSecondary,
                         fontWeight = FontWeight.Normal,
                         fontFamily = Lexend
                     )

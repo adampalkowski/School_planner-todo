@@ -21,19 +21,18 @@ import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CreateScreenEvent
-import com.palrasp.myapplication.view.confirmColor
-import com.palrasp.myapplication.view.textColor
 
 @Composable
-fun CreateTopPart(modifier: Modifier, onEvent: (CreateScreenEvent) -> Unit, eventState: MutableState<Event>) {
+fun CreateTopPart( onEvent: (CreateScreenEvent) -> Unit, eventState: MutableState<Event>) {
     val saveColor=if (eventState.value.start.isBefore(eventState.value.end)){
-        confirmColor
+        PlannerTheme.colors.textInteractive
     }else{
         Color(0xFFC4C4C4)
     }
     Row(
-        modifier
+        Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 24.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -42,7 +41,7 @@ fun CreateTopPart(modifier: Modifier, onEvent: (CreateScreenEvent) -> Unit, even
             Icon(
                 painter = painterResource(id = R.drawable.ic_x),
                 contentDescription = null,
-                tint = textColor
+                tint = PlannerTheme.colors.textSecondary
             )
         }
         Spacer(modifier = Modifier.weight(1f))

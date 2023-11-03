@@ -8,15 +8,12 @@ import androidx.room.TypeConverters
 import com.palrasp.myapplication.data.local.LocalDateTimeConverter
 import com.palrasp.myapplication.data.local.dao.EventDao
 import com.palrasp.myapplication.data.local.entities.EventEntity
-
 @Database(entities = [EventEntity::class], version = 1)
-@TypeConverters(LocalDateTimeConverter::class) // Add this line
-
+@TypeConverters(LocalDateTimeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
 
     companion object {
-        // Volatile ensures that the INSTANCE is always up-to-date
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -26,7 +23,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app-database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // Add this line
+                    .build()
                 INSTANCE = instance
                 instance
             }

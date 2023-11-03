@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.palrasp.myapplication.CalendarClasses.Event
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.mediumTextStyle
 import java.time.DayOfWeek
 import java.util.*
@@ -38,6 +39,7 @@ fun CreateBottomSheet(onDismissRequest:()->Unit,eventState:MutableState<Event>) 
     ModalBottomSheet(
         onDismissRequest =onDismissRequest,
         sheetState = modalBottomSheetState,
+        containerColor = PlannerTheme.colors.uiBackground,
         dragHandle = { BottomSheetDefaults.DragHandle() },
     ) {
 

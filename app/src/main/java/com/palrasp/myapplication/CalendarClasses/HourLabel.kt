@@ -11,6 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -22,7 +23,7 @@ private val HourFormatter = DateTimeFormatter.ofPattern("H")
 fun ScheduleSidebar(
     hourHeight: Dp,
     modifier: Modifier = Modifier,sideBarTextStyle:androidx.compose.ui.text.TextStyle,
-    label: @Composable (time: LocalTime) -> Unit = { BasicSidebarLabel(time = it,sideBarTextStyle=sideBarTextStyle) },
+    label: @Composable (time: LocalTime) -> Unit = { BasicSidebarLabel(time = it,sideBarTextStyle=sideBarTextStyle.copy(color = PlannerTheme.colors.textSecondary)) },
 ) {
     Column(modifier = modifier) {
         val startTime = LocalTime.MIDNIGHT

@@ -99,7 +99,7 @@ fun CalendarScreen(
         },
         sheetPeekHeight = 80.dp,
         sheetElevation = 0.dp,
-        sheetContentColor = Color.White,
+        sheetContentColor =  PlannerTheme.colors.uiBackground,
         sheetBackgroundColor = Color.Transparent,
         sheetGesturesEnabled = true,
         modifier = Modifier.fillMaxSize(),
@@ -128,7 +128,7 @@ fun CalendarScreen(
                         onEvent(CalendarEvents.GoToLesson)
                     }
                 },
-                    iconColor = textColor,
+                    iconColor = PlannerTheme.colors.textSecondary,
                     lessonsClicked = {
                         coroutineScope.launch() {
                             bottomSheetScaffoldState.drawerState.open()

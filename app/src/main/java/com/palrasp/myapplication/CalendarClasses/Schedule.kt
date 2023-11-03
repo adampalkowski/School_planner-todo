@@ -1,15 +1,15 @@
 package com.palrasp.myapplication.CalendarClasses
 
-import android.util.Log
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -17,21 +17,16 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.ui.theme.Lexend
-import com.palrasp.myapplication.utils.topBarColor
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CreateScreen.CreateDivider
-import com.palrasp.myapplication.view.textColor
-import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
 
 private class EventDataModifier(
@@ -40,8 +35,8 @@ private class EventDataModifier(
     override fun Density.modifyParentData(parentData: Any?)= event
 }
 private fun Modifier.eventData(event: Event) = this.then(EventDataModifier(event))
-val sideBarTextSize=12.sp
-val sideBarTextStyle=TextStyle(fontFamily = Lexend, fontSize = sideBarTextSize, fontWeight = FontWeight.SemiBold, color = textColor)
+val sideBarTextSize=10.sp
+val sideBarTextStyle=TextStyle(fontFamily = Lexend, fontSize = sideBarTextSize, fontWeight = FontWeight.SemiBold)
 @Composable
 fun Schedule(
     events: List<Event>,
@@ -63,7 +58,7 @@ fun Schedule(
     var sidebarWidth by remember { mutableStateOf(0) }
     val dayWidth = ((screenWidth-sidebarWidth.dp) / days.toFloat())+5.dp
     Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(modifier = Modifier.fillMaxWidth()                    .background(color = topBarColor)
+        Box(modifier = Modifier.fillMaxWidth()                    .background(color = PlannerTheme.colors.uiBackground)
         ){
             ScheduleHeader(
                 minDate = minDate,
@@ -92,7 +87,7 @@ fun Schedule(
                 maxDate = maxDate,
                 dayWidth = dayWidth,
                 hourHeight = hourHeight,
-                modifier = Modifier
+                modifier = Modifier.padding(top=12.dp)
                     .verticalScroll(verticalScrollState)
                     .horizontalScroll(horizontalScrollState)
             )
@@ -112,6 +107,7 @@ fun BasicSchedule(
     dayWidth: Dp,
     hourHeight: Dp,
 ) {
+    val dividerColor= PlannerTheme.colors.iconInteractiveInactive
     val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
     Layout(
         content = {
@@ -127,14 +123,14 @@ fun BasicSchedule(
                 if (it % 2 == 0) {
                     // Draw a line for full hours
                     drawLine(
-                        com.palrasp.myapplication.view.dividerColor,
+                        dividerColor,
                         start = Offset(0f, offsetY),
                         end = Offset(size.width, offsetY),
                         strokeWidth = 0.8.dp.toPx()
                     )
                 } else {
                     drawLine(
-                        com.palrasp.myapplication.view.dividerColor,
+                        dividerColor,
                         start = Offset(0f, offsetY),
                         end = Offset(size.width, offsetY),
                         strokeWidth = 0.5.dp.toPx()
@@ -144,7 +140,7 @@ fun BasicSchedule(
             }
             repeat(numDays - 1) {
                 drawLine(
-                    com.palrasp.myapplication.view.dividerColor,
+                    dividerColor,
                     start = Offset((it + 1) * dayWidth.toPx(), 0f),
                     end = Offset((it + 1) * dayWidth.toPx(), size.height),
                     strokeWidth = 1.dp.toPx()

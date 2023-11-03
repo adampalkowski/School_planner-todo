@@ -41,13 +41,13 @@ fun BasicClass(
         if (event.compulsory) {
             Color(0xFFFFFFFF)
         } else {
-            PlannerTheme.colors.textPrimary
+            PlannerTheme.colors.textHelp
         }
     val classBackgroundColor =
         if (event.compulsory) {
             event.color
         } else {
-            Color(0xFFFFFFFF)
+            PlannerTheme.colors.uiBackground
         }
 
     val modifierMain = if (event.compulsory) {
@@ -58,7 +58,7 @@ fun BasicClass(
         Modifier
             .clip(RoundedCornerShape(8.dp))
             .background(classBackgroundColor)
-            .border(BorderStroke(1.dp, color = Color(0xffD6D6D6)), shape = RoundedCornerShape(8.dp))
+            .border(BorderStroke(1.dp, color = PlannerTheme.colors.iconInteractiveInactive), shape = RoundedCornerShape(8.dp))
     }
 
     Box(
@@ -67,7 +67,7 @@ fun BasicClass(
         Box(modifier = Modifier
             .align(Alignment.TopCenter)
             .clip(RoundedCornerShape(bottomStart = 3.dp, bottomEnd = 3.dp))
-            .background(Color.White)
+            .background( PlannerTheme.colors.uiBackground)
             .padding(horizontal = 2.dp)) {
             Text(
                 text = event.start.toString().takeLast(5),
@@ -97,7 +97,7 @@ fun BasicClass(
         Box(modifier = Modifier
             .align(Alignment.BottomCenter)
             .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
-            .background(Color.White)
+            .background( PlannerTheme.colors.uiBackground)
             .padding(horizontal = 2.dp)) {
             Text(
                 text = event.end.toString().takeLast(5),

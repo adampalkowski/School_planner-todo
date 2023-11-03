@@ -15,10 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.palrasp.myapplication.R
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CreateScreen.createTextStyle
 import com.palrasp.myapplication.view.CreateScreen.selectedTextStyle
 import com.palrasp.myapplication.view.SettingsScreenEvents
-import com.palrasp.myapplication.view.textColor
+
 
 
 @Composable
@@ -40,7 +41,7 @@ fun SettingsTimePickerSection(
             Text(
                 text = stringResource(id = R.string.inital_time),
                 style = createTextStyle,
-                color = textColor
+                color = PlannerTheme.colors.textSecondary
             )
             Spacer(modifier = Modifier.weight(1f))
 
@@ -57,7 +58,7 @@ fun SettingsTimePickerSection(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 val startTimeText = String.format("%02d:%02d", hours, minutes)
-                Text(text = startTimeText, style = selectedTextStyle)
+                Text(text = startTimeText, style = selectedTextStyle,color=PlannerTheme.colors.textSecondary)
             }
 
         }

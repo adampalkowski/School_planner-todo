@@ -55,7 +55,7 @@ fun LessonsScreen(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_back),
                     contentDescription = null,
-                    tint = Color.Black
+                    tint =  PlannerTheme.colors.iconPrimary
                 )
             }
             LazyColumn {
@@ -69,7 +69,7 @@ fun LessonsScreen(
                                 .padding(8.dp)
                                 .padding(start = 24.dp),
                             fontWeight = FontWeight.Medium,
-                            color = Color.Black,
+                            color = PlannerTheme.colors.textSecondary,
                             textAlign = TextAlign.Start
                         )
                     val eventsForDayOfWeek = events.filter { it.start.dayOfWeek == dayOfWeek }
@@ -97,7 +97,7 @@ fun EventItem(event: com.palrasp.myapplication.CalendarClasses.Event,deleteEvent
     val textColor = if(event.compulsory){
         Color.White
     }else{
-     textColor
+        PlannerTheme.colors.textSecondary
     }
     val modifier = if(event.compulsory){
         Modifier
@@ -146,7 +146,7 @@ fun EventItem(event: com.palrasp.myapplication.CalendarClasses.Event,deleteEvent
                     color=textColor
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Icon(painter = painterResource(id = R.drawable.ic_long_right), contentDescription =null, tint =textColor )
+                Icon(painter = painterResource(id = R.drawable.ic_long_right), contentDescription =null, tint =PlannerTheme.colors.iconPrimary )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = event.end.toString().takeLast(5),

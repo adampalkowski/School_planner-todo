@@ -3,14 +3,18 @@ package com.palrasp.myapplication.Navigation
 import android.content.Context
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.palrasp.myapplication.CalendarClasses.getRecurrence
 import com.palrasp.myapplication.Screen
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.updateEventDescription
 import com.palrasp.myapplication.utils.generateEventsForPattern
 import com.palrasp.myapplication.utils.sampleEvent
@@ -222,7 +226,7 @@ fun NavGraphBuilder.mainGraph(
                         else -> {}
                     }
                 },
-                modifier = Modifier,
+                modifier = Modifier.fillMaxSize().background(color=PlannerTheme.colors.uiBackground),
                 calendarOption = settingsViewModel.calendarOption.value,
                 startHour = settingsViewModel.startHour
             )
@@ -263,7 +267,7 @@ fun NavGraphBuilder.mainGraph(
         ) { backStackEntry ->
 
             DisplayEventScreen(
-                eventViewModel.currentClass.value,
+                event=eventViewModel.currentClass.value,
                 onEvent = {
                     when (it) {
                         is DisplayEventScreenEvents.GoToEditClass -> {
@@ -285,7 +289,7 @@ fun NavGraphBuilder.mainGraph(
                             }
                         }
                     }
-                })
+                },modifier=Modifier.fillMaxSize().background(color=PlannerTheme.colors.uiBackground))
 
         }
 
@@ -346,7 +350,7 @@ fun NavGraphBuilder.mainGraph(
                         eventViewModel.currentClass.value = sampleEvent
                     }
 
-                }, isUpdate = false
+                }, isUpdate = false,modifier=Modifier.fillMaxSize().background(PlannerTheme.colors.uiBackground)
             )
         }
 
@@ -414,7 +418,7 @@ fun NavGraphBuilder.mainGraph(
                         navController.navigate("Calendar")
                         eventViewModel.resetCurrentClass()
                     }
-                }, isUpdate = true
+                }, isUpdate = true,modifier=Modifier.fillMaxSize().background(PlannerTheme.colors.uiBackground)
             )
         }
 
@@ -475,7 +479,7 @@ fun NavGraphBuilder.mainGraph(
                 mutableStateOf(eventViewModel.currentScreen.value)
             }
             LessonsScreen(
-                modifier = Modifier,
+                modifier=Modifier.fillMaxSize().background(PlannerTheme.colors.uiBackground),
                 eventViewModel.allEvents.value,
                 onBack = { navController.navigate("Calendar") },
                 deleteEvent = { event ->

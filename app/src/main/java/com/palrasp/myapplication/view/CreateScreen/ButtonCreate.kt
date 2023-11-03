@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CalendarEvents
 
 @Composable
@@ -24,10 +25,10 @@ fun ButtonCreate(onCreate:()->Unit){
         modifier = Modifier
             .clip(CircleShape)
             .border(
-                BorderStroke(1.dp, Color(0xADE2E2E2)),
+                BorderStroke(1.dp, PlannerTheme.colors.iconInteractiveInactive),
                 shape = CircleShape
             )
-            .background(Color(0xFFFFFFFF))
+            .background(PlannerTheme.colors.uiBackground)
             .clickable(onClick =onCreate)
             .padding(16.dp)
     ) {

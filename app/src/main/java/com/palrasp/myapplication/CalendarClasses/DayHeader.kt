@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
-import com.palrasp.myapplication.view.dividerColor
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -61,7 +60,7 @@ fun BasicDayHeader(
     var textColor =if (isToday){
         Color(0xFFFFFFFF)
     }else{
-        Color(0xFF303030)
+       PlannerTheme.colors.textSecondary
 
     }
     Card( shape = RoundedCornerShape(0.dp), contentColor = Color.Transparent, elevation =

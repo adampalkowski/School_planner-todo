@@ -14,14 +14,14 @@ private val LightColorPalette = PlannerColors(
     uiBorder = Neutral1,
     uiFloated = Shadow00,
     textPrimary = NearlyBlack,
-    textHelp = Neutral5,
-    textSecondary = Gray7,
-    textInteractive = Neutral10,
+    textHelp = Neutral2,
+    textSecondary = textColor,
+    textInteractive = confirmColor,
     textLink = Neutral7,
-    iconPrimary=Gray,
+    iconPrimary=Neutral8,
     iconSecondary = Neutral7,
     iconInteractive = Dark,
-    iconInteractiveInactive = Gray3,
+    iconInteractiveInactive = dividerColor,
     error = FunctionalRed,
     gradient6_1 = listOf(Transparent, Transparent,LightBlue),
     gradient6_2 = listOf(Rose4, Lavender3, Rose2, Lavender3, Rose4),
@@ -41,14 +41,14 @@ private val DarkColorPalette = PlannerColors(
     uiBorder = Neutral2,
     uiFloated = FunctionalDarkGrey,
     textPrimary = White,
-    textSecondary = Black,
-    textHelp = Neutral1,
-    textInteractive = Neutral7,
+    textSecondary = dividerColor,
+    textHelp = Rose2,
+    textInteractive = confirmColor,
     textLink = Neutral7,
-    iconPrimary = Shadow1,
-    iconSecondary = Neutral0,
+    iconPrimary = dividerColor,
+    iconSecondary = subjectColor,
     iconInteractive = LightBlue_2,
-    iconInteractiveInactive = DarkGray,
+    iconInteractiveInactive = dividerColorBlack,
     error = FunctionalRedDark,
     gradient6_1 = listOf(Transparent,Black,Black),
     gradient6_2 = listOf(Rose11, Lavender7, Rose8, Lavender7, Rose11),
@@ -67,13 +67,22 @@ fun PlannerTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colors =  LightColorPalette
 
     val sysUiController = rememberSystemUiController()
+    val colors = if (darkTheme){
+        DarkColorPalette
+    }else{
+        LightColorPalette
+    }
+    val color = if (darkTheme){
+        Color(0xff331D2C)
+    }else{
+        White
+    }
     SideEffect {
         sysUiController.setSystemBarsColor(
-            color = Color.White,
-            darkIcons = true
+            color =color,
+            darkIcons = !darkTheme
         )
     }
     ProvideSocialColors(colors) {

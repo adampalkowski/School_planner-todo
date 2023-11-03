@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.palrasp.myapplication.R
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.SettingsScreenEvents
 
 @Composable
@@ -18,7 +19,7 @@ fun SettingTopPart(onEvent: (SettingsScreenEvents) -> Unit) {
         .fillMaxWidth()
         .padding(horizontal = 24.dp, vertical = 24.dp)){
         IconButton(onClick = { onEvent(SettingsScreenEvents.GoBack)}) {
-            Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = null)
+            Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = null, tint =  PlannerTheme.colors.iconPrimary)
 
         }
     }

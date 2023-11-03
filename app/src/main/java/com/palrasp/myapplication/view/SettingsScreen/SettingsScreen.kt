@@ -103,7 +103,7 @@ fun SettingsScreen(
                 onEvent(it)
             }
         }
-    }, modifier = Modifier)
+    }, modifier = modifier)
     currentEvent?.let { event ->
         when (event) {
             is SettingsScreenEvents.OpenChangeStartHour -> {

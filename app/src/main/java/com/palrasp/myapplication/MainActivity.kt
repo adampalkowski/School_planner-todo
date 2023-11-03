@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
             ViewModelProvider(this, EventViewModelFactory(eventDao)).get(EventViewModel::class.java)
 
         setContent {
-            PlannerTheme(darkTheme = false) {
+            PlannerTheme() {
                 val settingsViewModel: SettingsViewModel = viewModel(
                     factory = SettingsViewModelFactory(application = LocalContext.current.applicationContext as Application)
                 )
@@ -71,7 +71,6 @@ class MainActivity : ComponentActivity() {
                     eventViewModel=eventViewModel,
                     settingsViewModel=settingsViewModel
                 )
-
             }
         }
     }

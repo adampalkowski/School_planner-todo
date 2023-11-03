@@ -19,34 +19,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 
-val topBarColor=Color(0x9EFFFFFF)
+
 @Composable
 fun TopBar(lessonsClicked:()->Unit,NextWeek:()->Unit,PrevWeek:()->Unit,ChangeDiv:()->Unit,openMonthPicker:()->Unit,OpenDrawer:()->Unit,iconColor: Color,selectedMonth:String){
     Box(modifier = Modifier
         .fillMaxWidth()
-        .background(topBarColor)
+        .background(PlannerTheme.colors.uiBackground)
         .padding(horizontal = 24.dp, vertical = 2.dp)){
         IconButton(onClick =OpenDrawer,Modifier.align(Alignment.CenterStart) ) {
-            Icon(painter = painterResource(id = R.drawable.ic_book), contentDescription =null, tint = Color.Black )
+            Icon(painter = painterResource(id = R.drawable.ic_book), contentDescription =null, tint = PlannerTheme.colors.iconPrimary)
 
         }
         IconButton(onClick =ChangeDiv,Modifier.align(Alignment.CenterEnd) ) {
-            Icon(painter = painterResource(id = R.drawable.ic_divide), contentDescription =null, tint = Color.Black )
+            Icon(painter = painterResource(id = R.drawable.ic_divide), contentDescription =null, tint =  PlannerTheme.colors.iconPrimary )
 
         }
         Row(Modifier.align(Alignment.Center), verticalAlignment = Alignment.CenterVertically) {
 
             IconButton(onClick =PrevWeek) {
-                Icon(painter = painterResource(id = R.drawable.arrow_left), contentDescription = null, tint = Color.Black)
+                Icon(painter = painterResource(id = R.drawable.arrow_left), contentDescription = null, tint =  PlannerTheme.colors.iconPrimary)
             }
             Spacer(modifier = Modifier.width(6.dp))
 
-            Text(text =selectedMonth, modifier = Modifier, style = TextStyle(fontFamily = Lexend, fontWeight = FontWeight.Medium, fontSize = 16.sp))
+            Text(text =selectedMonth, modifier = Modifier, color = PlannerTheme.colors.textSecondary, style = TextStyle(fontFamily = Lexend, fontWeight = FontWeight.Medium, fontSize = 16.sp))
 
             Spacer(modifier = Modifier.width(6.dp))
             IconButton(onClick =NextWeek) {
-                Icon(painter = painterResource(id = R.drawable.arrow_right), contentDescription = null, tint = Color.Black)
+                Icon(painter = painterResource(id = R.drawable.arrow_right), contentDescription = null, tint = PlannerTheme.colors.iconPrimary)
             }
             }
 

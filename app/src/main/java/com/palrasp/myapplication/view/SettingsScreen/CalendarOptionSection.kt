@@ -9,9 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.palrasp.myapplication.R
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CalendarOption
 import com.palrasp.myapplication.view.CreateScreen.createTextStyle
-import com.palrasp.myapplication.view.textColor
+
 
 
 @Composable
@@ -26,7 +27,7 @@ fun CalendarOptionSection(checked: MutableState<CalendarOption>, checkChanged:(C
             Text(
                 text = stringResource(id = R.string.calendar_option),
                 style = createTextStyle,
-                color = textColor
+                color = PlannerTheme.colors.textSecondary
             )
             Spacer(modifier = Modifier.weight(1f))
 

@@ -1,11 +1,7 @@
 package com.palrasp.myapplication.view
 
-import android.graphics.Rect
 import android.util.Log
 import android.view.KeyEvent
-import android.view.View
-import android.view.ViewTreeObserver
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -28,23 +24,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.SemanticsProperties.EditableText
-import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
-import androidx.compose.ui.semantics.SemanticsProperties.Text
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -52,8 +38,6 @@ import com.palrasp.myapplication.CalendarClasses.Event
 import com.palrasp.myapplication.R
 import com.palrasp.myapplication.ui.theme.Lexend
 import com.palrasp.myapplication.ui.theme.PlannerTheme
-import java.time.LocalDateTime
-import java.time.LocalTime
 
 
 @Composable
@@ -93,10 +77,11 @@ fun ModDivider(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_add),
                     contentDescription = null,
-                    tint = Color(0xFF666666)
+                    tint = PlannerTheme.colors.iconPrimary,
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Todo")
+                Text("Todo",
+                    color=PlannerTheme.colors.textSecondary)
             }
         }
         Spacer(modifier = Modifier.width(16.dp))
@@ -109,10 +94,11 @@ fun ModDivider(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_clear),
                     contentDescription = null,
-                    tint = Color(0xFF666666)
+                    tint =   PlannerTheme.colors.iconPrimary,
+
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text( stringResource(id = R.string.clear),)
+                Text( stringResource(id = R.string.clear),color=PlannerTheme.colors.textSecondary)
             }
         }
         Box(
@@ -134,7 +120,7 @@ sealed class DisplayEventScreenEvents{
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun DisplayEventScreen(
+fun DisplayEventScreen(modifier:Modifier,
     event: Event,
     onEvent:(DisplayEventScreenEvents)->Unit
 ) {
@@ -151,7 +137,7 @@ fun DisplayEventScreen(
             onEvent(DisplayEventScreenEvents.SaveNotes(event))
         }
     }
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
             .fillMaxWidth()
             .align(Alignment.TopCenter)) {
@@ -159,7 +145,7 @@ fun DisplayEventScreen(
                 onClick = { onEvent(DisplayEventScreenEvents.GoBack) }, modifier = Modifier
                     .padding(start = 24.dp, top = 24.dp)
             ) {
-                Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = null)
+                Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = null,tint=PlannerTheme.colors.iconPrimary)
             }
             Spacer(modifier = Modifier.weight(1f))
             IconButton(
@@ -169,13 +155,13 @@ fun DisplayEventScreen(
                           }, modifier = Modifier
                     .padding(start = 24.dp, top = 24.dp)
             ) {
-                Icon(painter = painterResource(id = R.drawable.ic_edit), contentDescription = null)
+                Icon(painter = painterResource(id = R.drawable.ic_edit), contentDescription = null,tint=PlannerTheme.colors.iconPrimary)
             }
             IconButton(
                 onClick = { displayDeleteDialog = true }, modifier = Modifier
                     .padding(start = 24.dp, top = 24.dp)
             ) {
-                Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription = null)
+                Icon(painter = painterResource(id = R.drawable.ic_delete), contentDescription = null,tint=PlannerTheme.colors.iconPrimary)
             }
         }
 
@@ -191,9 +177,10 @@ fun DisplayEventScreen(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center
-                    )
+                    ),
+                    color=PlannerTheme.colors.textSecondary
                 )
-                Text(text = event.className)
+                Text(text = event.className,   color=PlannerTheme.colors.textSecondary)
                 Row() {
                     Text(
                         text = event.start.toString().takeLast(5),
@@ -202,13 +189,14 @@ fun DisplayEventScreen(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Light,
                             textAlign = TextAlign.Center
-                        )
+                        ),
+                        color=PlannerTheme.colors.textSecondary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         painter = painterResource(id = R.drawable.ic_long_right),
-                        contentDescription = null,
-                        tint = Color.Black
+                        contentDescription = null
+                        ,tint=PlannerTheme.colors.iconPrimary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -218,7 +206,8 @@ fun DisplayEventScreen(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Light,
                             textAlign = TextAlign.Center
-                        )
+                        ),
+                        color=PlannerTheme.colors.textSecondary
                     )
                 }
             }
@@ -254,7 +243,9 @@ fun DisplayEventScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_delete),
-                            contentDescription = null
+                            contentDescription = null,
+                            tint =                        PlannerTheme.colors.iconPrimary
+
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
@@ -264,7 +255,9 @@ fun DisplayEventScreen(
                                 fontWeight = FontWeight.Light,
                                 fontSize = 14.sp
                             ),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color=PlannerTheme.colors.textSecondary
+
                         )
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -277,7 +270,7 @@ fun DisplayEventScreen(
                                 text =  stringResource(id = R.string.cancel),
                                 modifier = Modifier.clickable(onClick = {
                                     displayDeleteDialog = false
-                                }),
+                                }),                  color = PlannerTheme.colors.textSecondary,
                                 style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal)
                             )
                             Spacer(modifier = Modifier.width(16.dp))
@@ -286,7 +279,7 @@ fun DisplayEventScreen(
                                 style = TextStyle(
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = confirmColor
+                                    color = PlannerTheme.colors.textInteractive
                                 ),
                                 modifier = Modifier.clickable(onClick = {
                                     onEvent(DisplayEventScreenEvents.DeleteEvents(event))

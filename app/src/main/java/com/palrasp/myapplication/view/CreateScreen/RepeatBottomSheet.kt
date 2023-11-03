@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.google.gson.Gson
 import com.palrasp.myapplication.CalendarClasses.*
 import com.palrasp.myapplication.R
+import com.palrasp.myapplication.ui.theme.PlannerTheme
 import com.palrasp.myapplication.view.CreateScreenEvent
 import com.palrasp.myapplication.view.mediumTextStyle
 import java.time.DayOfWeek
@@ -43,7 +44,8 @@ fun RepeatBottomSheet(onDismissRequest:()->Unit,eventState: MutableState<Event>)
 
     ModalBottomSheet(
         onDismissRequest =onDismissRequest,
-        sheetState = modalBottomSheetState,
+        sheetState = modalBottomSheetState,        containerColor = PlannerTheme.colors.uiBackground,
+
         dragHandle = { BottomSheetDefaults.DragHandle() },
     ) {
 

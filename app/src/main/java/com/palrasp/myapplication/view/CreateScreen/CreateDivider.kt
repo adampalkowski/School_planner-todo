@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.palrasp.myapplication.view.dividerColor
+import com.palrasp.myapplication.ui.theme.PlannerTheme
+
 
 @Composable
 fun CreateDivider() {
@@ -15,6 +16,6 @@ fun CreateDivider() {
         modifier = Modifier
             .fillMaxWidth()
             .height(1.dp)
-            .background(color = dividerColor)
+            .background(color = PlannerTheme.colors.iconInteractiveInactive)
     )
 }

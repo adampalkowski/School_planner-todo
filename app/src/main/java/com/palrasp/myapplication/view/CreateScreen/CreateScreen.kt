@@ -33,11 +33,6 @@ var mediumTextStyle = TextStyle(
     color = Color.Black
 )
 
-val textColor = Color(0xFF4D4D4D)
-val confirmColor = Color(0xFF2F69FF)
-val dividerColor = Color(0xffEEEEEE)
-val subjectColor = Color(0xffBFBFBF)
-
 /*
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -107,13 +102,13 @@ fun CreateScreenSchemePrev() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit,eventState: MutableState<Event>,isUpdate:Boolean)
+fun CreateScreen(onBack:()->Unit,onCreateEvent:(Event)->Unit,eventState: MutableState<Event>,isUpdate:Boolean,modifier:Modifier)
 {
     BackHandler() {
         onBack()
     }
     var currentEvent by remember { mutableStateOf<CreateScreenEvent?>(null) }
-    CreateScreenScheme(isUpdate=isUpdate,modifier = Modifier, eventState = eventState, onEvent = {
+    CreateScreenScheme(isUpdate=isUpdate,modifier = modifier, eventState = eventState, onEvent = {
             event->
         when(event){
             is CreateScreenEvent.OpenTimeEndPicker->{
@@ -185,9 +180,8 @@ fun CreateScreenScheme(
     isUpdate:Boolean
 ) {
     PlannerTheme {
-        Column (modifier=Modifier.verticalScroll(rememberScrollState())){
+        Column (modifier=modifier.verticalScroll(rememberScrollState())){
             CreateTopPart(
-                modifier = modifier,
                 onEvent=onEvent,
                 eventState=eventState
             )
